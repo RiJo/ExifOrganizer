@@ -47,16 +47,27 @@ namespace MetaParser
             string extension = Path.GetExtension(path).ToLower();
             switch (extension)
             {
-                // Images (EXIF)
+                // Images (Exif)
                 case ".jpg":
                 case ".jpeg":
                 case ".tif":
                 case ".tiff":
                     return Exif.Parse(path);
 
+                // Images (generic)
+                case ".png":
+                case ".gif":
+                case ".bmp":
+                    return Generic.Parse(path, MetaType.Image);
+
+                // Music (Exif)
+                case ".wav":
+                    return Exif.Parse(path);
+
                 // Music (generic)
                 case ".mp3": // TODO: id3
-                case ".wav":
+                case ".flac":
+                case ".aac":
                     return Generic.Parse(path, MetaType.Music);
 
                 // Movies (generic)
