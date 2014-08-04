@@ -406,9 +406,13 @@ namespace MetaParser.Parsers
 
         public static MetaData Parse(string filename)
         {
+            if (!File.Exists(filename))
+                throw new MetaParseException("File not found: {0}", filename);
+
             Dictionary<ExifId, object> exif = ParseImage(filename);
 
             MetaData meta = new MetaData();
+            meta.Type = MetaType.Image;
             meta.Path = filename;
             meta.Data = new Dictionary<MetaKey, object>();
 

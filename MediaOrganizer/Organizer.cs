@@ -9,6 +9,13 @@ using System.Threading.Tasks;
 
 namespace MediaOrganizer
 {
+    public enum CopyMode
+    {
+        RequireEmpty,
+        Delta,
+        ForceOverwrite
+    }
+
     public class Organizer
     {
         public Organizer()
@@ -17,8 +24,10 @@ namespace MediaOrganizer
 
         public bool Recursive = true;
         public string Localization = "SV-se";
-        public string[] AdditionalExtensions = new string[] { "mpg", "mpeg", "mov", "mp4" };
-        public string DestinationPattern = @"%y/%m/%o";
+        public string DestinationPatternImage = @"%y/%m/%t/%o";
+        public string DestinationPatternVideo = @"%y/%m/Video/%t/%o";
+        public string DestinationPatternMusic = @"%y/%m/Music/%t/%o";
+        public CopyMode CopyMode = CopyMode.RequireEmpty; // TODO: implement
         /*
             %y = year
             %m = month
@@ -65,7 +74,7 @@ namespace MediaOrganizer
             IEnumerable<MetaData> data;
             try
             {
-                data = Parser.Parse(sourcePath, Recursive, AdditionalExtensions);
+                data = Parser.Parse(sourcePath, Recursive);
             }
             catch (MetaParseException ex)
             {
@@ -94,7 +103,22 @@ namespace MediaOrganizer
 
         private string CalculateDestinationPath(string destinationPath, MetaData meta)
         {
-            string[] pattern = DestinationPattern.Split(new char[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            string destinationPattern = null;
+            switch (meta.Type)
+            {
+                case MetaType.Image:
+                    destinationPattern = DestinationPatternImage;
+                    break;
+                case MetaType.Video:
+                    destinationPattern = DestinationPatternVideo;
+                    break;
+                case MetaType.Music:
+                    destinationPattern = DestinationPatternMusic;
+                    break;
+                default:
+                    throw new NotSupportedException(String.Format("Meta media type not supported: {0}", meta.Type));
+            }
+            string[] pattern = destinationPattern.Split(new char[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
 
             string currentPath = destinationPath;
             foreach (string subpattern in pattern)
@@ -125,6 +149,20 @@ namespace MediaOrganizer
                             currentPath = Path.Combine(currentPath, monthName);
                         }
                         break;
+                    case "%t":
+                        {
+                            object temp;
+                            if (!meta.Data.TryGetValue(MetaKey.Tags, out temp))
+                                throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %t", MetaKey.Tags);
+
+                            string[] tags = temp as string[];
+                            if (tags == null || tags.Length == 0)
+                                continue;
+
+                            string tag = tags[0]; // TODO: how to solve multiple tags?
+                            currentPath = Path.Combine(currentPath, tag);
+                        }
+                        break;
                     case "%o": // Original name
                         {
                             object temp;
@@ -137,7 +175,11 @@ namespace MediaOrganizer
                         break;
 
                     default:
-                        throw new MediaOrganizerException("Invalid pattern item: {0}", subpattern);
+                        if (subpattern.StartsWith("%"))
+                            throw new MediaOrganizerException("Invalid pattern item: {0}", subpattern);
+
+                        currentPath = Path.Combine(currentPath, subpattern);
+                        break;
                 }
             }
 
