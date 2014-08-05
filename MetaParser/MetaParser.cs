@@ -1,5 +1,5 @@
 ﻿//
-// Parser.cs: Static class to parse meta data from different filetypes.
+// MetaParser.cs: Static class to parse meta data from different filetypes.
 //
 // Copyright (C) 2014 Rikard Johansson
 //

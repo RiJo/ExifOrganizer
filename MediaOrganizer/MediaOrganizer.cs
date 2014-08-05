@@ -1,5 +1,5 @@
 ﻿//
-// Organizer.cs: Static class to organize media files.
+// MediaOrganizer.cs: Static class to organize media files.
 //
 // Copyright (C) 2014 Rikard Johansson
 //
@@ -24,9 +24,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-
-// TODO: fix namespace --> rename classes to MediaOrganizer + MetaParser.
 
 namespace ExifOrganizer.Organizer
 {
