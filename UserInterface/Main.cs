@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MediaOrganizer;
 
-namespace UserInterface
+namespace ExifOrganizer.UI
 {
     public partial class Main : Form
     {

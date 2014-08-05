@@ -7,7 +7,7 @@
     <ProjectGuid>{8F6FD0D9-E15F-4701-961E-3075BFB1CDA5}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UserInterface</RootNamespace>
+    <RootNamespace>ExifOrganizer.UI</RootNamespace>
     <AssemblyName>UserInterface</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

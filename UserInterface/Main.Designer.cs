@@ -1,4 +1,4 @@
-﻿namespace UserInterface
+﻿namespace ExifOrganizer.UI
 {
     partial class Main
     {
