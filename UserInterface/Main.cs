@@ -25,7 +25,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MediaOrganizer;
+using ExifOrganizer.Organizer;
 
 namespace ExifOrganizer.UI
 {
@@ -43,7 +43,7 @@ namespace ExifOrganizer.UI
 
         private void parse_Click(object sender, EventArgs e)
         {
-            Organizer organizer = new Organizer();
+            MediaOrganizer organizer = new MediaOrganizer();
             CopyItems items = organizer.Parse(@"C:\temp", @"C:\temp\backup");
             if (MessageBox.Show(items.ToString(), "Copy these?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 return;
