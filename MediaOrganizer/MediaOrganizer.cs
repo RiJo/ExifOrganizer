@@ -42,10 +42,10 @@ namespace ExifOrganizer.Organizer
         }
 
         public bool Recursive = true;
-        public string Localization = "SV-se";
+        public CultureInfo Localization = new CultureInfo("SV-se");
         public string DestinationPatternImage = @"%y/%m/%t/%n";
         public string DestinationPatternVideo = @"%y/%m/Video/%t/%n";
-        public string DestinationPatternMusic = @"%y/%m/Music/%t/%n";
+        public string DestinationPatternAudio = @"%y/%m/Audio/%t/%n";
         public CopyMode CopyMode = CopyMode.WipeBefore; // TODO: implement
 
         public CopyItems Parse(string sourcePath, string destinationPath)
@@ -164,7 +164,7 @@ namespace ExifOrganizer.Organizer
                     destinationPattern = DestinationPatternVideo;
                     break;
                 case MetaType.Music:
-                    destinationPattern = DestinationPatternMusic;
+                    destinationPattern = DestinationPatternAudio;
                     break;
                 default:
                     throw new NotSupportedException(String.Format("Meta media type not supported: {0}", meta.Type));
@@ -194,8 +194,7 @@ namespace ExifOrganizer.Organizer
 
                             DateTime datetime = (DateTime)temp;
 
-                            CultureInfo locale = new CultureInfo(Localization);
-                            DateTimeFormatInfo dateinfo = locale.DateTimeFormat;
+                            DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
                             string monthName = dateinfo.MonthNames[datetime.Month - 1].UppercaseFirst();
                             currentPath = Path.Combine(currentPath, monthName);
                         }
