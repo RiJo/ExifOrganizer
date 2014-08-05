@@ -45,6 +45,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CLI.cs" />
+    <Compile Include="FileBrowseControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FileBrowseControl.Designer.cs">
+      <DependentUpon>FileBrowseControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -53,6 +59,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FileBrowseControl.resx">
+      <DependentUpon>FileBrowseControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>

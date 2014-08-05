@@ -26,6 +26,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExifOrganizer.Organizer;
+using System.Reflection;
+using System.Globalization;
+using System.Threading;
 
 namespace ExifOrganizer.UI
 {
@@ -38,13 +41,28 @@ namespace ExifOrganizer.UI
 
         private void Main_Load(object sender, EventArgs e)
         {
+            // CopyMode enum
+            foreach (CopyMode mode in Enum.GetValues(typeof(CopyMode)))
+                copyMode.Items.Add(mode);
+            copyMode.SelectedIndex = 0;
 
+            // CultureInfo localization
+            CultureInfo culture = Thread.CurrentThread.CurrentUICulture;
+            localization.Items.Add(culture);
+            localization.SelectedItem = culture;
         }
 
-        private void parse_Click(object sender, EventArgs e)
+        private void organize_Click(object sender, EventArgs e)
         {
             MediaOrganizer organizer = new MediaOrganizer();
-            CopyItems items = organizer.Parse(@"C:\temp", @"C:\temp\backup");
+            organizer.CopyMode = (CopyMode)copyMode.SelectedItem;
+            organizer.DestinationPatternImage = patternImage.Text;
+            organizer.DestinationPatternVideo = patternVideo.Text;
+            organizer.DestinationPatternAudio = patternAudio.Text;
+            organizer.Localization = (CultureInfo)localization.SelectedItem;
+            organizer.Recursive = recursive.Checked;
+
+            CopyItems items = organizer.Parse(sourcePath.Path, destinationPath.Path);
             if (MessageBox.Show(items.ToString(), "Copy these?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 return;
 
@@ -58,6 +76,8 @@ namespace ExifOrganizer.UI
                 MessageBox.Show(ex.Message, "Failed to organize media", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
 
 
     }
