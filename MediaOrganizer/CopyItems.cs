@@ -21,9 +21,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MetaParser;
 
-namespace MediaOrganizer
+namespace ExifOrganizer.Organizer
 {
     public class CopyItem
     {

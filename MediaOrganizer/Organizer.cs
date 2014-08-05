@@ -16,7 +16,7 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
-using MetaParser;
+using ExifOrganizer.Meta;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 // TODO: fix namespace --> rename classes to MediaOrganizer + MetaParser.
 
-namespace MediaOrganizer
+namespace ExifOrganizer.Organizer
 {
     public enum CopyMode
     {
@@ -38,9 +38,9 @@ namespace MediaOrganizer
         WipeBefore
     }
 
-    public class Organizer
+    public class MediaOrganizer
     {
-        public Organizer()
+        public MediaOrganizer()
         {
         }
 
@@ -130,7 +130,7 @@ namespace MediaOrganizer
             try
             {
                 // TODO: ignore files in destination path, if destinationPath is subset of sourcePath && destinationPath != sourcePath
-                data = Parser.Parse(sourcePath, Recursive);
+                data = MetaParser.Parse(sourcePath, Recursive);
             }
             catch (MetaParseException ex)
             {

@@ -7,7 +7,7 @@
     <ProjectGuid>{626F29DA-4334-4E7E-8D9A-B2353BB37FC1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaOrganizer</RootNamespace>
+    <RootNamespace>ExifOrganizer.Organizer</RootNamespace>
     <AssemblyName>MediaOrganizer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
