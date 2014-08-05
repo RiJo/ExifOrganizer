@@ -60,12 +60,9 @@ namespace MetaParser
                 case ".bmp":
                     return Generic.Parse(path, MetaType.Image);
 
-                // Music (Exif)
-                case ".wav":
-                    return Exif.Parse(path);
-
                 // Music (generic)
                 case ".mp3": // TODO: id3
+                case ".wav": // TODO: exif
                 case ".flac":
                 case ".aac":
                     return Generic.Parse(path, MetaType.Music);

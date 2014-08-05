@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,7 +48,7 @@ namespace MetaParser
         //        values.Add(item.ToString());
         //    return String.Join(separator, values.ToArray());
         //}
-        
+
         public static string ToString<T>(this IEnumerable<T> collection, string separator = ",")
         {
             if (collection == null)
@@ -72,6 +73,34 @@ namespace MetaParser
             char[] a = s.ToCharArray();
             a[0] = char.ToUpper(a[0]);
             return new string(a);
+        }
+
+        public static bool DirectoryAreSame(this string rootPath, string subPath)
+        {
+            DirectoryInfo rootDir = new DirectoryInfo(rootPath);
+            DirectoryInfo subDir = new DirectoryInfo(subPath);
+            return rootDir.FullName == subDir.FullName;
+        }
+
+        public static bool DirectoryIsSubPath(this string rootPath, string subPath)
+        {
+            DirectoryInfo rootDir = new DirectoryInfo(rootPath);
+            DirectoryInfo subDir = new DirectoryInfo(subPath);
+            bool isParent = false;
+            while (subDir.Parent != null)
+            {
+                if (subDir.Parent.FullName == rootDir.FullName)
+                {
+                    isParent = true;
+                    break;
+                }
+                else
+                {
+                    subDir = subDir.Parent;
+                }
+            }
+
+            return isParent;
         }
     }
 }

@@ -44,6 +44,8 @@ namespace MetaParser
         public MetaType Type;
         public string Path;
         public Dictionary<MetaKey, object> Data;
-        public object Source;
+#if DEBUG
+        public object Origin;
+#endif
     }
 }

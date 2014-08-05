@@ -448,7 +448,9 @@ namespace MetaParser.Parsers
                 meta.Data[MetaKey.Tags] = exif[ExifId.ImageXPKeywords];
             else
                 meta.Data[MetaKey.Tags] = new string[0];
-            meta.Source = exif;
+#if DEBUG
+            meta.Origin = exif;
+#endif
             return meta;
         }
 

@@ -35,7 +35,6 @@ namespace MetaParser.Parsers
             MetaData meta = new MetaData();
             meta.Type = type;
             meta.Path = filename;
-            meta.Source = null;
             meta.Data = new Dictionary<MetaKey, object>();
             meta.Data[MetaKey.Date] = File.GetCreationTime(filename);
             meta.Data[MetaKey.Filename] = Path.GetFileName(filename);
