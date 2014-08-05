@@ -25,13 +25,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
+// TODO: fix namespace --> rename classes to MediaOrganizer + MetaParser.
+
 namespace MediaOrganizer
 {
     public enum CopyMode
     {
-        RequireEmpty,
+        RequireEmpty, // Incompatbile with sourcePath == destinationPath
         Delta,
-        ForceOverwrite
+        ForceOverwrite,
+        WipeBefore
     }
 
     public class Organizer
@@ -42,21 +46,23 @@ namespace MediaOrganizer
 
         public bool Recursive = true;
         public string Localization = "SV-se";
-        public string DestinationPatternImage = @"%y/%m/%t/%o";
-        public string DestinationPatternVideo = @"%y/%m/Video/%t/%o";
-        public string DestinationPatternMusic = @"%y/%m/Music/%t/%o";
-        public CopyMode CopyMode = CopyMode.RequireEmpty; // TODO: implement
-        /*
-            %y = year
-            %m = month
-            %o = original name
-
-        */
+        public string DestinationPatternImage = @"%y/%m/%t/%n";
+        public string DestinationPatternVideo = @"%y/%m/Video/%t/%n";
+        public string DestinationPatternMusic = @"%y/%m/Music/%t/%n";
+        public CopyMode CopyMode = CopyMode.WipeBefore; // TODO: implement
 
         public CopyItems Parse(string sourcePath, string destinationPath)
         {
-            if (sourcePath == destinationPath)
-                throw new NotImplementedException("Update path not yet implemented");
+            if (sourcePath.DirectoryAreSame(destinationPath))
+            {
+                throw new NotSupportedException("TODO");
+                // TODO: how to properly handle
+                //if (CopyMode == CopyMode.WipeBefore || CopyMode == CopyMode.RequireEmpty)
+                //    throw new MediaOrganizerException("Copy mode {0} does not support same source and destination paths", CopyMode);
+            }
+            // Early detection of invalid destination path
+            if (CopyMode == CopyMode.RequireEmpty)
+                RequireEmptyPath(destinationPath);
 
             CopyItems reference = new CopyItems();
             reference.sourcePath = sourcePath;
@@ -68,24 +74,52 @@ namespace MediaOrganizer
 
         public void Organize(CopyItems reference)
         {
-            if (Directory.Exists(reference.destinationPath))
-            {
-                if (Directory.GetFiles(reference.destinationPath).Length > 0)
-                    throw new MediaOrganizerException("Destination path contains files: {0}", reference.destinationPath);
-                if (Directory.GetDirectories(reference.destinationPath).Length > 0)
-                    throw new MediaOrganizerException("Destination path contains directories: {0}", reference.destinationPath);
-            }
-            else
-            {
-                Directory.CreateDirectory(reference.destinationPath);
-            }
+            PrepareDestinationDirectory(reference.sourcePath, reference.destinationPath);
 
-
+            // Copy items to destination path
             foreach (CopyItem item in reference.items)
             {
                 if (!Directory.Exists(Path.GetDirectoryName(item.destinationPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(item.destinationPath));
                 File.Copy(item.sourcePath, item.destinationPath);
+            }
+        }
+
+        private void PrepareDestinationDirectory(string sourcePath, string destinationPath)
+        {
+            // Setup destination path
+            if (!Directory.Exists(destinationPath))
+            {
+                Directory.CreateDirectory(destinationPath);
+                return;
+            }
+
+            if (CopyMode == CopyMode.RequireEmpty)
+                RequireEmptyPath(destinationPath);
+
+            if (sourcePath.DirectoryAreSame(destinationPath))
+            {
+                if (CopyMode == CopyMode.WipeBefore)
+                {
+                    // TODO: 1. move sourcePath files to tmep dir; 2. set sourcePath to tmep dir name
+                }
+            }
+
+            if (CopyMode == CopyMode.WipeBefore)
+            {
+                Directory.Delete(destinationPath, true);
+                Directory.CreateDirectory(destinationPath);
+            }
+        }
+
+        private void RequireEmptyPath(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                if (Directory.GetFiles(path).Length > 0)
+                    throw new MediaOrganizerException("Path contains files but is required to be empty: {0}", path);
+                if (Directory.GetDirectories(path).Length > 0)
+                    throw new MediaOrganizerException("Path contains directories but is required to be empty: {0}", path);
             }
         }
 
@@ -95,6 +129,7 @@ namespace MediaOrganizer
             IEnumerable<MetaData> data;
             try
             {
+                // TODO: ignore files in destination path, if destinationPath is subset of sourcePath && destinationPath != sourcePath
                 data = Parser.Parse(sourcePath, Recursive);
             }
             catch (MetaParseException ex)
@@ -184,7 +219,7 @@ namespace MediaOrganizer
                             currentPath = Path.Combine(currentPath, tag);
                         }
                         break;
-                    case "%o": // Original name
+                    case "%n": // Original name
                         {
                             object temp;
                             if (!meta.Data.TryGetValue(MetaKey.Filename, out temp))
