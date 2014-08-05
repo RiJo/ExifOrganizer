@@ -23,7 +23,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MetaParser.Parsers
+namespace ExifOrganizer.Meta.Parsers
 {
     public static class Generic
     {

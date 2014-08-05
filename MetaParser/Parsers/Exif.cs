@@ -24,7 +24,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace MetaParser.Parsers
+namespace ExifOrganizer.Meta.Parsers
 {
     internal static class Exif
     {

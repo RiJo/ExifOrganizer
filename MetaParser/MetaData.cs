@@ -22,7 +22,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MetaParser
+namespace ExifOrganizer.Meta
 {
     public enum MetaType
     {

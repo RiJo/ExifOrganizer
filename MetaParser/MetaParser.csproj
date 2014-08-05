@@ -7,7 +7,7 @@
     <ProjectGuid>{19204B12-E95E-405F-9604-52DE1411C8B1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MetaParser</RootNamespace>
+    <RootNamespace>ExifOrganizer.Meta</RootNamespace>
     <AssemblyName>MetaParser</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

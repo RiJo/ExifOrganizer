@@ -20,11 +20,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MetaParser.Parsers;
+using ExifOrganizer.Meta.Parsers;
 
-namespace MetaParser
+namespace ExifOrganizer.Meta
 {
-    public static class Parser
+    public static class MetaParser
     {
         public static IEnumerable<MetaData> Parse(string path, bool recursive = true)
         {
