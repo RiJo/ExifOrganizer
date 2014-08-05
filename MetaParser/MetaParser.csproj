@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MetaParseException.cs" />
-    <Compile Include="Parser.cs" />
+    <Compile Include="MetaParser.cs" />
     <Compile Include="Parsers\Exif.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="MetaData.cs" />

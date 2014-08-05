@@ -40,7 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MediaOrganizerException.cs" />
-    <Compile Include="Organizer.cs" />
+    <Compile Include="MediaOrganizer.cs" />
     <Compile Include="CopyItems.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
