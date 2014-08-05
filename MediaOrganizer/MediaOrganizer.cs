@@ -57,9 +57,6 @@ namespace ExifOrganizer.Organizer
                 //if (CopyMode == CopyMode.WipeBefore || CopyMode == CopyMode.RequireEmpty)
                 //    throw new MediaOrganizerException("Copy mode {0} does not support same source and destination paths", CopyMode);
             }
-            // Early detection of invalid destination path
-            if (CopyMode == CopyMode.RequireEmpty)
-                RequireEmptyPath(destinationPath);
 
             CopyItems reference = new CopyItems();
             reference.sourcePath = sourcePath;
@@ -71,7 +68,7 @@ namespace ExifOrganizer.Organizer
 
         public void Organize(CopyItems reference)
         {
-            PrepareDestinationDirectory(reference.sourcePath, reference.destinationPath);
+            PrepareDestinationPath(reference);
 
             // Copy items to destination path
             foreach (CopyItem item in reference.items)
@@ -82,41 +79,42 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        private void PrepareDestinationDirectory(string sourcePath, string destinationPath)
+        private void PrepareDestinationPath(CopyItems reference)
         {
             // Setup destination path
-            if (!Directory.Exists(destinationPath))
+            if (!Directory.Exists(reference.destinationPath))
             {
-                Directory.CreateDirectory(destinationPath);
+                Directory.CreateDirectory(reference.destinationPath);
                 return;
             }
 
-            if (CopyMode == CopyMode.RequireEmpty)
-                RequireEmptyPath(destinationPath);
-
-            if (sourcePath.DirectoryAreSame(destinationPath))
+            switch (CopyMode)
             {
-                if (CopyMode == CopyMode.WipeBefore)
-                {
-                    // TODO: 1. move sourcePath files to tmep dir; 2. set sourcePath to tmep dir name
-                }
-            }
+                case CopyMode.RequireEmpty:
+                    if (Directory.Exists(reference.destinationPath))
+                    {
+                        if (Directory.GetFiles(reference.destinationPath).Length > 0)
+                            throw new MediaOrganizerException("Path contains files but is required to be empty: {0}", reference.destinationPath);
+                        if (Directory.GetDirectories(reference.destinationPath).Length > 0)
+                            throw new MediaOrganizerException("Path contains directories but is required to be empty: {0}", reference.destinationPath);
+                    }
+                    break;
 
-            if (CopyMode == CopyMode.WipeBefore)
-            {
-                Directory.Delete(destinationPath, true);
-                Directory.CreateDirectory(destinationPath);
-            }
-        }
-
-        private void RequireEmptyPath(string path)
-        {
-            if (Directory.Exists(path))
-            {
-                if (Directory.GetFiles(path).Length > 0)
-                    throw new MediaOrganizerException("Path contains files but is required to be empty: {0}", path);
-                if (Directory.GetDirectories(path).Length > 0)
-                    throw new MediaOrganizerException("Path contains directories but is required to be empty: {0}", path);
+                case CopyMode.WipeBefore:
+                    if (reference.sourcePath.DirectoryAreSame(reference.destinationPath))
+                    {
+                        // Move source/destination path to temporary place before copying
+                        string tempSourcePath = Path.GetTempFileName();
+                        File.Delete(tempSourcePath);
+                        Directory.Move(reference.sourcePath, tempSourcePath);
+                        reference.sourcePath = tempSourcePath; // TODO: delete this path after organization
+                    }
+                    else
+                    {
+                        Directory.Delete(reference.destinationPath, true);
+                    }
+                    Directory.CreateDirectory(reference.destinationPath);
+                    break;
             }
         }
 
