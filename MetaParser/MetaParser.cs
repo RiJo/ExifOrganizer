@@ -26,20 +26,20 @@ namespace ExifOrganizer.Meta
 {
     public static class MetaParser
     {
-        public static IEnumerable<MetaData> Parse(string path, bool recursive = true)
+        public static IEnumerable<MetaData> Parse(string path, bool recursive, IEnumerable<string> ignorePaths = null)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
 
             if (Directory.Exists(path))
-                return ParseDirectory(path, recursive);
+                return ParseDirectory(path, recursive, ignorePaths);
             else
                 return new MetaData[] { ParseFile(path) };
         }
 
         public static MetaData ParseFile(string path)
         {
-            if (path == null)
+            if (String.IsNullOrEmpty(path))
                 throw new ArgumentNullException("path");
             if (!File.Exists(path))
                 throw new MetaParseException("File not found: {0}", path);
@@ -79,14 +79,23 @@ namespace ExifOrganizer.Meta
             }
         }
 
-        public static IEnumerable<MetaData> ParseDirectory(string path, bool recursive = true)
+        public static IEnumerable<MetaData> ParseDirectory(string path, bool recursive, IEnumerable<string> ignorePaths = null)
         {
-            if (path == null)
+            if (String.IsNullOrEmpty(path))
                 throw new ArgumentNullException("path");
             if (!Directory.Exists(path))
                 throw new MetaParseException("Directory not found: {0}", path);
 
             List<MetaData> list = new List<MetaData>();
+            if (ignorePaths != null)
+            {
+                foreach (string ignorePath in ignorePaths)
+                {
+                    if (ignorePath.DirectoryIsSubPath(path, true))
+                        return list;
+                }
+            }
+
             foreach (string file in Directory.GetFiles(path))
             {
                 MetaData meta;
@@ -105,7 +114,7 @@ namespace ExifOrganizer.Meta
             if (recursive)
             {
                 foreach (string directory in Directory.GetDirectories(path))
-                    list.AddRange(ParseDirectory(directory, recursive));
+                    list.AddRange(ParseDirectory(directory, recursive, ignorePaths));
             }
 
             return list;

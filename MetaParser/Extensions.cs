@@ -82,10 +82,14 @@ namespace ExifOrganizer.Meta
             return rootDir.FullName == subDir.FullName;
         }
 
-        public static bool DirectoryIsSubPath(this string rootPath, string subPath)
+        public static bool DirectoryIsSubPath(this string rootPath, string subPath, bool includeRootPath = true)
         {
             DirectoryInfo rootDir = new DirectoryInfo(rootPath);
             DirectoryInfo subDir = new DirectoryInfo(subPath);
+
+            if (includeRootPath && rootDir.FullName == subDir.FullName)
+                return true;
+
             bool isParent = false;
             while (subDir.Parent != null)
             {

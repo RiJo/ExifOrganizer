@@ -124,8 +124,10 @@ namespace ExifOrganizer.Organizer
             IEnumerable<MetaData> data;
             try
             {
+                List<string> ignorePaths = new List<string>();
+                ignorePaths.Add(destinationPath);
                 // TODO: ignore files in destination path, if destinationPath is subset of sourcePath && destinationPath != sourcePath
-                data = MetaParser.Parse(sourcePath, Recursive);
+                data = MetaParser.Parse(sourcePath, Recursive, ignorePaths);
             }
             catch (MetaParseException ex)
             {
