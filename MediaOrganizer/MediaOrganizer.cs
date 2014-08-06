@@ -35,6 +35,12 @@ namespace ExifOrganizer.Organizer
         WipeBefore
     }
 
+    public enum DuplicateMode
+    {
+        Unique,
+        KeepAll
+    }
+
     public class MediaOrganizer
     {
         public MediaOrganizer()
@@ -46,7 +52,8 @@ namespace ExifOrganizer.Organizer
         public string DestinationPatternImage = @"%y/%m/%t/%n";
         public string DestinationPatternVideo = @"%y/%m/Video/%t/%n";
         public string DestinationPatternAudio = @"%y/%m/Audio/%t/%n";
-        public CopyMode CopyMode = CopyMode.WipeBefore; // TODO: implement
+        public CopyMode CopyMode = CopyMode.WipeBefore;
+        public DuplicateMode DuplicateMode = DuplicateMode.KeepAll;
         public string[] IgnorePaths = null;
 
         public CopyItems Parse(string sourcePath, string destinationPath)
@@ -69,6 +76,7 @@ namespace ExifOrganizer.Organizer
 
         public void Organize(CopyItems reference)
         {
+            FilterDuplicateItems(reference);
             PrepareDestinationPath(reference);
 
             // Copy items to destination path
@@ -77,6 +85,38 @@ namespace ExifOrganizer.Organizer
                 if (!Directory.Exists(Path.GetDirectoryName(item.destinationPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(item.destinationPath));
                 File.Copy(item.sourcePath, item.destinationPath);
+            }
+        }
+
+        private void FilterDuplicateItems(CopyItems reference)
+        {
+            HashSet<string> handledItems = new HashSet<string>();
+
+            foreach (CopyItem item in reference.items.ToArray())
+            {
+                // TODO: better comparison: md5 etc
+                bool destinationConflict = !handledItems.Add(item.destinationPath);
+
+                if (DuplicateMode == DuplicateMode.Unique)
+                {
+                    // TODO: implement selection logic (which one to keep)
+                    if (destinationConflict)
+                    {
+                        reference.items.Remove(item);
+                        continue;
+                    }
+                }
+                else if (DuplicateMode == DuplicateMode.KeepAll)
+                {
+                    int i = 2;
+                    while (destinationConflict)
+                    {
+                        string newDestinationPath = String.Format("{0}\\{1}({2}){3}", Path.GetDirectoryName(item.destinationPath), Path.GetFileNameWithoutExtension(item.destinationPath), i++, Path.GetExtension(item.destinationPath));
+                        destinationConflict = !handledItems.Add(newDestinationPath);
+                        if (!destinationConflict)
+                            item.destinationPath = newDestinationPath;
+                    }
+                }
             }
         }
 
