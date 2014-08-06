@@ -47,6 +47,7 @@ namespace ExifOrganizer.Organizer
         public string DestinationPatternVideo = @"%y/%m/Video/%t/%n";
         public string DestinationPatternAudio = @"%y/%m/Audio/%t/%n";
         public CopyMode CopyMode = CopyMode.WipeBefore; // TODO: implement
+        public string[] IgnorePaths = null;
 
         public CopyItems Parse(string sourcePath, string destinationPath)
         {
@@ -121,13 +122,16 @@ namespace ExifOrganizer.Organizer
         // TODO: use hashset to remove duplicates? Or better: define behaviour of which to insert into list
         private List<CopyItem> ParseItems(string sourcePath, string destinationPath)
         {
+            List<string> ignore = new List<string>();
+            if (IgnorePaths != null)
+                ignore.AddRange(IgnorePaths);
+            if (!sourcePath.DirectoryAreSame(destinationPath))
+                ignore.Add(destinationPath);
+
             IEnumerable<MetaData> data;
             try
             {
-                List<string> ignorePaths = new List<string>();
-                ignorePaths.Add(destinationPath);
-                // TODO: ignore files in destination path, if destinationPath is subset of sourcePath && destinationPath != sourcePath
-                data = MetaParser.Parse(sourcePath, Recursive, ignorePaths);
+                data = MetaParser.Parse(sourcePath, Recursive, ignore);
             }
             catch (MetaParseException ex)
             {
