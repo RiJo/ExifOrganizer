@@ -47,6 +47,8 @@
             this.infoPatternAudio = new System.Windows.Forms.Label();
             this.destinationPath = new ExifOrganizer.UI.FileBrowseControl();
             this.sourcePath = new ExifOrganizer.UI.FileBrowseControl();
+            this.infoDuplicateMode = new System.Windows.Forms.Label();
+            this.duplicateMode = new System.Windows.Forms.ComboBox();
             this.source.SuspendLayout();
             this.destination.SuspendLayout();
             this.SuspendLayout();
@@ -66,6 +68,8 @@
             // 
             this.source.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.source.Controls.Add(this.infoDuplicateMode);
+            this.source.Controls.Add(this.duplicateMode);
             this.source.Controls.Add(this.infoSourceDirectory);
             this.source.Controls.Add(this.infoRecursive);
             this.source.Controls.Add(this.recursive);
@@ -258,6 +262,24 @@
             this.sourcePath.Size = new System.Drawing.Size(218, 23);
             this.sourcePath.TabIndex = 1;
             // 
+            // infoDuplicateMode
+            // 
+            this.infoDuplicateMode.AutoSize = true;
+            this.infoDuplicateMode.Location = new System.Drawing.Point(6, 71);
+            this.infoDuplicateMode.Name = "infoDuplicateMode";
+            this.infoDuplicateMode.Size = new System.Drawing.Size(81, 13);
+            this.infoDuplicateMode.TabIndex = 12;
+            this.infoDuplicateMode.Text = "Duplicate mode";
+            // 
+            // duplicateMode
+            // 
+            this.duplicateMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.duplicateMode.FormattingEnabled = true;
+            this.duplicateMode.Location = new System.Drawing.Point(103, 68);
+            this.duplicateMode.Name = "duplicateMode";
+            this.duplicateMode.Size = new System.Drawing.Size(121, 21);
+            this.duplicateMode.TabIndex = 11;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -298,6 +320,8 @@
         private System.Windows.Forms.Label infoPatternImage;
         private System.Windows.Forms.Label infoPatternVideo;
         private System.Windows.Forms.Label infoPatternAudio;
+        private System.Windows.Forms.Label infoDuplicateMode;
+        private System.Windows.Forms.ComboBox duplicateMode;
     }
 }
 

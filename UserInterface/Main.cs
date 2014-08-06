@@ -41,6 +41,11 @@ namespace ExifOrganizer.UI
 
         private void Main_Load(object sender, EventArgs e)
         {
+            // DuplicateMode enum
+            foreach (DuplicateMode mode in Enum.GetValues(typeof(DuplicateMode)))
+                duplicateMode.Items.Add(mode);
+            duplicateMode.SelectedIndex = 0;
+
             // CopyMode enum
             foreach (CopyMode mode in Enum.GetValues(typeof(CopyMode)))
                 copyMode.Items.Add(mode);
@@ -55,6 +60,7 @@ namespace ExifOrganizer.UI
         private void organize_Click(object sender, EventArgs e)
         {
             MediaOrganizer organizer = new MediaOrganizer();
+            organizer.DuplicateMode = (DuplicateMode)duplicateMode.SelectedItem;
             organizer.CopyMode = (CopyMode)copyMode.SelectedItem;
             organizer.DestinationPatternImage = patternImage.Text;
             organizer.DestinationPatternVideo = patternVideo.Text;
