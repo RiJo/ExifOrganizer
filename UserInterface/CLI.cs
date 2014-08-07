@@ -33,7 +33,8 @@ namespace ExifOrganizer.UI
 
         public void Run(string[] args)
         {
-            foreach (string arg in args)
+            System.Diagnostics.Debugger.Launch();
+            foreach (Arg arg in ParseArgs.Parse(args, new string[] { "-v" }, new string[] { "-s", "-d" }))
                 Console.WriteLine(String.Format(" * {0}", arg));
         } 
     }

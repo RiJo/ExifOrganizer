@@ -32,7 +32,6 @@ namespace ExifOrganizer.UI
         [STAThread]
         static void Main(string[] args)
         {
-            System.Diagnostics.Debugger.Launch();
             if (args.Length == 0)
             {
                 // Graphical interface
