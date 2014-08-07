@@ -53,7 +53,7 @@ namespace ExifOrganizer.Organizer
         public string DestinationPatternVideo = @"%y/%m/Video/%t/%n";
         public string DestinationPatternAudio = @"%y/%m/Audio/%t/%n";
         public CopyMode CopyMode = CopyMode.WipeBefore;
-        public DuplicateMode DuplicateMode = DuplicateMode.KeepAll;
+        public DuplicateMode DuplicateMode = DuplicateMode.Unique;
         public string[] IgnorePaths = null;
 
         public CopyItems Parse(string sourcePath, string destinationPath)
@@ -84,7 +84,27 @@ namespace ExifOrganizer.Organizer
             {
                 if (!Directory.Exists(Path.GetDirectoryName(item.destinationPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(item.destinationPath));
-                File.Copy(item.sourcePath, item.destinationPath);
+
+                bool overwrite = false;
+                if (File.Exists(item.destinationPath))
+                {
+                    switch (CopyMode)
+                    {
+                        case CopyMode.RequireEmpty:
+                        case CopyMode.WipeBefore:
+                            throw new MediaOrganizerException("Destination file already exists: {0}", item.destinationPath);
+                        case CopyMode.Delta:
+                            // TODO: check if files are identical?
+                            overwrite = false;
+                            continue; // Skip existing files
+                        case CopyMode.ForceOverwrite:
+                            // TODO: check if files are identical?
+                            overwrite = true;
+                            break; // 
+                    }
+                }
+
+                File.Copy(item.sourcePath, item.destinationPath, overwrite);
             }
         }
 
@@ -102,6 +122,7 @@ namespace ExifOrganizer.Organizer
                     // TODO: implement selection logic (which one to keep)
                     if (destinationConflict)
                     {
+                        Console.WriteLine("Ignoring file because destination path is not unique: {0}", item);
                         reference.items.Remove(item);
                         continue;
                     }
