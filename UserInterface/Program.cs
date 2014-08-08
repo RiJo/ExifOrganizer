@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -26,25 +27,42 @@ namespace ExifOrganizer.UI
 {
     static class Program
     {
+        [DllImport("kernel32.dll")]
+        static extern bool AttachConsole(int dwProcessId);
+        private const int ATTACH_PARENT_PROCESS = -1;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        [STAThread]
         static void Main(string[] args)
         {
             if (args.Length == 0)
             {
-                // Graphical interface
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Main());
+                GUI(args); 
             }
             else
             {
-                // Command line interface
-                CLI cli = new CLI();
-                cli.Run(args);
+                CLI(args); 
             }
+        }
+
+        [STAThread]
+        static void GUI(string[] args)
+        {
+            // Graphical interface
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Main());
+        }
+
+        static void CLI(string[] args)
+        {
+            // Make Console.Write() work
+            AttachConsole(ATTACH_PARENT_PROCESS);
+
+            // Command line interface
+            CLI cli = new CLI();
+            cli.Run(args);
         }
     }
 }
