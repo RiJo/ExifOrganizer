@@ -54,7 +54,7 @@ namespace ExifOrganizer.UI
         }
     }
 
-    public class ParseArgs
+    public class ProgramArgs
     {
         public static string KeyValueSeparator = "=";
 
