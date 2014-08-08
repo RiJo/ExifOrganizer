@@ -102,7 +102,6 @@ namespace ExifOrganizer.UI
             {
                 throw; // TODO: implement handler
             }
-
         }
 
         private void ParseComplete(MediaOrganizer organizer)
@@ -114,7 +113,7 @@ namespace ExifOrganizer.UI
                 return;
             }
 
-            if (MessageBox.Show(organizer.items.ToString(), "Copy these?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (MessageBox.Show(organizer.copyItems.ToString(), "Copy these?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
             {
                 ProgressEnded();
                 return;
