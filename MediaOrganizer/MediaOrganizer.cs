@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExifOrganizer.Organizer
@@ -50,7 +51,7 @@ namespace ExifOrganizer.Organizer
         public string sourcePath;
         public string destinationPath;
         public bool Recursive = true;
-        public CultureInfo Localization = new CultureInfo("SV-se");
+        public CultureInfo Localization = Thread.CurrentThread.CurrentCulture;
         public string DestinationPatternImage = @"%y/%m/%t/%n";
         public string DestinationPatternVideo = @"%y/%m/Video/%t/%n";
         public string DestinationPatternAudio = @"%y/%m/Audio/%t/%n";
@@ -58,7 +59,7 @@ namespace ExifOrganizer.Organizer
         public DuplicateMode DuplicateMode = DuplicateMode.Unique;
         public string[] IgnorePaths = null;
 
-        public CopyItems items;
+        public CopyItems copyItems;
 
         public void Parse()
         {
@@ -70,23 +71,22 @@ namespace ExifOrganizer.Organizer
                 //    throw new MediaOrganizerException("Copy mode {0} does not support same source and destination paths", CopyMode);
             }
 
-            CopyItems reference = new CopyItems();
-            reference.sourcePath = sourcePath;
-            reference.destinationPath = destinationPath;
-            reference.items = ParseItems(sourcePath, destinationPath);
-            items = reference;
+            copyItems = new CopyItems();
+            copyItems.sourcePath = sourcePath;
+            copyItems.destinationPath = destinationPath;
+            copyItems.items = ParseItems(sourcePath, destinationPath);
+            FilterDuplicateItems(copyItems);
         }
 
         public void Organize()
         {
-            if (items == null)
-                throw new InvalidOperationException("Nothing has been parsed yet");
+            if (copyItems == null)
+                throw new InvalidOperationException("Parse() must be executed prior to Organize()");
 
-            FilterDuplicateItems(items);
-            PrepareDestinationPath(items);
+            PrepareDestinationPath(copyItems);
 
             // Copy items to destination path
-            foreach (CopyItem item in items.items)
+            foreach (CopyItem item in copyItems.items)
             {
                 if (!Directory.Exists(Path.GetDirectoryName(item.destinationPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(item.destinationPath));
