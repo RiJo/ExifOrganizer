@@ -64,23 +64,25 @@ namespace ExifOrganizer.UI
             }
 
             MediaOrganizer organizer = new MediaOrganizer();
+            organizer.sourcePath = source;
+            organizer.destinationPath = destination;
+            organizer.Recursive = recursive;
             organizer.DuplicateMode = DuplicateMode.KeepAll;
             organizer.CopyMode = CopyMode.Delta;
             //organizer.DestinationPatternImage = patternImage.Text;
             //organizer.DestinationPatternVideo = patternVideo.Text;
             //organizer.DestinationPatternAudio = patternAudio.Text;
             organizer.Localization = Thread.CurrentThread.CurrentUICulture;
-            organizer.Recursive = recursive;
 
             if (String.IsNullOrEmpty(source))
                 throw new ArgumentException("No source path given (-s)");
             if (String.IsNullOrEmpty(destination))
                 throw new ArgumentException("No destination path given (-d)");
 
-            CopyItems items = organizer.Parse(source, destination);
             try
             {
-                organizer.Organize(items);
+                organizer.Parse();
+                organizer.Organize();
                 Console.WriteLine("Media organization completed successfully");
                 Environment.Exit(0);
             }

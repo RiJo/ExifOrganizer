@@ -60,31 +60,129 @@ namespace ExifOrganizer.UI
         private void organize_Click(object sender, EventArgs e)
         {
             MediaOrganizer organizer = new MediaOrganizer();
+            organizer.sourcePath = sourcePath.Path;
+            organizer.destinationPath = destinationPath.Path;
+            organizer.Recursive = recursive.Checked;
             organizer.DuplicateMode = (DuplicateMode)duplicateMode.SelectedItem;
             organizer.CopyMode = (CopyMode)copyMode.SelectedItem;
             organizer.DestinationPatternImage = patternImage.Text;
             organizer.DestinationPatternVideo = patternVideo.Text;
             organizer.DestinationPatternAudio = patternAudio.Text;
             organizer.Localization = (CultureInfo)localization.SelectedItem;
-            organizer.Recursive = recursive.Checked;
 
-            CopyItems items = organizer.Parse(sourcePath.Path, destinationPath.Path);
-            if (MessageBox.Show(items.ToString(), "Copy these?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                return;
+            ProgressStarted();
 
+            Thread thread = new Thread(ParseThread);
+            thread.IsBackground = true;
+            thread.Name = "Media parse thread";
+            thread.Start(organizer);
+        }
+
+        private void ProgressStarted()
+        {
+            organize.Enabled = false;
+        }
+
+        private void ProgressEnded()
+        {
+            organize.Enabled = true;
+        }
+
+        #region Parse
+
+        private void ParseThread(object arg)
+        {
+            MediaOrganizer organizer = arg as MediaOrganizer;
             try
             {
-                organizer.Organize(items);
-                MessageBox.Show("Media organization completed successfully", "Media organization done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                organizer.Parse();
+                ParseComplete(organizer);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Failed to organize media", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw; // TODO: implement handler
+            }
+
+        }
+
+        private void ParseComplete(MediaOrganizer organizer)
+        {
+            if (InvokeRequired)
+            {
+                Action<MediaOrganizer> action = new Action<MediaOrganizer>(ParseComplete);
+                BeginInvoke(action, organizer);
+                return;
+            }
+
+            if (MessageBox.Show(organizer.items.ToString(), "Copy these?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            {
+                ProgressEnded();
+                return;
+            }
+
+            Thread thread = new Thread(OrganizeThread);
+            thread.IsBackground = true;
+            thread.Name = "Media organize thread";
+            thread.Start(organizer);
+        }
+
+        private void ParseException(Exception ex)
+        {
+            if (InvokeRequired)
+            {
+                Action<Exception> action = new Action<Exception>(ParseException);
+                BeginInvoke(action, ex);
+                return;
+            }
+
+            MessageBox.Show(ex.Message, "Media parse failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            ProgressEnded();
+        }
+
+        #endregion
+
+        #region Organize
+
+        private void OrganizeThread(object arg)
+        {
+            MediaOrganizer organizer = arg as MediaOrganizer;
+            try
+            {
+                organizer.Organize();
+                OrganizeComplete(organizer);
+            }
+            catch (Exception ex)
+            {
+                OrganizeException(ex);
             }
         }
 
+        private void OrganizeComplete(MediaOrganizer organizer)
+        {
+            if (InvokeRequired)
+            {
+                Action<MediaOrganizer> action = new Action<MediaOrganizer>(OrganizeComplete);
+                BeginInvoke(action, organizer);
+                return;
+            }
 
+            MessageBox.Show("Media organization completed successfully", "Media organization done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ProgressEnded();
+        }
 
+        private void OrganizeException(Exception ex)
+        {
+            if (InvokeRequired)
+            {
+                Action<Exception> action = new Action<Exception>(OrganizeException);
+                BeginInvoke(action, ex);
+                return;
+            }
 
+            MessageBox.Show(ex.Message, "Media organization failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            ProgressEnded();
+        }
+
+        #endregion
     }
 }
