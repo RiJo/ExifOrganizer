@@ -47,6 +47,8 @@ namespace ExifOrganizer.Organizer
         {
         }
 
+        public string sourcePath;
+        public string destinationPath;
         public bool Recursive = true;
         public CultureInfo Localization = new CultureInfo("SV-se");
         public string DestinationPatternImage = @"%y/%m/%t/%n";
@@ -56,7 +58,9 @@ namespace ExifOrganizer.Organizer
         public DuplicateMode DuplicateMode = DuplicateMode.Unique;
         public string[] IgnorePaths = null;
 
-        public CopyItems Parse(string sourcePath, string destinationPath)
+        public CopyItems items;
+
+        public void Parse()
         {
             if (sourcePath.DirectoryAreSame(destinationPath))
             {
@@ -70,17 +74,19 @@ namespace ExifOrganizer.Organizer
             reference.sourcePath = sourcePath;
             reference.destinationPath = destinationPath;
             reference.items = ParseItems(sourcePath, destinationPath);
-
-            return reference;
+            items = reference;
         }
 
-        public void Organize(CopyItems reference)
+        public void Organize()
         {
-            FilterDuplicateItems(reference);
-            PrepareDestinationPath(reference);
+            if (items == null)
+                throw new InvalidOperationException("Nothing has been parsed yet");
+
+            FilterDuplicateItems(items);
+            PrepareDestinationPath(items);
 
             // Copy items to destination path
-            foreach (CopyItem item in reference.items)
+            foreach (CopyItem item in items.items)
             {
                 if (!Directory.Exists(Path.GetDirectoryName(item.destinationPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(item.destinationPath));
