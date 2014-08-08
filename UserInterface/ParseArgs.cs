@@ -42,11 +42,11 @@ namespace ExifOrganizer.UI
             switch (Type)
             {
                 case ArgType.Flag:
-                    return String.Format("Arg {{ Flag: \"{0}\"", Key);
+                    return String.Format("Arg {{ Flag: \"{0}\" }}", Key);
                 case ArgType.Variable:
-                    return String.Format("Arg {{ Variable: \"{0}\" = \"{1}\"", Key, Value);
+                    return String.Format("Arg {{ Variable: \"{0}\" = \"{1}\" }}", Key, Value);
                 case ArgType.Undefined:
-                    return String.Format("Arg {{ Undefined: \"{0}\"", Key);
+                    return String.Format("Arg {{ Undefined: \"{0}\" }}", Key);
                 default:
                     return null;
             }

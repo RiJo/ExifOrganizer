@@ -37,18 +37,12 @@ namespace ExifOrganizer.UI
         {
             IEnumerable<Arg> parsedArgs = ParseArgs.Parse(args, new string[] { "-r" }, new string[] { "-s", "-d" });
 #if DEBUG
+            Console.WriteLine("Arguments parsed:");
             foreach (Arg arg in parsedArgs)
                 Console.WriteLine(String.Format(" * {0}", arg));
 #endif
 
 
-            MediaOrganizer organizer = new MediaOrganizer();
-            organizer.DuplicateMode = DuplicateMode.KeepAll;
-            organizer.CopyMode = CopyMode.Delta;
-            //organizer.DestinationPatternImage = patternImage.Text;
-            //organizer.DestinationPatternVideo = patternVideo.Text;
-            //organizer.DestinationPatternAudio = patternAudio.Text;
-            organizer.Localization = Thread.CurrentThread.CurrentUICulture;
 
             string source = null;
             string destination = null;
@@ -68,7 +62,15 @@ namespace ExifOrganizer.UI
                         break;
                 }
             }
-            organizer.Recursive = true;
+
+            MediaOrganizer organizer = new MediaOrganizer();
+            organizer.DuplicateMode = DuplicateMode.KeepAll;
+            organizer.CopyMode = CopyMode.Delta;
+            //organizer.DestinationPatternImage = patternImage.Text;
+            //organizer.DestinationPatternVideo = patternVideo.Text;
+            //organizer.DestinationPatternAudio = patternAudio.Text;
+            organizer.Localization = Thread.CurrentThread.CurrentUICulture;
+            organizer.Recursive = recursive;
 
             if (String.IsNullOrEmpty(source))
                 throw new ArgumentException("No source path given (-s)");
