@@ -16,6 +16,7 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
+using ExifOrganizer.Meta;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace ExifOrganizer.Organizer
     {
         public string sourcePath;
         public string destinationPath;
+        public Dictionary<MetaKey, object> meta;
 
         public override string ToString()
         {

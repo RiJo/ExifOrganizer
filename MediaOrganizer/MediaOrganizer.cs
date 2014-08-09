@@ -135,20 +135,43 @@ namespace ExifOrganizer.Organizer
 
         private void FilterDuplicateItems(ref OrganizeSummary summary)
         {
-            HashSet<string> handledItems = new HashSet<string>();
+            HashSet<string> handledFilenames = new HashSet<string>();
+            Dictionary<string, HashSet<string>> handledChecksums = new Dictionary<string, HashSet<string>>();
+            Dictionary<DateTime, HashSet<string>> handledTimestamps = new Dictionary<DateTime, HashSet<string>>();
 
             HashSet<string> skipped = new HashSet<string>();
             foreach (CopyItem item in copyItems.items.ToArray())
             {
                 // TODO: better comparison: md5 etc
-                bool destinationConflict = !handledItems.Add(item.destinationPath);
+                bool conflictingDestination = !handledFilenames.Add(item.destinationPath);
+                bool conflictingChecksum = false;
+                object temp;
+                if (item.meta.TryGetValue(MetaKey.Checksum, out temp))
+                {
+                    string checksum = (string)temp;
+                    if (!handledChecksums.ContainsKey(checksum))
+                        handledChecksums[checksum] = new HashSet<string>();
+
+                    handledChecksums[checksum].Add(item.sourcePath);
+                    conflictingChecksum = handledChecksums[checksum].Count > 1;
+                }
+                bool conflictingTimestamp  = false;
+                if (item.meta.TryGetValue(MetaKey.Date, out temp))
+                {
+                    DateTime timestamp = (DateTime)temp;
+                    if (!handledTimestamps.ContainsKey(timestamp))
+                        handledTimestamps[timestamp] = new HashSet<string>();
+
+                    handledTimestamps[timestamp].Add(item.sourcePath);
+                    conflictingTimestamp = handledTimestamps[timestamp].Count > 1;
+                }
 
                 if (DuplicateMode == DuplicateMode.Unique)
                 {
                     // TODO: implement selection logic (which one to keep)
-                    if (destinationConflict)
+                    if (conflictingDestination || conflictingChecksum || conflictingTimestamp)
                     {
-                        Console.WriteLine("Ignoring file because destination path is not unique: {0}", item);
+                        Console.WriteLine("Ignoring not unique (destination: {0}, checksum: {1}, timestamp: {2}) file: {3}", conflictingDestination, conflictingChecksum, conflictingTimestamp, item);
                         copyItems.items.Remove(item);
                         skipped.Add(item.sourcePath);
                         continue;
@@ -157,11 +180,11 @@ namespace ExifOrganizer.Organizer
                 else if (DuplicateMode == DuplicateMode.KeepAll)
                 {
                     int i = 2;
-                    while (destinationConflict)
+                    while (conflictingDestination)
                     {
                         string newDestinationPath = String.Format("{0}\\{1}({2}){3}", Path.GetDirectoryName(item.destinationPath), Path.GetFileNameWithoutExtension(item.destinationPath), i++, Path.GetExtension(item.destinationPath));
-                        destinationConflict = !handledItems.Add(newDestinationPath);
-                        if (!destinationConflict)
+                        conflictingDestination = !handledFilenames.Add(newDestinationPath);
+                        if (!conflictingDestination)
                             item.destinationPath = newDestinationPath;
                     }
                 }
@@ -244,6 +267,7 @@ namespace ExifOrganizer.Organizer
             CopyItem item = new CopyItem();
             item.sourcePath = meta.Path;
             item.destinationPath = CalculateDestinationPath(destinationPath, meta);
+            item.meta = meta.Data;
             return item;
         }
 
