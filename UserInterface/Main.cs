@@ -95,8 +95,8 @@ namespace ExifOrganizer.UI
             MediaOrganizer organizer = arg as MediaOrganizer;
             try
             {
-                organizer.Parse();
-                ParseComplete(organizer);
+                OrganizeSummary summary = organizer.Parse();
+                ParseComplete(organizer, summary);
             }
             catch (Exception ex)
             {
@@ -104,16 +104,16 @@ namespace ExifOrganizer.UI
             }
         }
 
-        private void ParseComplete(MediaOrganizer organizer)
+        private void ParseComplete(MediaOrganizer organizer, OrganizeSummary summary)
         {
             if (InvokeRequired)
             {
-                Action<MediaOrganizer> action = new Action<MediaOrganizer>(ParseComplete);
-                BeginInvoke(action, organizer);
+                Action<MediaOrganizer, OrganizeSummary> action = new Action<MediaOrganizer, OrganizeSummary>(ParseComplete);
+                BeginInvoke(action, organizer, summary);
                 return;
             }
 
-            if (MessageBox.Show(organizer.copyItems.ToString(), "Copy these?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (MessageBox.Show(summary.ToString(), "Continue organization?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
             {
                 ProgressEnded();
                 return;
