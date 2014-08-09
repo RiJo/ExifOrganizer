@@ -25,6 +25,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ExifOrganizer.Organizer
 {
@@ -40,6 +41,18 @@ namespace ExifOrganizer.Organizer
     {
         Unique,
         KeepAll
+    }
+
+    public class OrganizeSummary
+    {
+        public string[] parsed;
+        public string[] valid;
+        public string[] duplicates;
+
+        public override string ToString()
+        {
+            return String.Format("Summary {{ Parsed: {0}, Valid: {1}, Duplicates: {2} }}", parsed != null ? parsed.Length : 0, valid != null ? valid.Length : 0, duplicates != null ? duplicates.Length : 0);
+        }
     }
 
     public class MediaOrganizer
@@ -61,7 +74,7 @@ namespace ExifOrganizer.Organizer
 
         public CopyItems copyItems;
 
-        public void Parse()
+        public OrganizeSummary Parse()
         {
             if (sourcePath.DirectoryAreSame(destinationPath))
             {
@@ -71,11 +84,17 @@ namespace ExifOrganizer.Organizer
                 //    throw new MediaOrganizerException("Copy mode {0} does not support same source and destination paths", CopyMode);
             }
 
+            OrganizeSummary summary = new OrganizeSummary();
+
             copyItems = new CopyItems();
             copyItems.sourcePath = sourcePath;
             copyItems.destinationPath = destinationPath;
-            copyItems.items = ParseItems(sourcePath, destinationPath);
-            FilterDuplicateItems(copyItems);
+            copyItems.items = ParseItems(sourcePath, destinationPath, ref summary);
+            FilterDuplicateItems(ref summary);
+
+            summary.valid = Array.ConvertAll<CopyItem, string>(copyItems.items.ToArray(), x => x.sourcePath);
+
+            return summary;
         }
 
         public void Organize()
@@ -83,7 +102,7 @@ namespace ExifOrganizer.Organizer
             if (copyItems == null)
                 throw new InvalidOperationException("Parse() must be executed prior to Organize()");
 
-            PrepareDestinationPath(copyItems);
+            PrepareDestinationPath();
 
             // Copy items to destination path
             foreach (CopyItem item in copyItems.items)
@@ -114,11 +133,12 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        private void FilterDuplicateItems(CopyItems reference)
+        private void FilterDuplicateItems(ref OrganizeSummary summary)
         {
             HashSet<string> handledItems = new HashSet<string>();
 
-            foreach (CopyItem item in reference.items.ToArray())
+            HashSet<string> skipped = new HashSet<string>();
+            foreach (CopyItem item in copyItems.items.ToArray())
             {
                 // TODO: better comparison: md5 etc
                 bool destinationConflict = !handledItems.Add(item.destinationPath);
@@ -129,7 +149,8 @@ namespace ExifOrganizer.Organizer
                     if (destinationConflict)
                     {
                         Console.WriteLine("Ignoring file because destination path is not unique: {0}", item);
-                        reference.items.Remove(item);
+                        copyItems.items.Remove(item);
+                        skipped.Add(item.sourcePath);
                         continue;
                     }
                 }
@@ -145,49 +166,50 @@ namespace ExifOrganizer.Organizer
                     }
                 }
             }
+            summary.duplicates = skipped.ToArray();
         }
 
-        private void PrepareDestinationPath(CopyItems reference)
+        private void PrepareDestinationPath()
         {
             // Setup destination path
-            if (!Directory.Exists(reference.destinationPath))
+            if (!Directory.Exists(copyItems.destinationPath))
             {
-                Directory.CreateDirectory(reference.destinationPath);
+                Directory.CreateDirectory(copyItems.destinationPath);
                 return;
             }
 
             switch (CopyMode)
             {
                 case CopyMode.RequireEmpty:
-                    if (Directory.Exists(reference.destinationPath))
+                    if (Directory.Exists(copyItems.destinationPath))
                     {
-                        if (Directory.GetFiles(reference.destinationPath).Length > 0)
-                            throw new MediaOrganizerException("Path contains files but is required to be empty: {0}", reference.destinationPath);
-                        if (Directory.GetDirectories(reference.destinationPath).Length > 0)
-                            throw new MediaOrganizerException("Path contains directories but is required to be empty: {0}", reference.destinationPath);
+                        if (Directory.GetFiles(copyItems.destinationPath).Length > 0)
+                            throw new MediaOrganizerException("Path contains files but is required to be empty: {0}", copyItems.destinationPath);
+                        if (Directory.GetDirectories(copyItems.destinationPath).Length > 0)
+                            throw new MediaOrganizerException("Path contains directories but is required to be empty: {0}", copyItems.destinationPath);
                     }
                     break;
 
                 case CopyMode.WipeBefore:
-                    if (reference.sourcePath.DirectoryAreSame(reference.destinationPath))
+                    if (copyItems.sourcePath.DirectoryAreSame(copyItems.destinationPath))
                     {
                         // Move source/destination path to temporary place before copying
                         string tempSourcePath = Path.GetTempFileName();
                         File.Delete(tempSourcePath);
-                        Directory.Move(reference.sourcePath, tempSourcePath);
-                        reference.sourcePath = tempSourcePath; // TODO: delete this path after organization
+                        Directory.Move(copyItems.sourcePath, tempSourcePath);
+                        copyItems.sourcePath = tempSourcePath; // TODO: delete this path after organization
                     }
                     else
                     {
-                        Directory.Delete(reference.destinationPath, true);
+                        Directory.Delete(copyItems.destinationPath, true);
                     }
-                    Directory.CreateDirectory(reference.destinationPath);
+                    Directory.CreateDirectory(copyItems.destinationPath);
                     break;
             }
         }
 
         // TODO: use hashset to remove duplicates? Or better: define behaviour of which to insert into list
-        private List<CopyItem> ParseItems(string sourcePath, string destinationPath)
+        private List<CopyItem> ParseItems(string sourcePath, string destinationPath, ref OrganizeSummary summary)
         {
             List<string> ignore = new List<string>();
             if (IgnorePaths != null)
@@ -205,15 +227,15 @@ namespace ExifOrganizer.Organizer
                 throw new MediaOrganizerException("Failed to parse meta data", ex);
             }
 
+            HashSet<string> valid = new HashSet<string>();
             List<CopyItem> items = new List<CopyItem>();
             foreach (MetaData meta in data)
             {
                 CopyItem item = ParseItem(destinationPath, meta);
-                if (item == null)
-                    continue;
                 items.Add(item);
-
+                valid.Add(item.sourcePath);
             }
+            summary.parsed = valid.ToArray();
             return items;
         }
 
