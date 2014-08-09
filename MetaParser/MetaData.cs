@@ -34,8 +34,9 @@ namespace ExifOrganizer.Meta
     public enum MetaKey
     {
         Filename,
+        Size,
+        Checksum,
         Date,
-        //Size,
         Tags
     }
 

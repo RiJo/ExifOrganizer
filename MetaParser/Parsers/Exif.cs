@@ -26,7 +26,7 @@ using System.Text;
 
 namespace ExifOrganizer.Meta.Parsers
 {
-    internal static class Exif
+    internal class Exif : Parser
     {
         private enum ExifDataType : short
         {
@@ -433,6 +433,8 @@ namespace ExifOrganizer.Meta.Parsers
             meta.Type = MetaType.Image;
             meta.Path = filename;
             meta.Data = new Dictionary<MetaKey, object>();
+            meta.Data[MetaKey.Checksum] = GetMD5Sum(filename);
+            meta.Data[MetaKey.Size] = GetFileSize(filename);
 
             if (exif.ContainsKey(ExifId.PhotoDateTimeOriginal))
                 meta.Data[MetaKey.Date] = exif[ExifId.PhotoDateTimeOriginal];

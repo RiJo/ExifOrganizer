@@ -47,6 +47,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="MetaData.cs" />
     <Compile Include="Parsers\Generic.cs" />
+    <Compile Include="Parsers\Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
