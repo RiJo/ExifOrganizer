@@ -39,6 +39,7 @@ namespace ExifOrganizer.Organizer
 
     public enum DuplicateMode
     {
+        Ignore,
         Unique,
         KeepAll
     }
@@ -139,7 +140,7 @@ namespace ExifOrganizer.Organizer
             Dictionary<string, HashSet<string>> handledChecksums = new Dictionary<string, HashSet<string>>();
             Dictionary<DateTime, HashSet<string>> handledTimestamps = new Dictionary<DateTime, HashSet<string>>();
 
-            HashSet<string> skipped = new HashSet<string>();
+            HashSet<string> duplicates = new HashSet<string>();
             foreach (CopyItem item in copyItems.items.ToArray())
             {
                 // TODO: better comparison: md5 etc
@@ -155,7 +156,7 @@ namespace ExifOrganizer.Organizer
                     handledChecksums[checksum].Add(item.sourcePath);
                     conflictingChecksum = handledChecksums[checksum].Count > 1;
                 }
-                bool conflictingTimestamp  = false;
+                bool conflictingTimestamp = false;
                 if (item.meta.TryGetValue(MetaKey.Date, out temp))
                 {
                     DateTime timestamp = (DateTime)temp;
@@ -166,30 +167,38 @@ namespace ExifOrganizer.Organizer
                     conflictingTimestamp = handledTimestamps[timestamp].Count > 1;
                 }
 
-                if (DuplicateMode == DuplicateMode.Unique)
+                switch (DuplicateMode)
                 {
-                    // TODO: implement selection logic (which one to keep)
-                    if (conflictingDestination || conflictingChecksum || conflictingTimestamp)
-                    {
-                        Console.WriteLine("Ignoring not unique (destination: {0}, checksum: {1}, timestamp: {2}) file: {3}", conflictingDestination, conflictingChecksum, conflictingTimestamp, item);
-                        copyItems.items.Remove(item);
-                        skipped.Add(item.sourcePath);
-                        continue;
-                    }
-                }
-                else if (DuplicateMode == DuplicateMode.KeepAll)
-                {
-                    int i = 2;
-                    while (conflictingDestination)
-                    {
-                        string newDestinationPath = String.Format("{0}\\{1}({2}){3}", Path.GetDirectoryName(item.destinationPath), Path.GetFileNameWithoutExtension(item.destinationPath), i++, Path.GetExtension(item.destinationPath));
-                        conflictingDestination = !handledFilenames.Add(newDestinationPath);
-                        if (!conflictingDestination)
-                            item.destinationPath = newDestinationPath;
-                    }
+                    case DuplicateMode.Ignore:
+                        // Noop
+                        if (conflictingDestination || conflictingChecksum || conflictingTimestamp)
+                            duplicates.Add(item.sourcePath);
+                        break;
+                    case DuplicateMode.Unique:
+                        // TODO: implement selection logic (which one to keep)
+                        if (conflictingDestination || conflictingChecksum || conflictingTimestamp)
+                        {
+                            Console.WriteLine("Ignoring not unique (destination: {0}, checksum: {1}, timestamp: {2}) file: {3}", conflictingDestination, conflictingChecksum, conflictingTimestamp, item);
+                            copyItems.items.Remove(item);
+                            duplicates.Add(item.sourcePath);
+                            continue;
+                        }
+                        break;
+                    case DuplicateMode.KeepAll:
+                        int i = 2;
+                        while (conflictingDestination)
+                        {
+                            string newDestinationPath = String.Format("{0}\\{1}({2}){3}", Path.GetDirectoryName(item.destinationPath), Path.GetFileNameWithoutExtension(item.destinationPath), i++, Path.GetExtension(item.destinationPath));
+                            conflictingDestination = !handledFilenames.Add(newDestinationPath);
+                            if (!conflictingDestination)
+                                item.destinationPath = newDestinationPath;
+                        }
+                        break;
+                    default:
+                        throw new NotImplementedException(String.Format("Unhandled duplicate mode: {0}", DuplicateMode));
                 }
             }
-            summary.duplicates = skipped.ToArray();
+            summary.duplicates = duplicates.ToArray();
         }
 
         private void PrepareDestinationPath()
