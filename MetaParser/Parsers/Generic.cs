@@ -38,7 +38,6 @@ namespace ExifOrganizer.Meta.Parsers
             meta.Path = filename;
             meta.Data = new Dictionary<MetaKey, object>();
             meta.Data[MetaKey.Filename] = Path.GetFileName(filename);
-            meta.Data[MetaKey.Checksum] = GetMD5Sum(filename);
             meta.Data[MetaKey.Size] = GetFileSize(filename);
             meta.Data[MetaKey.Date] = File.GetCreationTime(filename);
             meta.Data[MetaKey.Tags] = new string[0];

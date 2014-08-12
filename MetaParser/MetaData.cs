@@ -35,7 +35,6 @@ namespace ExifOrganizer.Meta
     {
         Filename,
         Size,
-        Checksum,
         Date,
         Tags
     }

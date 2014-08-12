@@ -433,7 +433,6 @@ namespace ExifOrganizer.Meta.Parsers
             meta.Type = MetaType.Image;
             meta.Path = filename;
             meta.Data = new Dictionary<MetaKey, object>();
-            meta.Data[MetaKey.Checksum] = GetMD5Sum(filename);
             meta.Data[MetaKey.Size] = GetFileSize(filename);
 
             if (exif.ContainsKey(ExifId.PhotoDateTimeOriginal))
