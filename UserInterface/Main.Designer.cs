@@ -30,25 +30,26 @@
         {
             this.organize = new System.Windows.Forms.Button();
             this.source = new System.Windows.Forms.GroupBox();
-            this.recursive = new System.Windows.Forms.CheckBox();
-            this.destination = new System.Windows.Forms.GroupBox();
-            this.copyMode = new System.Windows.Forms.ComboBox();
-            this.localization = new System.Windows.Forms.ComboBox();
-            this.patternImage = new System.Windows.Forms.TextBox();
-            this.patternVideo = new System.Windows.Forms.TextBox();
-            this.patternAudio = new System.Windows.Forms.TextBox();
+            this.infoDuplicateMode = new System.Windows.Forms.Label();
+            this.duplicateMode = new System.Windows.Forms.ComboBox();
             this.infoSourceDirectory = new System.Windows.Forms.Label();
             this.infoRecursive = new System.Windows.Forms.Label();
+            this.recursive = new System.Windows.Forms.CheckBox();
+            this.sourcePath = new ExifOrganizer.UI.FileBrowseControl();
+            this.destination = new System.Windows.Forms.GroupBox();
             this.infoDestinationDirectory = new System.Windows.Forms.Label();
             this.infoCopyMode = new System.Windows.Forms.Label();
             this.infoLocalization = new System.Windows.Forms.Label();
             this.infoPatternImage = new System.Windows.Forms.Label();
             this.infoPatternVideo = new System.Windows.Forms.Label();
             this.infoPatternAudio = new System.Windows.Forms.Label();
+            this.patternAudio = new System.Windows.Forms.TextBox();
+            this.patternVideo = new System.Windows.Forms.TextBox();
+            this.patternImage = new System.Windows.Forms.TextBox();
+            this.localization = new System.Windows.Forms.ComboBox();
+            this.copyMode = new System.Windows.Forms.ComboBox();
             this.destinationPath = new ExifOrganizer.UI.FileBrowseControl();
-            this.sourcePath = new ExifOrganizer.UI.FileBrowseControl();
-            this.infoDuplicateMode = new System.Windows.Forms.Label();
-            this.duplicateMode = new System.Windows.Forms.ComboBox();
+            this.progress = new System.Windows.Forms.ProgressBar();
             this.source.SuspendLayout();
             this.destination.SuspendLayout();
             this.SuspendLayout();
@@ -81,6 +82,42 @@
             this.source.TabStop = false;
             this.source.Text = "Source";
             // 
+            // infoDuplicateMode
+            // 
+            this.infoDuplicateMode.AutoSize = true;
+            this.infoDuplicateMode.Location = new System.Drawing.Point(6, 71);
+            this.infoDuplicateMode.Name = "infoDuplicateMode";
+            this.infoDuplicateMode.Size = new System.Drawing.Size(81, 13);
+            this.infoDuplicateMode.TabIndex = 12;
+            this.infoDuplicateMode.Text = "Duplicate mode";
+            // 
+            // duplicateMode
+            // 
+            this.duplicateMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.duplicateMode.FormattingEnabled = true;
+            this.duplicateMode.Location = new System.Drawing.Point(103, 68);
+            this.duplicateMode.Name = "duplicateMode";
+            this.duplicateMode.Size = new System.Drawing.Size(121, 21);
+            this.duplicateMode.TabIndex = 11;
+            // 
+            // infoSourceDirectory
+            // 
+            this.infoSourceDirectory.AutoSize = true;
+            this.infoSourceDirectory.Location = new System.Drawing.Point(6, 25);
+            this.infoSourceDirectory.Name = "infoSourceDirectory";
+            this.infoSourceDirectory.Size = new System.Drawing.Size(49, 13);
+            this.infoSourceDirectory.TabIndex = 9;
+            this.infoSourceDirectory.Text = "Directory";
+            // 
+            // infoRecursive
+            // 
+            this.infoRecursive.AutoSize = true;
+            this.infoRecursive.Location = new System.Drawing.Point(6, 49);
+            this.infoRecursive.Name = "infoRecursive";
+            this.infoRecursive.Size = new System.Drawing.Size(55, 13);
+            this.infoRecursive.TabIndex = 10;
+            this.infoRecursive.Text = "Recursive";
+            // 
             // recursive
             // 
             this.recursive.AutoSize = true;
@@ -91,6 +128,19 @@
             this.recursive.Size = new System.Drawing.Size(15, 14);
             this.recursive.TabIndex = 4;
             this.recursive.UseVisualStyleBackColor = true;
+            // 
+            // sourcePath
+            // 
+            this.sourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.sourcePath.BrowseType = ExifOrganizer.UI.FileBrowseType.Directory;
+            this.sourcePath.DialogTitle = "Source directory";
+            this.sourcePath.Location = new System.Drawing.Point(103, 19);
+            this.sourcePath.Name = "sourcePath";
+            this.sourcePath.Path = "C:\\temp";
+            this.sourcePath.ReadOnly = false;
+            this.sourcePath.Size = new System.Drawing.Size(218, 23);
+            this.sourcePath.TabIndex = 1;
             // 
             // destination
             // 
@@ -115,72 +165,6 @@
             this.destination.TabIndex = 0;
             this.destination.TabStop = false;
             this.destination.Text = "Destination";
-            // 
-            // copyMode
-            // 
-            this.copyMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.copyMode.FormattingEnabled = true;
-            this.copyMode.Location = new System.Drawing.Point(103, 48);
-            this.copyMode.Name = "copyMode";
-            this.copyMode.Size = new System.Drawing.Size(121, 21);
-            this.copyMode.TabIndex = 4;
-            // 
-            // localization
-            // 
-            this.localization.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.localization.FormattingEnabled = true;
-            this.localization.Location = new System.Drawing.Point(103, 75);
-            this.localization.Name = "localization";
-            this.localization.Size = new System.Drawing.Size(121, 21);
-            this.localization.TabIndex = 5;
-            // 
-            // patternImage
-            // 
-            this.patternImage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.patternImage.Location = new System.Drawing.Point(103, 102);
-            this.patternImage.Name = "patternImage";
-            this.patternImage.Size = new System.Drawing.Size(218, 20);
-            this.patternImage.TabIndex = 6;
-            this.patternImage.Text = "%y/%m/%t/%n";
-            // 
-            // patternVideo
-            // 
-            this.patternVideo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.patternVideo.Location = new System.Drawing.Point(103, 128);
-            this.patternVideo.Name = "patternVideo";
-            this.patternVideo.Size = new System.Drawing.Size(218, 20);
-            this.patternVideo.TabIndex = 7;
-            this.patternVideo.Text = "%y/%m/Video/%t/%n";
-            // 
-            // patternAudio
-            // 
-            this.patternAudio.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.patternAudio.Location = new System.Drawing.Point(103, 154);
-            this.patternAudio.Name = "patternAudio";
-            this.patternAudio.Size = new System.Drawing.Size(218, 20);
-            this.patternAudio.TabIndex = 8;
-            this.patternAudio.Text = "%y/%m/Audio/%t/%n";
-            // 
-            // infoSourceDirectory
-            // 
-            this.infoSourceDirectory.AutoSize = true;
-            this.infoSourceDirectory.Location = new System.Drawing.Point(6, 25);
-            this.infoSourceDirectory.Name = "infoSourceDirectory";
-            this.infoSourceDirectory.Size = new System.Drawing.Size(49, 13);
-            this.infoSourceDirectory.TabIndex = 9;
-            this.infoSourceDirectory.Text = "Directory";
-            // 
-            // infoRecursive
-            // 
-            this.infoRecursive.AutoSize = true;
-            this.infoRecursive.Location = new System.Drawing.Point(6, 49);
-            this.infoRecursive.Name = "infoRecursive";
-            this.infoRecursive.Size = new System.Drawing.Size(55, 13);
-            this.infoRecursive.TabIndex = 10;
-            this.infoRecursive.Text = "Recursive";
             // 
             // infoDestinationDirectory
             // 
@@ -236,6 +220,54 @@
             this.infoPatternAudio.TabIndex = 9;
             this.infoPatternAudio.Text = "Audio pattern";
             // 
+            // patternAudio
+            // 
+            this.patternAudio.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.patternAudio.Location = new System.Drawing.Point(103, 154);
+            this.patternAudio.Name = "patternAudio";
+            this.patternAudio.Size = new System.Drawing.Size(218, 20);
+            this.patternAudio.TabIndex = 8;
+            this.patternAudio.Text = "%y/%m/Audio/%t/%n";
+            // 
+            // patternVideo
+            // 
+            this.patternVideo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.patternVideo.Location = new System.Drawing.Point(103, 128);
+            this.patternVideo.Name = "patternVideo";
+            this.patternVideo.Size = new System.Drawing.Size(218, 20);
+            this.patternVideo.TabIndex = 7;
+            this.patternVideo.Text = "%y/%m/Video/%t/%n";
+            // 
+            // patternImage
+            // 
+            this.patternImage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.patternImage.Location = new System.Drawing.Point(103, 102);
+            this.patternImage.Name = "patternImage";
+            this.patternImage.Size = new System.Drawing.Size(218, 20);
+            this.patternImage.TabIndex = 6;
+            this.patternImage.Text = "%y/%m/%t/%n";
+            // 
+            // localization
+            // 
+            this.localization.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.localization.FormattingEnabled = true;
+            this.localization.Location = new System.Drawing.Point(103, 75);
+            this.localization.Name = "localization";
+            this.localization.Size = new System.Drawing.Size(121, 21);
+            this.localization.TabIndex = 5;
+            // 
+            // copyMode
+            // 
+            this.copyMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.copyMode.FormattingEnabled = true;
+            this.copyMode.Location = new System.Drawing.Point(103, 48);
+            this.copyMode.Name = "copyMode";
+            this.copyMode.Size = new System.Drawing.Size(121, 21);
+            this.copyMode.TabIndex = 4;
+            // 
             // destinationPath
             // 
             this.destinationPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -249,42 +281,20 @@
             this.destinationPath.Size = new System.Drawing.Size(218, 23);
             this.destinationPath.TabIndex = 2;
             // 
-            // sourcePath
+            // progress
             // 
-            this.sourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.sourcePath.BrowseType = ExifOrganizer.UI.FileBrowseType.Directory;
-            this.sourcePath.DialogTitle = "Source directory";
-            this.sourcePath.Location = new System.Drawing.Point(103, 19);
-            this.sourcePath.Name = "sourcePath";
-            this.sourcePath.Path = "C:\\temp";
-            this.sourcePath.ReadOnly = false;
-            this.sourcePath.Size = new System.Drawing.Size(218, 23);
-            this.sourcePath.TabIndex = 1;
-            // 
-            // infoDuplicateMode
-            // 
-            this.infoDuplicateMode.AutoSize = true;
-            this.infoDuplicateMode.Location = new System.Drawing.Point(6, 71);
-            this.infoDuplicateMode.Name = "infoDuplicateMode";
-            this.infoDuplicateMode.Size = new System.Drawing.Size(81, 13);
-            this.infoDuplicateMode.TabIndex = 12;
-            this.infoDuplicateMode.Text = "Duplicate mode";
-            // 
-            // duplicateMode
-            // 
-            this.duplicateMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.duplicateMode.FormattingEnabled = true;
-            this.duplicateMode.Location = new System.Drawing.Point(103, 68);
-            this.duplicateMode.Name = "duplicateMode";
-            this.duplicateMode.Size = new System.Drawing.Size(121, 21);
-            this.duplicateMode.TabIndex = 11;
+            this.progress.Location = new System.Drawing.Point(12, 344);
+            this.progress.Name = "progress";
+            this.progress.Size = new System.Drawing.Size(246, 23);
+            this.progress.TabIndex = 4;
+            this.progress.Visible = false;
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(351, 379);
+            this.Controls.Add(this.progress);
             this.Controls.Add(this.destination);
             this.Controls.Add(this.source);
             this.Controls.Add(this.organize);
@@ -322,6 +332,7 @@
         private System.Windows.Forms.Label infoPatternAudio;
         private System.Windows.Forms.Label infoDuplicateMode;
         private System.Windows.Forms.ComboBox duplicateMode;
+        private System.Windows.Forms.ProgressBar progress;
     }
 }
 

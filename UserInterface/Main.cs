@@ -39,6 +39,8 @@ namespace ExifOrganizer.UI
             InitializeComponent();
         }
 
+        #region Control events
+
         private void Main_Load(object sender, EventArgs e)
         {
             // DuplicateMode enum
@@ -60,6 +62,7 @@ namespace ExifOrganizer.UI
         private void organize_Click(object sender, EventArgs e)
         {
             MediaOrganizer organizer = new MediaOrganizer();
+            organizer.OnProgress += ReportProgress;
             organizer.sourcePath = sourcePath.Path;
             organizer.destinationPath = destinationPath.Path;
             organizer.Recursive = recursive.Checked;
@@ -78,14 +81,52 @@ namespace ExifOrganizer.UI
             thread.Start(organizer);
         }
 
+        #endregion
+
+        private void ReportProgress(MediaOrganizer organizer, double value)
+        {
+            if (InvokeRequired)
+            {
+                Action<MediaOrganizer, double> action = new Action<MediaOrganizer, double>(ReportProgress);
+                BeginInvoke(action, organizer, value);
+                return;
+            }
+
+            int interval = (progress.Maximum - progress.Minimum);
+            int current = progress.Minimum + (int)Math.Round(value * interval);
+            if (current > progress.Maximum)
+                progress.Value = progress.Maximum;
+            else if (current < progress.Minimum)
+                progress.Value = progress.Minimum;
+            else
+                progress.Value = current;
+        }
+
         private void ProgressStarted()
         {
+            if (InvokeRequired)
+            {
+                Action action = new Action(ProgressStarted);
+                BeginInvoke(action);
+                return;
+            }
+
             organize.Enabled = false;
+            progress.Value = progress.Minimum;
+            progress.Visible = true;
         }
 
         private void ProgressEnded()
         {
+            if (InvokeRequired)
+            {
+                Action action = new Action(ProgressEnded);
+                BeginInvoke(action);
+                return;
+            }
+
             organize.Enabled = true;
+            progress.Visible = false;
         }
 
         #region Parse
@@ -100,7 +141,7 @@ namespace ExifOrganizer.UI
             }
             catch (Exception ex)
             {
-                throw; // TODO: implement handler
+                ParseException(ex);
             }
         }
 
