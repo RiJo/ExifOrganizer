@@ -25,7 +25,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace ExifOrganizer.Organizer
 {
@@ -62,6 +61,8 @@ namespace ExifOrganizer.Organizer
         {
         }
 
+        public event Action<MediaOrganizer, double> OnProgress = delegate { };
+
         public string sourcePath;
         public string destinationPath;
         public bool Recursive = true;
@@ -91,9 +92,13 @@ namespace ExifOrganizer.Organizer
             copyItems.sourcePath = sourcePath;
             copyItems.destinationPath = destinationPath;
             copyItems.items = ParseItems(sourcePath, destinationPath, ref summary);
-            FilterDuplicateItems(ref summary);
 
+            OnProgress(this, 0.1);
+
+            FilterDuplicateItems(ref summary);
             summary.valid = Array.ConvertAll<CopyItem, string>(copyItems.items.ToArray(), x => x.sourcePath);
+
+            OnProgress(this, 0.2);
 
             return summary;
         }
@@ -106,8 +111,11 @@ namespace ExifOrganizer.Organizer
             PrepareDestinationPath();
 
             // Copy items to destination path
-            foreach (CopyItem item in copyItems.items)
+            int itemCount = copyItems.items.Count;
+            for (int i = 0; i < itemCount; i++)
             {
+                CopyItem item = copyItems.items[i];
+
                 if (!Directory.Exists(Path.GetDirectoryName(item.destinationPath)))
                     Directory.CreateDirectory(Path.GetDirectoryName(item.destinationPath));
 
@@ -131,7 +139,12 @@ namespace ExifOrganizer.Organizer
                 }
 
                 File.Copy(item.sourcePath, item.destinationPath, overwrite);
+
+                if (i % 10 == 0)
+                    OnProgress(this, 0.2 + ((double)i / (double)itemCount));
             }
+
+            OnProgress(this, 1.0);
         }
 
         private void FilterDuplicateItems(ref OrganizeSummary summary)
@@ -139,23 +152,16 @@ namespace ExifOrganizer.Organizer
             HashSet<string> handledFilenames = new HashSet<string>();
             Dictionary<string, HashSet<string>> handledChecksums = new Dictionary<string, HashSet<string>>();
             Dictionary<DateTime, HashSet<string>> handledTimestamps = new Dictionary<DateTime, HashSet<string>>();
+            Dictionary<long, HashSet<string>> handledSizes = new Dictionary<long, HashSet<string>>();
 
             HashSet<string> duplicates = new HashSet<string>();
             foreach (CopyItem item in copyItems.items.ToArray())
             {
                 // TODO: better comparison: md5 etc
                 bool conflictingDestination = !handledFilenames.Add(item.destinationPath);
-                bool conflictingChecksum = false;
+                
                 object temp;
-                if (item.meta.TryGetValue(MetaKey.Checksum, out temp))
-                {
-                    string checksum = (string)temp;
-                    if (!handledChecksums.ContainsKey(checksum))
-                        handledChecksums[checksum] = new HashSet<string>();
 
-                    handledChecksums[checksum].Add(item.sourcePath);
-                    conflictingChecksum = handledChecksums[checksum].Count > 1;
-                }
                 bool conflictingTimestamp = false;
                 if (item.meta.TryGetValue(MetaKey.Date, out temp))
                 {
@@ -167,16 +173,40 @@ namespace ExifOrganizer.Organizer
                     conflictingTimestamp = handledTimestamps[timestamp].Count > 1;
                 }
 
+                bool conflictingSize = false;
+                if (item.meta.TryGetValue(MetaKey.Size, out temp))
+                {
+                    long size= (long)temp;
+                    if (!handledSizes.ContainsKey(size))
+                        handledSizes[size] = new HashSet<string>();
+
+                    handledSizes[size].Add(item.sourcePath);
+                    conflictingSize = handledSizes[size].Count > 1;
+                }
+
+                bool conflictingChecksum = false;
+                if (conflictingTimestamp || conflictingSize)
+                {
+                    string checksum = item.GetChecksum();
+                    if (!handledChecksums.ContainsKey(checksum))
+                        handledChecksums[checksum] = new HashSet<string>();
+
+                    handledChecksums[checksum].Add(item.sourcePath);
+                    conflictingChecksum = handledChecksums[checksum].Count > 1;
+                }
+                
+                bool anyConflict = (conflictingDestination || conflictingChecksum || conflictingTimestamp || conflictingSize);
+
                 switch (DuplicateMode)
                 {
                     case DuplicateMode.Ignore:
                         // Noop
-                        if (conflictingDestination || conflictingChecksum || conflictingTimestamp)
+                        if (anyConflict)
                             duplicates.Add(item.sourcePath);
                         break;
                     case DuplicateMode.Unique:
                         // TODO: implement selection logic (which one to keep)
-                        if (conflictingDestination || conflictingChecksum || conflictingTimestamp)
+                        if (anyConflict)
                         {
                             Console.WriteLine("Ignoring not unique (destination: {0}, checksum: {1}, timestamp: {2}) file: {3}", conflictingDestination, conflictingChecksum, conflictingTimestamp, item);
                             copyItems.items.Remove(item);

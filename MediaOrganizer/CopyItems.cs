@@ -19,7 +19,9 @@
 using ExifOrganizer.Meta;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,9 +33,38 @@ namespace ExifOrganizer.Organizer
         public string destinationPath;
         public Dictionary<MetaKey, object> meta;
 
+        private string checksum;
+
         public override string ToString()
         {
             return String.Format("[{0}] ---> [{1}]", sourcePath, destinationPath);
+        }
+
+        public bool SourceSameAsDestination()
+        {
+            return GetChecksum() == GetMD5Sum(destinationPath);
+        }
+
+        public string GetChecksum()
+        {
+            if (!String.IsNullOrEmpty(checksum))
+                return checksum;
+
+            checksum = GetMD5Sum(sourcePath);
+            return checksum;
+        }
+
+        private static string GetMD5Sum(string filename)
+        {
+            using (FileStream stream = File.OpenRead(filename))
+            {
+                using (var bufferedStream = new BufferedStream(stream, 1024 * 32))
+                {
+                    var sha = new MD5CryptoServiceProvider();
+                    byte[] checksum = sha.ComputeHash(bufferedStream);
+                    return BitConverter.ToString(checksum).Replace("-", String.Empty);
+                }
+            }
         }
     }
 
