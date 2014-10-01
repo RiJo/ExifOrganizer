@@ -57,6 +57,15 @@ namespace ExifOrganizer.Organizer
 
     public class MediaOrganizer
     {
+        private enum GroupType
+        {
+            Year,
+            Month,
+            Day,
+            Name,
+            Tags
+        }
+
         public MediaOrganizer()
         {
         }
@@ -73,6 +82,15 @@ namespace ExifOrganizer.Organizer
         public CopyMode CopyMode = CopyMode.WipeBefore;
         public DuplicateMode DuplicateMode = DuplicateMode.Unique;
         public string[] IgnorePaths = null;
+
+        private readonly Dictionary<string, GroupType> organizeGroups = new Dictionary<string, GroupType>()
+        {
+            { "%y", GroupType.Year },
+            { "%m", GroupType.Month },
+            { "%d", GroupType.Day },
+            { "%n", GroupType.Name },
+            { "%t", GroupType.Tags }
+        };
 
         public CopyItems copyItems;
 
@@ -335,62 +353,81 @@ namespace ExifOrganizer.Organizer
             string currentPath = destinationPath;
             foreach (string subpattern in pattern)
             {
-                switch (subpattern)
+                GroupType groupType;
+                if (organizeGroups.TryGetValue(subpattern, out groupType))
                 {
-                    case "%y": // Year
-                        {
-                            object temp;
-                            if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                                throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %y", MetaKey.Date);
+                    switch (groupType)
+                    {
+                        case GroupType.Year:
+                            {
+                                object temp;
+                                if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
+                                    throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %y", MetaKey.Date);
 
-                            DateTime datetime = (DateTime)temp;
-                            currentPath = Path.Combine(currentPath, datetime.Year.ToString());
-                        }
-                        break;
-                    case "%m": // Month
-                        {
-                            object temp;
-                            if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                                throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
+                                DateTime datetime = (DateTime)temp;
+                                currentPath = Path.Combine(currentPath, datetime.Year.ToString());
+                            }
+                            break;
+                        case GroupType.Month:
+                            {
+                                object temp;
+                                if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
+                                    throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
 
-                            DateTime datetime = (DateTime)temp;
+                                DateTime datetime = (DateTime)temp;
 
-                            DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
-                            string monthName = dateinfo.MonthNames[datetime.Month - 1].UppercaseFirst();
-                            currentPath = Path.Combine(currentPath, monthName);
-                        }
-                        break;
-                    case "%t":
-                        {
-                            object temp;
-                            if (!meta.Data.TryGetValue(MetaKey.Tags, out temp))
-                                throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %t", MetaKey.Tags);
+                                DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
+                                string monthName = dateinfo.MonthNames[datetime.Month - 1].UppercaseFirst();
+                                currentPath = Path.Combine(currentPath, monthName);
+                            }
+                            break;
+                        case GroupType.Day:
+                            {
+                                object temp;
+                                if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
+                                    throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
 
-                            string[] tags = temp as string[];
-                            if (tags == null || tags.Length == 0)
-                                continue;
+                                DateTime datetime = (DateTime)temp;
 
-                            string tag = tags[0]; // TODO: how to solve multiple tags?
-                            currentPath = Path.Combine(currentPath, tag);
-                        }
-                        break;
-                    case "%n": // Original name
-                        {
-                            object temp;
-                            if (!meta.Data.TryGetValue(MetaKey.Filename, out temp))
-                                throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.Filename);
+                                DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
+                                string monthName = dateinfo.DayNames[datetime.Day - 1].UppercaseFirst();
+                                currentPath = Path.Combine(currentPath, monthName);
+                            }
+                            break;
+                        case GroupType.Name:
+                            {
+                                object temp;
+                                if (!meta.Data.TryGetValue(MetaKey.Filename, out temp))
+                                    throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.Filename);
 
-                            string filename = (string)temp;
-                            currentPath = Path.Combine(currentPath, filename);
-                        }
-                        break;
+                                string filename = (string)temp;
+                                currentPath = Path.Combine(currentPath, filename);
+                            }
+                            break;
+                        case GroupType.Tags:
+                            {
+                                object temp;
+                                if (!meta.Data.TryGetValue(MetaKey.Tags, out temp))
+                                    throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %t", MetaKey.Tags);
 
-                    default:
-                        if (subpattern.StartsWith("%"))
-                            throw new MediaOrganizerException("Invalid pattern item: {0}", subpattern);
+                                string[] tags = temp as string[];
+                                if (tags == null || tags.Length == 0)
+                                    continue;
 
-                        currentPath = Path.Combine(currentPath, subpattern);
-                        break;
+                                string tag = tags[0]; // TODO: how to solve multiple tags?
+                                currentPath = Path.Combine(currentPath, tag);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    if (subpattern.StartsWith("%"))
+                        throw new MediaOrganizerException("Unhandled pattern item: {0}", subpattern);
+
+                    currentPath = Path.Combine(currentPath, subpattern);
                 }
             }
 
