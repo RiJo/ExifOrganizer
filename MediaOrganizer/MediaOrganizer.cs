@@ -390,8 +390,8 @@ namespace ExifOrganizer.Organizer
                                 DateTime datetime = (DateTime)temp;
 
                                 DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
-                                string monthName = dateinfo.DayNames[datetime.Day - 1].UppercaseFirst();
-                                currentPath = Path.Combine(currentPath, monthName);
+                                string dayName = dateinfo.DayNames[datetime.Day - 1].UppercaseFirst();
+                                currentPath = Path.Combine(currentPath, dayName);
                             }
                             break;
                         case GroupType.Name:
