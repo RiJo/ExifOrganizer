@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CopyItem.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="MediaOrganizerException.cs" />
     <Compile Include="MediaOrganizer.cs" />
