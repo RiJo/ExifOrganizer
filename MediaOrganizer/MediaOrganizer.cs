@@ -303,8 +303,11 @@ namespace ExifOrganizer.Organizer
 
         private CopyItem ParseItem(string destinationPath, MetaData meta)
         {
+            string sourcePath = meta.Path;
+
             CopyItem item = new CopyItem();
-            item.sourcePath = meta.Path;
+            item.sourceInfo = new FileInfo(sourcePath);
+            item.sourcePath = sourcePath;
             item.destinationPath = CalculateDestinationPath(destinationPath, meta);
             item.meta = meta.Data;
             return item;
