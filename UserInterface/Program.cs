@@ -34,35 +34,36 @@ namespace ExifOrganizer.UI
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static void Main(string[] args)
+        [STAThread]
+        static int Main(string[] args)
         {
             if (args.Length == 0)
             {
-                GUI(args); 
+                return GUI(args); 
             }
             else
             {
-                CLI(args); 
+                return CLI(args); 
             }
         }
 
-        [STAThread]
-        static void GUI(string[] args)
+        static int GUI(string[] args)
         {
             // Graphical interface
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Main());
+            return 0;
         }
 
-        static void CLI(string[] args)
+        static int CLI(string[] args)
         {
             // Make Console.Write() work
             AttachConsole(ATTACH_PARENT_PROCESS);
 
             // Command line interface
             CLI cli = new CLI();
-            cli.Run(args);
+            return cli.Run(args);
         }
     }
 }

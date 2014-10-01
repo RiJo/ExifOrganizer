@@ -33,7 +33,7 @@ namespace ExifOrganizer.UI
             Console.WriteLine("ExifOrganizer CLI");
         }
 
-        public void Run(string[] args)
+        public int Run(string[] args)
         {
             IEnumerable<Arg> parsedArgs = ProgramArgs.Parse(args, new string[] { "-r" }, new string[] { "-s", "-d" });
 #if DEBUG
@@ -84,12 +84,12 @@ namespace ExifOrganizer.UI
                 organizer.Parse();
                 organizer.Organize();
                 Console.WriteLine("Media organization completed successfully");
-                Environment.Exit(0);
+                return 0;
             }
             catch (Exception ex)
             {
                 Console.Error.WriteLine(ex.Message);
-                Environment.Exit(1);
+                return 1;
             }
         }
     }
