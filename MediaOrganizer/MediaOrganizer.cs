@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -226,7 +227,7 @@ namespace ExifOrganizer.Organizer
             {
                 // TODO: better comparison: md5 etc
                 bool conflictingDestination = !handledFilenames.Add(item.destinationPath);
-                
+
                 object temp;
 
                 bool conflictingTimestamp = false;
@@ -243,7 +244,7 @@ namespace ExifOrganizer.Organizer
                 bool conflictingSize = false;
                 if (item.meta.TryGetValue(MetaKey.Size, out temp))
                 {
-                    long size= (long)temp;
+                    long size = (long)temp;
                     if (!handledSizes.ContainsKey(size))
                         handledSizes[size] = new HashSet<string>();
 
@@ -261,7 +262,7 @@ namespace ExifOrganizer.Organizer
                     handledChecksums[checksum].Add(item.sourcePath);
                     conflictingChecksum = handledChecksums[checksum].Count > 1;
                 }
-                
+
                 bool anyConflict = (conflictingDestination || conflictingChecksum || conflictingTimestamp || conflictingSize);
 
                 switch (DuplicateMode)
@@ -406,88 +407,107 @@ namespace ExifOrganizer.Organizer
             }
             string[] pattern = destinationPattern.Split(new char[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
 
-            string currentPath = destinationPath;
-            foreach (string subpattern in pattern)
+            string subPath = String.Empty;
+            foreach (string subPattern in pattern)
             {
-                GroupType groupType;
-                if (organizeGroups.TryGetValue(subpattern, out groupType))
+                Dictionary<string, string> replacements = new Dictionary<string, string>();
+
+                // Gather replacements
+                string regex = "%[a-zA-Z]";
+                foreach (Match match in Regex.Matches(subPattern, regex))
                 {
-                    switch (groupType)
-                    {
-                        case GroupType.Year:
-                            {
-                                object temp;
-                                if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                                    throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %y", MetaKey.Date);
+                    if (replacements.ContainsKey(match.Value))
+                        continue;
 
-                                DateTime datetime = (DateTime)temp;
-                                currentPath = Path.Combine(currentPath, datetime.Year.ToString());
-                            }
-                            break;
-                        case GroupType.Month:
-                            {
-                                object temp;
-                                if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                                    throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
+                    string replacement = GetPatternReplacement(meta, match.Value);
+                    if (String.IsNullOrEmpty(replacement))
+                        continue;
 
-                                DateTime datetime = (DateTime)temp;
-
-                                DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
-                                string monthName = dateinfo.MonthNames[datetime.Month - 1].UppercaseFirst();
-                                currentPath = Path.Combine(currentPath, monthName);
-                            }
-                            break;
-                        case GroupType.Day:
-                            {
-                                object temp;
-                                if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                                    throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
-
-                                DateTime datetime = (DateTime)temp;
-
-                                DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
-                                string dayName = dateinfo.DayNames[datetime.Day - 1].UppercaseFirst();
-                                currentPath = Path.Combine(currentPath, dayName);
-                            }
-                            break;
-                        case GroupType.Name:
-                            {
-                                object temp;
-                                if (!meta.Data.TryGetValue(MetaKey.Filename, out temp))
-                                    throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.Filename);
-
-                                string filename = (string)temp;
-                                currentPath = Path.Combine(currentPath, filename);
-                            }
-                            break;
-                        case GroupType.Tags:
-                            {
-                                object temp;
-                                if (!meta.Data.TryGetValue(MetaKey.Tags, out temp))
-                                    throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %t", MetaKey.Tags);
-
-                                string[] tags = temp as string[];
-                                if (tags == null || tags.Length == 0)
-                                    continue;
-
-                                string tag = tags[0]; // TODO: how to solve multiple tags?
-                                currentPath = Path.Combine(currentPath, tag);
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                    replacements[match.Value] = replacement;
                 }
-                else
-                {
-                    if (subpattern.StartsWith("%"))
-                        throw new MediaOrganizerException("Unhandled pattern item: {0}", subpattern);
 
-                    currentPath = Path.Combine(currentPath, subpattern);
-                }
+                // Perform replacement
+                string temp = subPattern;
+                foreach (KeyValuePair<string, string> kvp in replacements)
+                    temp = subPattern.Replace(kvp.Key, kvp.Value);
+                subPath = Path.Combine(subPath, temp);
             }
 
-            return currentPath;
+            return Path.Combine(destinationPath, subPath);
+        }
+
+        private string GetPatternReplacement(MetaData meta, string subpattern)
+        {
+            GroupType groupType;
+            if (!organizeGroups.TryGetValue(subpattern, out groupType))
+                throw new MediaOrganizerException("Unhandled pattern item: {0}", subpattern);
+
+
+            switch (groupType)
+            {
+                case GroupType.Year:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %y", MetaKey.Date);
+
+                        DateTime datetime = (DateTime)temp;
+                        return datetime.Year.ToString();
+                    }
+
+                case GroupType.Month:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
+
+                        DateTime datetime = (DateTime)temp;
+
+                        DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
+                        string monthName = dateinfo.MonthNames[datetime.Month - 1].UppercaseFirst();
+                        return monthName;
+                    }
+
+                case GroupType.Day:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
+
+                        DateTime datetime = (DateTime)temp;
+
+                        DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
+                        string dayName = dateinfo.DayNames[datetime.Day - 1].UppercaseFirst();
+                        return dayName;
+                    }
+
+                case GroupType.Name:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Filename, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.Filename);
+
+                        string filename = (string)temp;
+                        return filename;
+                    }
+
+                case GroupType.Tags:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Tags, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %t", MetaKey.Tags);
+
+                        string[] tags = temp as string[];
+                        if (tags == null || tags.Length == 0)
+                            return "<tag>";
+
+                        string tag = tags[0]; // TODO: how to solve multiple tags?
+                        return tag;
+                    }
+
+                default:
+                    throw new NotImplementedException(String.Format("GroupType: {0}", groupType));
+            }
         }
     }
 }
