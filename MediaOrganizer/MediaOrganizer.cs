@@ -434,6 +434,10 @@ namespace ExifOrganizer.Organizer
                 string temp = subPattern;
                 foreach (KeyValuePair<string, string> kvp in replacements)
                     temp = temp.Replace(kvp.Key, kvp.Value);
+
+                if (Regex.IsMatch(temp, regex))
+                    continue;
+
                 subPath = Path.Combine(subPath, temp);
             }
 
