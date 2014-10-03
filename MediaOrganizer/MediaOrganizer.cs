@@ -79,7 +79,9 @@ namespace ExifOrganizer.Organizer
             MonthNumber,
             DayName,
             DayNumber,
-            Name,
+            FileName,
+            OriginalName,
+            FileExtension,
             Tags
         }
 
@@ -93,9 +95,9 @@ namespace ExifOrganizer.Organizer
         public string destinationPath;
         public bool Recursive = true;
         public CultureInfo Localization = Thread.CurrentThread.CurrentCulture;
-        public string DestinationPatternImage = @"%y/%m %M/%t/%n";
-        public string DestinationPatternVideo = @"%y/%m %M/Video/%t/%n";
-        public string DestinationPatternAudio = @"%y/%m %M/Audio/%t/%n";
+        public string DestinationPatternImage = @"%y/%m %M/%t/%n.%e";
+        public string DestinationPatternVideo = @"%y/%m %M/Video/%t/%n.%e";
+        public string DestinationPatternAudio = @"%y/%m %M/Audio/%t/%n.%e";
         public CopyPrecondition CopyPrecondition = CopyPrecondition.None;
         public CopyMode CopyMode = CopyMode.Delta;
         public DuplicateMode DuplicateMode = DuplicateMode.Unique;
@@ -108,7 +110,9 @@ namespace ExifOrganizer.Organizer
             { "%M", GroupType.MonthName },
             { "%d", GroupType.DayNumber },
             { "%D", GroupType.DayName },
-            { "%n", GroupType.Name },
+            { "%n", GroupType.FileName },
+            { "%e", GroupType.FileExtension },
+            { "%N", GroupType.OriginalName },
             { "%t", GroupType.Tags }
         };
 
@@ -511,13 +515,31 @@ namespace ExifOrganizer.Organizer
                         return dateinfo.DayNames[datetime.Day - 1].UppercaseFirst();
                     }
 
-                case GroupType.Name:
+                case GroupType.FileName:
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Filename, out temp))
                             throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.Filename);
 
-                        return (string)temp;
+                        return Path.GetFileNameWithoutExtension((string)temp);
+                    }
+
+                case GroupType.OriginalName:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Filename, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.Filename);
+
+                        return Path.GetFileName((string)temp);
+                    }
+
+                case GroupType.FileExtension:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Filename, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.Filename);
+
+                        return Path.GetExtension((string)temp).Substring(1);
                     }
 
                 case GroupType.Tags:
