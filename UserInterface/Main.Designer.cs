@@ -62,7 +62,7 @@
             this.organize.Location = new System.Drawing.Point(264, 344);
             this.organize.Name = "organize";
             this.organize.Size = new System.Drawing.Size(75, 23);
-            this.organize.TabIndex = 10;
+            this.organize.TabIndex = 13;
             this.organize.Text = "Organize";
             this.organize.UseVisualStyleBackColor = true;
             this.organize.Click += new System.EventHandler(this.organize_Click);
@@ -80,7 +80,7 @@
             this.source.Location = new System.Drawing.Point(12, 12);
             this.source.Name = "source";
             this.source.Size = new System.Drawing.Size(327, 100);
-            this.source.TabIndex = 3;
+            this.source.TabIndex = 0;
             this.source.TabStop = false;
             this.source.Text = "Source";
             // 
@@ -100,7 +100,7 @@
             this.duplicateMode.Location = new System.Drawing.Point(103, 68);
             this.duplicateMode.Name = "duplicateMode";
             this.duplicateMode.Size = new System.Drawing.Size(121, 21);
-            this.duplicateMode.TabIndex = 2;
+            this.duplicateMode.TabIndex = 3;
             // 
             // infoSourceDirectory
             // 
@@ -128,7 +128,7 @@
             this.recursive.Location = new System.Drawing.Point(103, 48);
             this.recursive.Name = "recursive";
             this.recursive.Size = new System.Drawing.Size(15, 14);
-            this.recursive.TabIndex = 1;
+            this.recursive.TabIndex = 2;
             this.recursive.UseVisualStyleBackColor = true;
             // 
             // destination
@@ -153,7 +153,7 @@
             this.destination.Location = new System.Drawing.Point(12, 118);
             this.destination.Name = "destination";
             this.destination.Size = new System.Drawing.Size(327, 221);
-            this.destination.TabIndex = 0;
+            this.destination.TabIndex = 4;
             this.destination.TabStop = false;
             this.destination.Text = "Destination";
             // 
@@ -173,7 +173,7 @@
             this.copyPrecondition.Location = new System.Drawing.Point(103, 48);
             this.copyPrecondition.Name = "copyPrecondition";
             this.copyPrecondition.Size = new System.Drawing.Size(121, 21);
-            this.copyPrecondition.TabIndex = 4;
+            this.copyPrecondition.TabIndex = 6;
             // 
             // infoDestinationDirectory
             // 
@@ -236,7 +236,7 @@
             this.patternAudio.Location = new System.Drawing.Point(103, 181);
             this.patternAudio.Name = "patternAudio";
             this.patternAudio.Size = new System.Drawing.Size(218, 20);
-            this.patternAudio.TabIndex = 9;
+            this.patternAudio.TabIndex = 11;
             // 
             // patternVideo
             // 
@@ -245,7 +245,7 @@
             this.patternVideo.Location = new System.Drawing.Point(103, 155);
             this.patternVideo.Name = "patternVideo";
             this.patternVideo.Size = new System.Drawing.Size(218, 20);
-            this.patternVideo.TabIndex = 8;
+            this.patternVideo.TabIndex = 10;
             // 
             // patternImage
             // 
@@ -254,7 +254,7 @@
             this.patternImage.Location = new System.Drawing.Point(103, 129);
             this.patternImage.Name = "patternImage";
             this.patternImage.Size = new System.Drawing.Size(218, 20);
-            this.patternImage.TabIndex = 7;
+            this.patternImage.TabIndex = 9;
             // 
             // localization
             // 
@@ -263,7 +263,7 @@
             this.localization.Location = new System.Drawing.Point(103, 102);
             this.localization.Name = "localization";
             this.localization.Size = new System.Drawing.Size(121, 21);
-            this.localization.TabIndex = 6;
+            this.localization.TabIndex = 8;
             // 
             // copyMode
             // 
@@ -272,14 +272,14 @@
             this.copyMode.Location = new System.Drawing.Point(103, 75);
             this.copyMode.Name = "copyMode";
             this.copyMode.Size = new System.Drawing.Size(121, 21);
-            this.copyMode.TabIndex = 5;
+            this.copyMode.TabIndex = 7;
             // 
             // progress
             // 
             this.progress.Location = new System.Drawing.Point(12, 344);
             this.progress.Name = "progress";
             this.progress.Size = new System.Drawing.Size(246, 23);
-            this.progress.TabIndex = 4;
+            this.progress.TabIndex = 12;
             this.progress.Visible = false;
             // 
             // destinationPath
@@ -293,7 +293,7 @@
             this.destinationPath.Path = "C:\\temp\\backup";
             this.destinationPath.ReadOnly = false;
             this.destinationPath.Size = new System.Drawing.Size(218, 23);
-            this.destinationPath.TabIndex = 3;
+            this.destinationPath.TabIndex = 5;
             // 
             // sourcePath
             // 
@@ -306,7 +306,7 @@
             this.sourcePath.Path = "C:\\temp";
             this.sourcePath.ReadOnly = false;
             this.sourcePath.Size = new System.Drawing.Size(218, 23);
-            this.sourcePath.TabIndex = 0;
+            this.sourcePath.TabIndex = 1;
             // 
             // Main
             // 
