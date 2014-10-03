@@ -185,11 +185,17 @@ namespace ExifOrganizer.Organizer
                         throw new NotImplementedException(String.Format("CopyMode: {0}", CopyMode));
                 }
 
-                if (skipIdentical && File.Exists(item.destinationPath))
+                if (File.Exists(item.destinationPath))
                 {
-                    bool filesIdentical = item.sourceInfo.AreFilesIdentical(new FileInfo(item.destinationPath));
-                    if (filesIdentical)
+                    if (!overwrite)
                         continue;
+
+                    if (skipIdentical)
+                    {
+                        bool filesIdentical = item.sourceInfo.AreFilesIdentical(new FileInfo(item.destinationPath));
+                        if (filesIdentical)
+                            continue;
+                    }
                 }
 
                 try
