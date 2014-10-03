@@ -37,6 +37,8 @@
             this.recursive = new System.Windows.Forms.CheckBox();
             this.sourcePath = new ExifOrganizer.UI.FileBrowseControl();
             this.destination = new System.Windows.Forms.GroupBox();
+            this.infoCopyPrecondition = new System.Windows.Forms.Label();
+            this.copyPrecondition = new System.Windows.Forms.ComboBox();
             this.infoDestinationDirectory = new System.Windows.Forms.Label();
             this.infoCopyMode = new System.Windows.Forms.Label();
             this.infoLocalization = new System.Windows.Forms.Label();
@@ -50,8 +52,6 @@
             this.copyMode = new System.Windows.Forms.ComboBox();
             this.destinationPath = new ExifOrganizer.UI.FileBrowseControl();
             this.progress = new System.Windows.Forms.ProgressBar();
-            this.infoCopyPrecondition = new System.Windows.Forms.Label();
-            this.copyPrecondition = new System.Windows.Forms.ComboBox();
             this.source.SuspendLayout();
             this.destination.SuspendLayout();
             this.SuspendLayout();
@@ -170,6 +170,24 @@
             this.destination.TabStop = false;
             this.destination.Text = "Destination";
             // 
+            // infoCopyPrecondition
+            // 
+            this.infoCopyPrecondition.AutoSize = true;
+            this.infoCopyPrecondition.Location = new System.Drawing.Point(6, 51);
+            this.infoCopyPrecondition.Name = "infoCopyPrecondition";
+            this.infoCopyPrecondition.Size = new System.Drawing.Size(92, 13);
+            this.infoCopyPrecondition.TabIndex = 11;
+            this.infoCopyPrecondition.Text = "Copy precondition";
+            // 
+            // copyPrecondition
+            // 
+            this.copyPrecondition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.copyPrecondition.FormattingEnabled = true;
+            this.copyPrecondition.Location = new System.Drawing.Point(103, 48);
+            this.copyPrecondition.Name = "copyPrecondition";
+            this.copyPrecondition.Size = new System.Drawing.Size(121, 21);
+            this.copyPrecondition.TabIndex = 10;
+            // 
             // infoDestinationDirectory
             // 
             this.infoDestinationDirectory.AutoSize = true;
@@ -232,7 +250,6 @@
             this.patternAudio.Name = "patternAudio";
             this.patternAudio.Size = new System.Drawing.Size(218, 20);
             this.patternAudio.TabIndex = 8;
-            this.patternAudio.Text = "%y/%m/Audio/%t/%n";
             // 
             // patternVideo
             // 
@@ -242,7 +259,6 @@
             this.patternVideo.Name = "patternVideo";
             this.patternVideo.Size = new System.Drawing.Size(218, 20);
             this.patternVideo.TabIndex = 7;
-            this.patternVideo.Text = "%y/%m/Video/%t/%n";
             // 
             // patternImage
             // 
@@ -252,7 +268,6 @@
             this.patternImage.Name = "patternImage";
             this.patternImage.Size = new System.Drawing.Size(218, 20);
             this.patternImage.TabIndex = 6;
-            this.patternImage.Text = "%y/%m/%t/%n";
             // 
             // localization
             // 
@@ -292,24 +307,6 @@
             this.progress.Size = new System.Drawing.Size(246, 23);
             this.progress.TabIndex = 4;
             this.progress.Visible = false;
-            // 
-            // infoCopyPrecondition
-            // 
-            this.infoCopyPrecondition.AutoSize = true;
-            this.infoCopyPrecondition.Location = new System.Drawing.Point(6, 51);
-            this.infoCopyPrecondition.Name = "infoCopyPrecondition";
-            this.infoCopyPrecondition.Size = new System.Drawing.Size(92, 13);
-            this.infoCopyPrecondition.TabIndex = 11;
-            this.infoCopyPrecondition.Text = "Copy precondition";
-            // 
-            // copyPrecondition
-            // 
-            this.copyPrecondition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.copyPrecondition.FormattingEnabled = true;
-            this.copyPrecondition.Location = new System.Drawing.Point(103, 48);
-            this.copyPrecondition.Name = "copyPrecondition";
-            this.copyPrecondition.Size = new System.Drawing.Size(121, 21);
-            this.copyPrecondition.TabIndex = 10;
             // 
             // Main
             // 

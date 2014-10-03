@@ -65,6 +65,11 @@ namespace ExifOrganizer.UI
             // CultureInfo localization
             localization.Items.Add(organizer.Localization);
             localization.SelectedItem = organizer.Localization;
+
+            // Patterns
+            patternImage.Text = organizer.DestinationPatternImage;
+            patternAudio.Text = organizer.DestinationPatternAudio;
+            patternVideo.Text = organizer.DestinationPatternVideo;
         }
 
         private void organize_Click(object sender, EventArgs e)
@@ -73,6 +78,7 @@ namespace ExifOrganizer.UI
             organizer.destinationPath = destinationPath.Path;
             organizer.Recursive = recursive.Checked;
             organizer.DuplicateMode = (DuplicateMode)duplicateMode.SelectedItem;
+            organizer.CopyPrecondition = (CopyPrecondition)copyPrecondition.SelectedItem;
             organizer.CopyMode = (CopyMode)copyMode.SelectedItem;
             organizer.DestinationPatternImage = patternImage.Text;
             organizer.DestinationPatternVideo = patternVideo.Text;
