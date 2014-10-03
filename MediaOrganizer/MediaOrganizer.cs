@@ -212,7 +212,7 @@ namespace ExifOrganizer.Organizer
                     throw new MediaOrganizerException(String.Format("Failed to copy file. Overwrite: {0}. Source: {1}. Destination: {2}", overwrite, item.sourcePath, item.destinationPath), ex.Message);
                 }
 
-                if (i % 10 == 0)
+                if ((((float)i / (float)itemCount) * 10) % 2 == 0)
                     OnProgress(this, 0.2 + ((double)i / (double)itemCount));
             }
 
