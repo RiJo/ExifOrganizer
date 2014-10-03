@@ -33,8 +33,10 @@ namespace ExifOrganizer.Meta
 
             if (Directory.Exists(path))
                 return ParseDirectory(path, recursive, ignorePaths);
-            else
+            else if (File.Exists(path))
                 return new MetaData[] { ParseFile(path) };
+            else
+                throw new FileNotFoundException(String.Format("Could not find file or directory: {0}", path));
         }
 
         public static MetaData ParseFile(string path)
