@@ -43,6 +43,14 @@ namespace ExifOrganizer.Organizer
         KeepAll
     }
 
+    // TODO: implement
+    public enum ExceptionHandling
+    {
+        Revert,
+        Abort,
+        Ignore
+    }
+
     public class OrganizeSummary
     {
         public string[] parsed;
@@ -135,7 +143,17 @@ namespace ExifOrganizer.Organizer
                 CopyItem item = copyItems.items[i];
 
                 if (!Directory.Exists(Path.GetDirectoryName(item.destinationPath)))
-                    Directory.CreateDirectory(Path.GetDirectoryName(item.destinationPath));
+                {
+                    string destinationDirectory = Path.GetDirectoryName(item.destinationPath);
+                    try
+                    {
+                        Directory.CreateDirectory(destinationDirectory);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new MediaOrganizerException(String.Format("Failed to create directory: {0}", destinationDirectory), ex.Message);
+                    }
+                }
 
                 bool overwrite = false;
                 if (File.Exists(item.destinationPath))
@@ -156,7 +174,14 @@ namespace ExifOrganizer.Organizer
                     }
                 }
 
-                File.Copy(item.sourcePath, item.destinationPath, overwrite);
+                try
+                {
+                    File.Copy(item.sourcePath, item.destinationPath, overwrite);
+                }
+                catch (Exception ex)
+                {
+                    throw new MediaOrganizerException(String.Format("Failed to copy file. Source: {0}. Destination: {1}", item.sourcePath, item.destinationPath), ex.Message);
+                }
 
                 if (i % 10 == 0)
                     OnProgress(this, 0.2 + ((double)i / (double)itemCount));
