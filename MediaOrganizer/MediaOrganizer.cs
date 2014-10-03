@@ -339,15 +339,40 @@ namespace ExifOrganizer.Organizer
                         // TODO: handle exceptions
                         // Move source/destination path to temporary place before copying
                         string tempSourcePath = Path.GetTempFileName();
-                        File.Delete(tempSourcePath);
-                        Directory.Move(copyItems.sourcePath, tempSourcePath);
+                        try
+                        {
+                            File.Delete(tempSourcePath);
+                            Directory.Move(copyItems.sourcePath, tempSourcePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new MediaOrganizerException(String.Format("Failed to generate temporary directory: {0}", tempSourcePath), ex);
+                        }
                         copyItems.sourcePath = tempSourcePath; // TODO: delete this path after organization
                     }
                     else
                     {
-                        Directory.Delete(copyItems.destinationPath, true);
+                        try
+                        {
+                            Directory.Delete(copyItems.destinationPath, true);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new MediaOrganizerException(String.Format("Failed to wipe destination path: {0}", copyItems.destinationPath), ex);
+                        }
                     }
-                    Directory.CreateDirectory(copyItems.destinationPath);
+
+                    if (!Directory.Exists(copyItems.destinationPath))
+                    {
+                        try
+                        {
+                            Directory.CreateDirectory(copyItems.destinationPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new MediaOrganizerException(String.Format("Failed to create destination path: {0}", copyItems.destinationPath), ex);
+                        }
+                    }
                     break;
 
                 default:
