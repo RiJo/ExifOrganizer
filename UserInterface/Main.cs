@@ -34,9 +34,13 @@ namespace ExifOrganizer.UI
 {
     public partial class Main : Form
     {
+        MediaOrganizer organizer = new MediaOrganizer();
+
         public Main()
         {
             InitializeComponent();
+
+            organizer.OnProgress += ReportProgress;
         }
 
         #region Control events
@@ -46,23 +50,25 @@ namespace ExifOrganizer.UI
             // DuplicateMode enum
             foreach (DuplicateMode mode in Enum.GetValues(typeof(DuplicateMode)))
                 duplicateMode.Items.Add(mode);
-            duplicateMode.SelectedIndex = 0;
+            duplicateMode.SelectedItem = organizer.DuplicateMode;
+
+            // CopyPrecondition enum
+            foreach (CopyPrecondition precondition in Enum.GetValues(typeof(CopyPrecondition)))
+                copyPrecondition.Items.Add(precondition);
+            copyPrecondition.SelectedItem = organizer.CopyPrecondition;
 
             // CopyMode enum
             foreach (CopyMode mode in Enum.GetValues(typeof(CopyMode)))
                 copyMode.Items.Add(mode);
-            copyMode.SelectedIndex = 0;
+            copyMode.SelectedItem = organizer.CopyMode;
 
             // CultureInfo localization
-            CultureInfo culture = Thread.CurrentThread.CurrentUICulture;
-            localization.Items.Add(culture);
-            localization.SelectedItem = culture;
+            localization.Items.Add(organizer.Localization);
+            localization.SelectedItem = organizer.Localization;
         }
 
         private void organize_Click(object sender, EventArgs e)
         {
-            MediaOrganizer organizer = new MediaOrganizer();
-            organizer.OnProgress += ReportProgress;
             organizer.sourcePath = sourcePath.Path;
             organizer.destinationPath = destinationPath.Path;
             organizer.Recursive = recursive.Checked;

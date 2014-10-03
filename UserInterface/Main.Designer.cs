@@ -50,6 +50,8 @@
             this.copyMode = new System.Windows.Forms.ComboBox();
             this.destinationPath = new ExifOrganizer.UI.FileBrowseControl();
             this.progress = new System.Windows.Forms.ProgressBar();
+            this.infoCopyPrecondition = new System.Windows.Forms.Label();
+            this.copyPrecondition = new System.Windows.Forms.ComboBox();
             this.source.SuspendLayout();
             this.destination.SuspendLayout();
             this.SuspendLayout();
@@ -147,6 +149,8 @@
             this.destination.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.destination.Controls.Add(this.infoCopyPrecondition);
+            this.destination.Controls.Add(this.copyPrecondition);
             this.destination.Controls.Add(this.infoDestinationDirectory);
             this.destination.Controls.Add(this.infoCopyMode);
             this.destination.Controls.Add(this.infoLocalization);
@@ -178,7 +182,7 @@
             // infoCopyMode
             // 
             this.infoCopyMode.AutoSize = true;
-            this.infoCopyMode.Location = new System.Drawing.Point(6, 51);
+            this.infoCopyMode.Location = new System.Drawing.Point(6, 78);
             this.infoCopyMode.Name = "infoCopyMode";
             this.infoCopyMode.Size = new System.Drawing.Size(60, 13);
             this.infoCopyMode.TabIndex = 5;
@@ -187,7 +191,7 @@
             // infoLocalization
             // 
             this.infoLocalization.AutoSize = true;
-            this.infoLocalization.Location = new System.Drawing.Point(6, 78);
+            this.infoLocalization.Location = new System.Drawing.Point(6, 105);
             this.infoLocalization.Name = "infoLocalization";
             this.infoLocalization.Size = new System.Drawing.Size(63, 13);
             this.infoLocalization.TabIndex = 6;
@@ -196,7 +200,7 @@
             // infoPatternImage
             // 
             this.infoPatternImage.AutoSize = true;
-            this.infoPatternImage.Location = new System.Drawing.Point(6, 105);
+            this.infoPatternImage.Location = new System.Drawing.Point(6, 132);
             this.infoPatternImage.Name = "infoPatternImage";
             this.infoPatternImage.Size = new System.Drawing.Size(72, 13);
             this.infoPatternImage.TabIndex = 7;
@@ -205,7 +209,7 @@
             // infoPatternVideo
             // 
             this.infoPatternVideo.AutoSize = true;
-            this.infoPatternVideo.Location = new System.Drawing.Point(6, 131);
+            this.infoPatternVideo.Location = new System.Drawing.Point(6, 158);
             this.infoPatternVideo.Name = "infoPatternVideo";
             this.infoPatternVideo.Size = new System.Drawing.Size(70, 13);
             this.infoPatternVideo.TabIndex = 8;
@@ -214,7 +218,7 @@
             // infoPatternAudio
             // 
             this.infoPatternAudio.AutoSize = true;
-            this.infoPatternAudio.Location = new System.Drawing.Point(6, 157);
+            this.infoPatternAudio.Location = new System.Drawing.Point(6, 184);
             this.infoPatternAudio.Name = "infoPatternAudio";
             this.infoPatternAudio.Size = new System.Drawing.Size(70, 13);
             this.infoPatternAudio.TabIndex = 9;
@@ -224,7 +228,7 @@
             // 
             this.patternAudio.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.patternAudio.Location = new System.Drawing.Point(103, 154);
+            this.patternAudio.Location = new System.Drawing.Point(103, 181);
             this.patternAudio.Name = "patternAudio";
             this.patternAudio.Size = new System.Drawing.Size(218, 20);
             this.patternAudio.TabIndex = 8;
@@ -234,7 +238,7 @@
             // 
             this.patternVideo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.patternVideo.Location = new System.Drawing.Point(103, 128);
+            this.patternVideo.Location = new System.Drawing.Point(103, 155);
             this.patternVideo.Name = "patternVideo";
             this.patternVideo.Size = new System.Drawing.Size(218, 20);
             this.patternVideo.TabIndex = 7;
@@ -244,7 +248,7 @@
             // 
             this.patternImage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.patternImage.Location = new System.Drawing.Point(103, 102);
+            this.patternImage.Location = new System.Drawing.Point(103, 129);
             this.patternImage.Name = "patternImage";
             this.patternImage.Size = new System.Drawing.Size(218, 20);
             this.patternImage.TabIndex = 6;
@@ -254,7 +258,7 @@
             // 
             this.localization.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.localization.FormattingEnabled = true;
-            this.localization.Location = new System.Drawing.Point(103, 75);
+            this.localization.Location = new System.Drawing.Point(103, 102);
             this.localization.Name = "localization";
             this.localization.Size = new System.Drawing.Size(121, 21);
             this.localization.TabIndex = 5;
@@ -263,7 +267,7 @@
             // 
             this.copyMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.copyMode.FormattingEnabled = true;
-            this.copyMode.Location = new System.Drawing.Point(103, 48);
+            this.copyMode.Location = new System.Drawing.Point(103, 75);
             this.copyMode.Name = "copyMode";
             this.copyMode.Size = new System.Drawing.Size(121, 21);
             this.copyMode.TabIndex = 4;
@@ -288,6 +292,24 @@
             this.progress.Size = new System.Drawing.Size(246, 23);
             this.progress.TabIndex = 4;
             this.progress.Visible = false;
+            // 
+            // infoCopyPrecondition
+            // 
+            this.infoCopyPrecondition.AutoSize = true;
+            this.infoCopyPrecondition.Location = new System.Drawing.Point(6, 51);
+            this.infoCopyPrecondition.Name = "infoCopyPrecondition";
+            this.infoCopyPrecondition.Size = new System.Drawing.Size(92, 13);
+            this.infoCopyPrecondition.TabIndex = 11;
+            this.infoCopyPrecondition.Text = "Copy precondition";
+            // 
+            // copyPrecondition
+            // 
+            this.copyPrecondition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.copyPrecondition.FormattingEnabled = true;
+            this.copyPrecondition.Location = new System.Drawing.Point(103, 48);
+            this.copyPrecondition.Name = "copyPrecondition";
+            this.copyPrecondition.Size = new System.Drawing.Size(121, 21);
+            this.copyPrecondition.TabIndex = 10;
             // 
             // Main
             // 
@@ -333,6 +355,8 @@
         private System.Windows.Forms.Label infoDuplicateMode;
         private System.Windows.Forms.ComboBox duplicateMode;
         private System.Windows.Forms.ProgressBar progress;
+        private System.Windows.Forms.Label infoCopyPrecondition;
+        private System.Windows.Forms.ComboBox copyPrecondition;
     }
 }
 
