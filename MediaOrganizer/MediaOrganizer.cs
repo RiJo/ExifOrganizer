@@ -28,12 +28,18 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Organizer
 {
+    public enum CopyPrecondition
+    {
+        None,
+        RequireEmpty,
+        WipeBefore
+    }
+
     public enum CopyMode
     {
-        RequireEmpty, // Incompatbile with sourcePath == destinationPath
+        KeepExisting,
         Delta,
         ForceOverwrite,
-        WipeBefore
     }
 
     public enum DuplicateMode
@@ -87,7 +93,8 @@ namespace ExifOrganizer.Organizer
         public string DestinationPatternImage = @"%y/%m/%t/%n";
         public string DestinationPatternVideo = @"%y/%m/Video/%t/%n";
         public string DestinationPatternAudio = @"%y/%m/Audio/%t/%n";
-        public CopyMode CopyMode = CopyMode.WipeBefore;
+        public CopyPrecondition CopyPrecondition = CopyPrecondition.None;
+        public CopyMode CopyMode = CopyMode.Delta;
         public DuplicateMode DuplicateMode = DuplicateMode.Unique;
         public string[] IgnorePaths = null;
 
@@ -155,23 +162,34 @@ namespace ExifOrganizer.Organizer
                     }
                 }
 
-                bool overwrite = false;
-                if (File.Exists(item.destinationPath))
+                bool overwrite;
+                bool skipIdentical;
+                switch (CopyMode)
                 {
-                    switch (CopyMode)
-                    {
-                        case CopyMode.RequireEmpty:
-                        case CopyMode.WipeBefore:
-                            throw new MediaOrganizerException("Destination file already exists: {0}", item.destinationPath);
-                        case CopyMode.Delta:
-                            // TODO: check if files are identical?
-                            overwrite = false;
-                            continue; // Skip existing files
-                        case CopyMode.ForceOverwrite:
-                            // TODO: check if files are identical?
-                            overwrite = true;
-                            break; // 
-                    }
+                    case CopyMode.KeepExisting:
+                        overwrite = false;
+                        skipIdentical = true;
+                        break;
+
+                    case CopyMode.Delta:
+                        overwrite = true;
+                        skipIdentical = true;
+                        break;
+
+                    case CopyMode.ForceOverwrite:
+                        overwrite = true;
+                        skipIdentical = false;
+                        break;
+
+                    default:
+                        throw new NotImplementedException(String.Format("CopyMode: {0}", CopyMode));
+                }
+
+                if (skipIdentical && File.Exists(item.destinationPath))
+                {
+                    bool filesIdentical = item.sourceInfo.AreFilesIdentical(new FileInfo(item.destinationPath));
+                    if (filesIdentical)
+                        continue;
                 }
 
                 try
@@ -180,7 +198,7 @@ namespace ExifOrganizer.Organizer
                 }
                 catch (Exception ex)
                 {
-                    throw new MediaOrganizerException(String.Format("Failed to copy file. Source: {0}. Destination: {1}", item.sourcePath, item.destinationPath), ex.Message);
+                    throw new MediaOrganizerException(String.Format("Failed to copy file. Overwrite: {0}. Source: {1}. Destination: {2}", overwrite, item.sourcePath, item.destinationPath), ex.Message);
                 }
 
                 if (i % 10 == 0)
@@ -283,9 +301,12 @@ namespace ExifOrganizer.Organizer
                 return;
             }
 
-            switch (CopyMode)
+            switch (CopyPrecondition)
             {
-                case CopyMode.RequireEmpty:
+                case CopyPrecondition.None:
+                    break;
+
+                case CopyPrecondition.RequireEmpty:
                     if (Directory.Exists(copyItems.destinationPath))
                     {
                         if (Directory.GetFiles(copyItems.destinationPath).Length > 0)
@@ -295,9 +316,10 @@ namespace ExifOrganizer.Organizer
                     }
                     break;
 
-                case CopyMode.WipeBefore:
+                case CopyPrecondition.WipeBefore:
                     if (copyItems.sourcePath.DirectoryAreSame(copyItems.destinationPath))
                     {
+                        // TODO: handle exceptions
                         // Move source/destination path to temporary place before copying
                         string tempSourcePath = Path.GetTempFileName();
                         File.Delete(tempSourcePath);
@@ -310,6 +332,9 @@ namespace ExifOrganizer.Organizer
                     }
                     Directory.CreateDirectory(copyItems.destinationPath);
                     break;
+
+                default:
+                    throw new NotImplementedException(String.Format("CopyPrecondition: {0}", CopyPrecondition));
             }
         }
 

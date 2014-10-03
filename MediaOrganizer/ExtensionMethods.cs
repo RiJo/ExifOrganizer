@@ -28,12 +28,26 @@ namespace ExifOrganizer.Organizer
 {
     public static class ExtensionMethods
     {
+        public static bool AreFilesIdentical(this FileInfo fileInfo, FileInfo otherFile)
+        {
+            if (fileInfo == null)
+                throw new ArgumentNullException("fileInfo");
+            if (fileInfo == null)
+                throw new ArgumentNullException("otherFile");
+            if (!fileInfo.Exists)
+                return false;
+            if (!otherFile.Exists)
+                return false;
+
+            return fileInfo.GetMD5Sum() == otherFile.GetMD5Sum();
+        }
+
         public static string GetMD5Sum(this FileInfo fileInfo)
         {
             if (fileInfo == null)
                 throw new ArgumentNullException("fileInfo");
             if (!fileInfo.Exists)
-                throw new FileNotFoundException(String.Format("Cannot locate file to calculate md5sum: {0}", fileInfo.FullName));
+                throw new FileNotFoundException(fileInfo.FullName);
 
             string filename = fileInfo.FullName;
             using (FileStream stream = File.OpenRead(filename))
