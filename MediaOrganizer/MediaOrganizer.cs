@@ -74,6 +74,7 @@ namespace ExifOrganizer.Organizer
     {
         private enum GroupType
         {
+            Index,
             Year,
             MonthName,
             MonthNumber,
@@ -105,6 +106,7 @@ namespace ExifOrganizer.Organizer
 
         private readonly Dictionary<string, GroupType> organizeGroups = new Dictionary<string, GroupType>()
         {
+            { "%i", GroupType.Index },
             { "%y", GroupType.Year },
             { "%m", GroupType.MonthNumber },
             { "%M", GroupType.MonthName },
@@ -374,9 +376,10 @@ namespace ExifOrganizer.Organizer
 
             HashSet<string> valid = new HashSet<string>();
             List<CopyItem> items = new List<CopyItem>();
+            int index = 0;
             foreach (MetaData meta in data)
             {
-                CopyItem item = ParseItem(destinationPath, meta);
+                CopyItem item = ParseItem(destinationPath, meta, index++);
                 items.Add(item);
                 valid.Add(item.sourcePath);
             }
@@ -384,19 +387,19 @@ namespace ExifOrganizer.Organizer
             return items;
         }
 
-        private CopyItem ParseItem(string destinationPath, MetaData meta)
+        private CopyItem ParseItem(string destinationPath, MetaData meta, int index)
         {
             string sourcePath = meta.Path;
 
             CopyItem item = new CopyItem();
             item.sourceInfo = new FileInfo(sourcePath);
             item.sourcePath = sourcePath;
-            item.destinationPath = CalculateDestinationPath(destinationPath, meta);
+            item.destinationPath = CalculateDestinationPath(destinationPath, meta, index);
             item.meta = meta.Data;
             return item;
         }
 
-        private string CalculateDestinationPath(string destinationPath, MetaData meta)
+        private string CalculateDestinationPath(string destinationPath, MetaData meta, int index)
         {
             string destinationPattern = null;
             switch (meta.Type)
@@ -427,7 +430,7 @@ namespace ExifOrganizer.Organizer
                     if (replacements.ContainsKey(match.Value))
                         continue;
 
-                    string replacement = GetPatternReplacement(meta, match.Value);
+                    string replacement = GetPatternReplacement(meta, index, match.Value);
                     if (String.IsNullOrEmpty(replacement))
                         continue;
 
@@ -448,7 +451,7 @@ namespace ExifOrganizer.Organizer
             return Path.Combine(destinationPath, subPath);
         }
 
-        private string GetPatternReplacement(MetaData meta, string subpattern)
+        private string GetPatternReplacement(MetaData meta, int index, string subpattern)
         {
             GroupType groupType;
             if (!organizeGroups.TryGetValue(subpattern, out groupType))
@@ -457,6 +460,11 @@ namespace ExifOrganizer.Organizer
 
             switch (groupType)
             {
+                case GroupType.Index:
+                    {
+                        return index.ToString();
+                    }
+
                 case GroupType.Year:
                     {
                         object temp;
