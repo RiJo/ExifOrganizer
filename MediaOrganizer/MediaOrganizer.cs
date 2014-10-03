@@ -50,12 +50,11 @@ namespace ExifOrganizer.Organizer
         KeepAll
     }
 
-    // TODO: implement
     public enum ExceptionHandling
     {
-        Revert,
-        Abort,
-        Ignore
+        Throw,
+        Ignore,
+        //Revert,
     }
 
     public class OrganizeSummary
@@ -102,6 +101,7 @@ namespace ExifOrganizer.Organizer
         public CopyPrecondition CopyPrecondition = CopyPrecondition.None;
         public CopyMode CopyMode = CopyMode.Delta;
         public DuplicateMode DuplicateMode = DuplicateMode.Unique;
+        public ExceptionHandling ExceptionHandling = ExceptionHandling.Throw;
         public string[] IgnorePaths = null;
 
         private readonly Dictionary<string, GroupType> organizeGroups = new Dictionary<string, GroupType>()
@@ -169,7 +169,8 @@ namespace ExifOrganizer.Organizer
                     }
                     catch (Exception ex)
                     {
-                        throw new MediaOrganizerException(String.Format("Failed to create directory: {0}", destinationDirectory), ex.Message);
+                        if (ExceptionHandling == ExceptionHandling.Throw)
+                            throw new MediaOrganizerException(String.Format("Failed to create directory: {0}", destinationDirectory), ex.Message);
                     }
                 }
 
@@ -215,7 +216,8 @@ namespace ExifOrganizer.Organizer
                 }
                 catch (Exception ex)
                 {
-                    throw new MediaOrganizerException(String.Format("Failed to copy file. Overwrite: {0}. Source: {1}. Destination: {2}", overwrite, item.sourcePath, item.destinationPath), ex.Message);
+                    if (ExceptionHandling == ExceptionHandling.Throw)
+                        throw new MediaOrganizerException(String.Format("Failed to copy file. Overwrite: {0}. Source: {1}. Destination: {2}", overwrite, item.sourcePath, item.destinationPath), ex.Message);
                 }
 
                 if ((((float)i / (float)itemCount) * 10) % 2 == 0)
