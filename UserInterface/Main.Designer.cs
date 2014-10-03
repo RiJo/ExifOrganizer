@@ -35,7 +35,6 @@
             this.infoSourceDirectory = new System.Windows.Forms.Label();
             this.infoRecursive = new System.Windows.Forms.Label();
             this.recursive = new System.Windows.Forms.CheckBox();
-            this.sourcePath = new ExifOrganizer.UI.FileBrowseControl();
             this.destination = new System.Windows.Forms.GroupBox();
             this.infoCopyPrecondition = new System.Windows.Forms.Label();
             this.copyPrecondition = new System.Windows.Forms.ComboBox();
@@ -50,8 +49,9 @@
             this.patternImage = new System.Windows.Forms.TextBox();
             this.localization = new System.Windows.Forms.ComboBox();
             this.copyMode = new System.Windows.Forms.ComboBox();
-            this.destinationPath = new ExifOrganizer.UI.FileBrowseControl();
             this.progress = new System.Windows.Forms.ProgressBar();
+            this.destinationPath = new ExifOrganizer.UI.FileBrowseControl();
+            this.sourcePath = new ExifOrganizer.UI.FileBrowseControl();
             this.source.SuspendLayout();
             this.destination.SuspendLayout();
             this.SuspendLayout();
@@ -62,7 +62,7 @@
             this.organize.Location = new System.Drawing.Point(264, 344);
             this.organize.Name = "organize";
             this.organize.Size = new System.Drawing.Size(75, 23);
-            this.organize.TabIndex = 0;
+            this.organize.TabIndex = 10;
             this.organize.Text = "Organize";
             this.organize.UseVisualStyleBackColor = true;
             this.organize.Click += new System.EventHandler(this.organize_Click);
@@ -100,7 +100,7 @@
             this.duplicateMode.Location = new System.Drawing.Point(103, 68);
             this.duplicateMode.Name = "duplicateMode";
             this.duplicateMode.Size = new System.Drawing.Size(121, 21);
-            this.duplicateMode.TabIndex = 11;
+            this.duplicateMode.TabIndex = 2;
             // 
             // infoSourceDirectory
             // 
@@ -128,21 +128,8 @@
             this.recursive.Location = new System.Drawing.Point(103, 48);
             this.recursive.Name = "recursive";
             this.recursive.Size = new System.Drawing.Size(15, 14);
-            this.recursive.TabIndex = 4;
+            this.recursive.TabIndex = 1;
             this.recursive.UseVisualStyleBackColor = true;
-            // 
-            // sourcePath
-            // 
-            this.sourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.sourcePath.BrowseType = ExifOrganizer.UI.FileBrowseType.Directory;
-            this.sourcePath.DialogTitle = "Source directory";
-            this.sourcePath.Location = new System.Drawing.Point(103, 19);
-            this.sourcePath.Name = "sourcePath";
-            this.sourcePath.Path = "C:\\temp";
-            this.sourcePath.ReadOnly = false;
-            this.sourcePath.Size = new System.Drawing.Size(218, 23);
-            this.sourcePath.TabIndex = 1;
             // 
             // destination
             // 
@@ -186,7 +173,7 @@
             this.copyPrecondition.Location = new System.Drawing.Point(103, 48);
             this.copyPrecondition.Name = "copyPrecondition";
             this.copyPrecondition.Size = new System.Drawing.Size(121, 21);
-            this.copyPrecondition.TabIndex = 10;
+            this.copyPrecondition.TabIndex = 4;
             // 
             // infoDestinationDirectory
             // 
@@ -249,7 +236,7 @@
             this.patternAudio.Location = new System.Drawing.Point(103, 181);
             this.patternAudio.Name = "patternAudio";
             this.patternAudio.Size = new System.Drawing.Size(218, 20);
-            this.patternAudio.TabIndex = 8;
+            this.patternAudio.TabIndex = 9;
             // 
             // patternVideo
             // 
@@ -258,7 +245,7 @@
             this.patternVideo.Location = new System.Drawing.Point(103, 155);
             this.patternVideo.Name = "patternVideo";
             this.patternVideo.Size = new System.Drawing.Size(218, 20);
-            this.patternVideo.TabIndex = 7;
+            this.patternVideo.TabIndex = 8;
             // 
             // patternImage
             // 
@@ -267,7 +254,7 @@
             this.patternImage.Location = new System.Drawing.Point(103, 129);
             this.patternImage.Name = "patternImage";
             this.patternImage.Size = new System.Drawing.Size(218, 20);
-            this.patternImage.TabIndex = 6;
+            this.patternImage.TabIndex = 7;
             // 
             // localization
             // 
@@ -276,7 +263,7 @@
             this.localization.Location = new System.Drawing.Point(103, 102);
             this.localization.Name = "localization";
             this.localization.Size = new System.Drawing.Size(121, 21);
-            this.localization.TabIndex = 5;
+            this.localization.TabIndex = 6;
             // 
             // copyMode
             // 
@@ -285,7 +272,15 @@
             this.copyMode.Location = new System.Drawing.Point(103, 75);
             this.copyMode.Name = "copyMode";
             this.copyMode.Size = new System.Drawing.Size(121, 21);
-            this.copyMode.TabIndex = 4;
+            this.copyMode.TabIndex = 5;
+            // 
+            // progress
+            // 
+            this.progress.Location = new System.Drawing.Point(12, 344);
+            this.progress.Name = "progress";
+            this.progress.Size = new System.Drawing.Size(246, 23);
+            this.progress.TabIndex = 4;
+            this.progress.Visible = false;
             // 
             // destinationPath
             // 
@@ -298,15 +293,20 @@
             this.destinationPath.Path = "C:\\temp\\backup";
             this.destinationPath.ReadOnly = false;
             this.destinationPath.Size = new System.Drawing.Size(218, 23);
-            this.destinationPath.TabIndex = 2;
+            this.destinationPath.TabIndex = 3;
             // 
-            // progress
+            // sourcePath
             // 
-            this.progress.Location = new System.Drawing.Point(12, 344);
-            this.progress.Name = "progress";
-            this.progress.Size = new System.Drawing.Size(246, 23);
-            this.progress.TabIndex = 4;
-            this.progress.Visible = false;
+            this.sourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.sourcePath.BrowseType = ExifOrganizer.UI.FileBrowseType.Directory;
+            this.sourcePath.DialogTitle = "Source directory";
+            this.sourcePath.Location = new System.Drawing.Point(103, 19);
+            this.sourcePath.Name = "sourcePath";
+            this.sourcePath.Path = "C:\\temp";
+            this.sourcePath.ReadOnly = false;
+            this.sourcePath.Size = new System.Drawing.Size(218, 23);
+            this.sourcePath.TabIndex = 0;
             // 
             // Main
             // 

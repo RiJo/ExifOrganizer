@@ -38,7 +38,7 @@
             this.browse.Location = new System.Drawing.Point(271, 0);
             this.browse.Name = "browse";
             this.browse.Size = new System.Drawing.Size(25, 23);
-            this.browse.TabIndex = 0;
+            this.browse.TabIndex = 1;
             this.browse.Text = "...";
             this.browse.UseVisualStyleBackColor = true;
             this.browse.Click += new System.EventHandler(this.browse_Click);
@@ -50,7 +50,7 @@
             this.path.Location = new System.Drawing.Point(0, 2);
             this.path.Name = "path";
             this.path.Size = new System.Drawing.Size(265, 20);
-            this.path.TabIndex = 1;
+            this.path.TabIndex = 0;
             // 
             // FileBrowseControl
             // 
