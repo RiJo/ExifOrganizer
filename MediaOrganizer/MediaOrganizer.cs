@@ -75,8 +75,10 @@ namespace ExifOrganizer.Organizer
         private enum GroupType
         {
             Year,
-            Month,
-            Day,
+            MonthName,
+            MonthNumber,
+            DayName,
+            DayNumber,
             Name,
             Tags
         }
@@ -91,9 +93,9 @@ namespace ExifOrganizer.Organizer
         public string destinationPath;
         public bool Recursive = true;
         public CultureInfo Localization = Thread.CurrentThread.CurrentCulture;
-        public string DestinationPatternImage = @"%y/%m/%t/%n";
-        public string DestinationPatternVideo = @"%y/%m/Video/%t/%n";
-        public string DestinationPatternAudio = @"%y/%m/Audio/%t/%n";
+        public string DestinationPatternImage = @"%y/%m %M/%t/%n";
+        public string DestinationPatternVideo = @"%y/%m %M/Video/%t/%n";
+        public string DestinationPatternAudio = @"%y/%m %M/Audio/%t/%n";
         public CopyPrecondition CopyPrecondition = CopyPrecondition.None;
         public CopyMode CopyMode = CopyMode.Delta;
         public DuplicateMode DuplicateMode = DuplicateMode.Unique;
@@ -102,8 +104,10 @@ namespace ExifOrganizer.Organizer
         private readonly Dictionary<string, GroupType> organizeGroups = new Dictionary<string, GroupType>()
         {
             { "%y", GroupType.Year },
-            { "%m", GroupType.Month },
-            { "%d", GroupType.Day },
+            { "%m", GroupType.MonthNumber },
+            { "%M", GroupType.MonthName },
+            { "%d", GroupType.DayNumber },
+            { "%D", GroupType.DayName },
             { "%n", GroupType.Name },
             { "%t", GroupType.Tags }
         };
@@ -429,7 +433,7 @@ namespace ExifOrganizer.Organizer
                 // Perform replacement
                 string temp = subPattern;
                 foreach (KeyValuePair<string, string> kvp in replacements)
-                    temp = subPattern.Replace(kvp.Key, kvp.Value);
+                    temp = temp.Replace(kvp.Key, kvp.Value);
                 subPath = Path.Combine(subPath, temp);
             }
 
@@ -455,7 +459,7 @@ namespace ExifOrganizer.Organizer
                         return datetime.Year.ToString();
                     }
 
-                case GroupType.Month:
+                case GroupType.MonthNumber:
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
@@ -464,11 +468,10 @@ namespace ExifOrganizer.Organizer
                         DateTime datetime = (DateTime)temp;
 
                         DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
-                        string monthName = dateinfo.MonthNames[datetime.Month - 1].UppercaseFirst();
-                        return monthName;
+                        return datetime.Month.ToString("D2");
                     }
 
-                case GroupType.Day:
+                case GroupType.MonthName:
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
@@ -477,8 +480,31 @@ namespace ExifOrganizer.Organizer
                         DateTime datetime = (DateTime)temp;
 
                         DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
-                        string dayName = dateinfo.DayNames[datetime.Day - 1].UppercaseFirst();
-                        return dayName;
+                        return dateinfo.MonthNames[datetime.Month - 1].UppercaseFirst();
+                    }
+
+                case GroupType.DayNumber:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
+
+                        DateTime datetime = (DateTime)temp;
+
+                        DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
+                        return datetime.Day.ToString();
+                    }
+
+                case GroupType.DayName:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
+
+                        DateTime datetime = (DateTime)temp;
+
+                        DateTimeFormatInfo dateinfo = Localization.DateTimeFormat;
+                        return dateinfo.DayNames[datetime.Day - 1].UppercaseFirst();
                     }
 
                 case GroupType.Name:
@@ -487,8 +513,7 @@ namespace ExifOrganizer.Organizer
                         if (!meta.Data.TryGetValue(MetaKey.Filename, out temp))
                             throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.Filename);
 
-                        string filename = (string)temp;
-                        return filename;
+                        return (string)temp;
                     }
 
                 case GroupType.Tags:
@@ -499,7 +524,7 @@ namespace ExifOrganizer.Organizer
 
                         string[] tags = temp as string[];
                         if (tags == null || tags.Length == 0)
-                            return "<tag>";
+                            return null;
 
                         string tag = tags[0]; // TODO: how to solve multiple tags?
                         return tag;
