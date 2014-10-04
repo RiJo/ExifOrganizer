@@ -440,10 +440,34 @@ namespace ExifOrganizer.Meta.Parsers
             else
                 meta.Data[MetaKey.Date] = File.GetCreationTime(filename);
 
+            meta.Data[MetaKey.FileName] = Path.GetFileName(filename);
             if (exif.ContainsKey(ExifId.ImageOriginalRawFileName))
-                meta.Data[MetaKey.Filename] = exif[ExifId.ImageOriginalRawFileName];
+                meta.Data[MetaKey.OriginalName] = exif[ExifId.ImageOriginalRawFileName];
             else
-                meta.Data[MetaKey.Filename] = Path.GetFileName(filename);
+                meta.Data[MetaKey.OriginalName] = meta.Data[MetaKey.FileName];
+
+            if (exif.ContainsKey(ExifId.ImageMake) || exif.ContainsKey(ExifId.ImageModel))
+            {
+                string camera = String.Empty;
+                if (exif.ContainsKey(ExifId.ImageMake))
+                    camera = ((string)exif[ExifId.ImageMake]).Trim();
+                if (exif.ContainsKey(ExifId.ImageModel))
+                {
+                    string model = ((string)exif[ExifId.ImageModel]).Trim();
+                    if (camera.Length > 0)
+                    {
+                        if (model.Contains(camera))
+                            camera = model;
+                        else
+                            camera = String.Format("{0} {1}", camera, model);
+                    }
+                    else
+                    {
+                        camera = model;
+                    }
+                }
+                meta.Data[MetaKey.Camera] = camera;
+            }
 
             if (exif.ContainsKey(ExifId.ImageXPKeywords))
                 meta.Data[MetaKey.Tags] = exif[ExifId.ImageXPKeywords];

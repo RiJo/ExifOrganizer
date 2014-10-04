@@ -33,9 +33,11 @@ namespace ExifOrganizer.Meta
 
     public enum MetaKey
     {
-        Filename,
+        OriginalName,
+        FileName,
         Size,
         Date,
+        Camera,
         Tags
     }
 
