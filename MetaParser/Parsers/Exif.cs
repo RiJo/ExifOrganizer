@@ -466,7 +466,9 @@ namespace ExifOrganizer.Meta.Parsers
                         camera = model;
                     }
                 }
-                meta.Data[MetaKey.Camera] = camera;
+
+                if (camera.Length > 0)
+                    meta.Data[MetaKey.Camera] = camera;
             }
 
             if (exif.ContainsKey(ExifId.ImageXPKeywords))
