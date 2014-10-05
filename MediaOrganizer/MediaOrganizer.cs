@@ -60,12 +60,24 @@ namespace ExifOrganizer.Organizer
     public class OrganizeSummary
     {
         public string[] parsed;
+        public string[] ignored;
+
         public string[] valid;
         public string[] duplicates;
 
+        public string[] totalFiles;
+        public string[] totalDirectories;
+
         public override string ToString()
         {
-            return String.Format("Summary {{ Parsed: {0}, Valid: {1}, Duplicates: {2} }}", parsed != null ? parsed.Length : 0, valid != null ? valid.Length : 0, duplicates != null ? duplicates.Length : 0);
+            return String.Format("Summary {{ Parsed: {0} (Ignored: {1}), Valid: {2}, Duplicates: {3}, Total files: {4}, Total directories: {5} }}",
+                parsed != null ? parsed.Length : 0,
+                ignored != null ? ignored.Length : 0,
+                valid != null ? valid.Length : 0,
+                duplicates != null ? duplicates.Length : 0,
+                totalFiles != null ? totalFiles.Length : 0,
+                totalDirectories != null ? totalDirectories.Length : 0
+            );
         }
     }
 
@@ -407,16 +419,39 @@ namespace ExifOrganizer.Organizer
                 throw new MediaOrganizerException("Failed to parse meta data", ex);
             }
 
+            HashSet<string> files = new HashSet<string>();
+            HashSet<string> directories = new HashSet<string>();
             HashSet<string> valid = new HashSet<string>();
+            HashSet<string> ignored = new HashSet<string>();
             List<CopyItem> items = new List<CopyItem>();
             int index = 0;
             foreach (MetaData meta in data)
             {
+                string path = meta.Path;
+
+                switch (meta.Type)
+                {
+                    case MetaType.Directory:
+                        directories.Add(path);
+                        continue;
+                    case MetaType.File:
+                        files.Add(path);
+                        ignored.Add(path);
+                        continue;
+                    default:
+                        files.Add(path);
+                        break;
+                }
+
                 CopyItem item = ParseItem(destinationPath, meta, index++);
                 items.Add(item);
-                valid.Add(item.sourcePath);
+                valid.Add(path);
             }
+
+            summary.totalDirectories = directories.ToArray();
+            summary.totalFiles = files.ToArray();
             summary.parsed = valid.ToArray();
+            summary.ignored = ignored.ToArray();
             return items;
         }
 
