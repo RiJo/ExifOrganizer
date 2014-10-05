@@ -28,6 +28,16 @@ namespace ExifOrganizer.Organizer
 {
     public static class ExtensionMethods
     {
+        public static bool FileExistsInDirectory(this FileInfo fileInfo, DirectoryInfo directory, FileComparator comparator)
+        {
+            foreach (FileInfo tempFile in directory.GetFiles())
+            {
+                if (tempFile.AreFilesIdentical(fileInfo, comparator))
+                    return true;
+            }
+            return false;
+        }
+
         public static bool AreFilesIdentical(this FileInfo fileInfo, FileInfo otherFile, FileComparator comparator)
         {
             if (fileInfo == null)

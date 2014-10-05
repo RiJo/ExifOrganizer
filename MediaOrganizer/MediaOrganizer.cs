@@ -197,12 +197,12 @@ namespace ExifOrganizer.Organizer
                     {
                         // Potentially slow, therefore previous optimizations
                         FileInfo destinationInfo = new FileInfo(destinationPath);
-                        bool filesIdentical = item.sourceInfo.AreFilesIdentical(destinationInfo, FileComparator);
+                        bool fileExists = destinationInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator);
 
                         switch (CopyMode)
                         {
                             case CopyMode.Delta:
-                                if (filesIdentical)
+                                if (fileExists)
                                     continue;
                                 overwrite = true;
                                 break;
@@ -210,12 +210,13 @@ namespace ExifOrganizer.Organizer
                             case CopyMode.KeepAll:
                                 // Find next unused filename
                                 int index = 1;
-                                while (!filesIdentical)
+                                while (!fileExists)
                                 {
                                     destinationPath = destinationInfo.SuffixFileName(index++);
-                                    filesIdentical = item.sourceInfo.AreFilesIdentical(new FileInfo(destinationPath), FileComparator);
+                                    FileInfo tempFileInfo = new FileInfo(destinationPath);
+                                    fileExists = tempFileInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator);
                                 }
-                                if (filesIdentical)
+                                if (fileExists)
                                     continue;
                                 overwrite = false;
                                 break;
