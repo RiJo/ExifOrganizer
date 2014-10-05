@@ -30,8 +30,8 @@
         {
             this.organize = new System.Windows.Forms.Button();
             this.source = new System.Windows.Forms.GroupBox();
-            this.infoDuplicateMode = new System.Windows.Forms.Label();
-            this.duplicateMode = new System.Windows.Forms.ComboBox();
+            this.infoFileComparator = new System.Windows.Forms.Label();
+            this.fileComparator = new System.Windows.Forms.ComboBox();
             this.infoSourceDirectory = new System.Windows.Forms.Label();
             this.infoRecursive = new System.Windows.Forms.Label();
             this.recursive = new System.Windows.Forms.CheckBox();
@@ -71,8 +71,8 @@
             // 
             this.source.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.source.Controls.Add(this.infoDuplicateMode);
-            this.source.Controls.Add(this.duplicateMode);
+            this.source.Controls.Add(this.infoFileComparator);
+            this.source.Controls.Add(this.fileComparator);
             this.source.Controls.Add(this.infoSourceDirectory);
             this.source.Controls.Add(this.infoRecursive);
             this.source.Controls.Add(this.recursive);
@@ -84,23 +84,25 @@
             this.source.TabStop = false;
             this.source.Text = "Source";
             // 
-            // infoDuplicateMode
+            // infoFileComparator
             // 
-            this.infoDuplicateMode.AutoSize = true;
-            this.infoDuplicateMode.Location = new System.Drawing.Point(6, 71);
-            this.infoDuplicateMode.Name = "infoDuplicateMode";
-            this.infoDuplicateMode.Size = new System.Drawing.Size(81, 13);
-            this.infoDuplicateMode.TabIndex = 12;
-            this.infoDuplicateMode.Text = "Duplicate mode";
+            this.infoFileComparator.AutoSize = true;
+            this.infoFileComparator.Location = new System.Drawing.Point(6, 71);
+            this.infoFileComparator.Name = "infoFileComparator";
+            this.infoFileComparator.Size = new System.Drawing.Size(79, 13);
+            this.infoFileComparator.TabIndex = 12;
+            this.infoFileComparator.Text = "File comparator";
+            this.infoFileComparator.Visible = false;
             // 
-            // duplicateMode
+            // fileComparator
             // 
-            this.duplicateMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.duplicateMode.FormattingEnabled = true;
-            this.duplicateMode.Location = new System.Drawing.Point(103, 68);
-            this.duplicateMode.Name = "duplicateMode";
-            this.duplicateMode.Size = new System.Drawing.Size(121, 21);
-            this.duplicateMode.TabIndex = 3;
+            this.fileComparator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.fileComparator.FormattingEnabled = true;
+            this.fileComparator.Location = new System.Drawing.Point(103, 68);
+            this.fileComparator.Name = "fileComparator";
+            this.fileComparator.Size = new System.Drawing.Size(121, 21);
+            this.fileComparator.TabIndex = 3;
+            this.fileComparator.Visible = false;
             // 
             // infoSourceDirectory
             // 
@@ -349,8 +351,8 @@
         private System.Windows.Forms.Label infoPatternImage;
         private System.Windows.Forms.Label infoPatternVideo;
         private System.Windows.Forms.Label infoPatternAudio;
-        private System.Windows.Forms.Label infoDuplicateMode;
-        private System.Windows.Forms.ComboBox duplicateMode;
+        private System.Windows.Forms.Label infoFileComparator;
+        private System.Windows.Forms.ComboBox fileComparator;
         private System.Windows.Forms.ProgressBar progress;
         private System.Windows.Forms.Label infoCopyPrecondition;
         private System.Windows.Forms.ComboBox copyPrecondition;

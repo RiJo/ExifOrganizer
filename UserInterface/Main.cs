@@ -48,9 +48,9 @@ namespace ExifOrganizer.UI
         private void Main_Load(object sender, EventArgs e)
         {
             // DuplicateMode enum
-            //foreach (DuplicateMode mode in Enum.GetValues(typeof(DuplicateMode)))
-            //    duplicateMode.Items.Add(mode);
-            //duplicateMode.SelectedItem = organizer.DuplicateMode;
+            foreach (FileComparator comparator in Enum.GetValues(typeof(FileComparator)))
+                fileComparator.Items.Add(comparator);
+            fileComparator.SelectedItem = organizer.FileComparator;
 
             // CopyPrecondition enum
             foreach (CopyPrecondition precondition in Enum.GetValues(typeof(CopyPrecondition)))
@@ -77,7 +77,7 @@ namespace ExifOrganizer.UI
             organizer.sourcePath = sourcePath.Path;
             organizer.destinationPath = destinationPath.Path;
             organizer.Recursive = recursive.Checked;
-            //organizer.DuplicateMode = (DuplicateMode)duplicateMode.SelectedItem;
+            organizer.FileComparator = (FileComparator)fileComparator.SelectedItem;
             organizer.CopyPrecondition = (CopyPrecondition)copyPrecondition.SelectedItem;
             organizer.CopyMode = (CopyMode)copyMode.SelectedItem;
             organizer.DestinationPatternImage = patternImage.Text;
