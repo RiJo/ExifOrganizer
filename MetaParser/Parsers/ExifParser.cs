@@ -1,5 +1,5 @@
 ﻿//
-// Exif.cs: Exif meta data parser class.
+// ExifParser.cs: Exif meta data parser class.
 //
 // Copyright (C) 2014 Rikard Johansson
 //
@@ -26,7 +26,7 @@ using System.Text;
 
 namespace ExifOrganizer.Meta.Parsers
 {
-    internal class Exif : Parser
+    internal class ExifParser : Parser
     {
         private enum ExifDataType : short
         {

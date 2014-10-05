@@ -54,30 +54,30 @@ namespace ExifOrganizer.Meta
                 case ".jpeg":
                 case ".tif":
                 case ".tiff":
-                    return Exif.Parse(path);
+                    return ExifParser.Parse(path);
 
                 // Images (generic)
                 case ".png":
                 case ".gif":
                 case ".bmp":
-                    return Generic.Parse(path, MetaType.Image);
+                    return GenericFileParser.Parse(path, MetaType.Image);
 
                 // Music (generic)
                 case ".mp3": // TODO: id3
                 case ".wav": // TODO: exif
                 case ".flac":
                 case ".aac":
-                    return Generic.Parse(path, MetaType.Music);
+                    return GenericFileParser.Parse(path, MetaType.Music);
 
                 // Movies (generic)
                 case ".mpg":
                 case ".mpeg":
                 case ".mov":
                 case ".mp4":
-                    return Generic.Parse(path, MetaType.Video);
+                    return GenericFileParser.Parse(path, MetaType.Video);
 
                 default:
-                    throw new NotSupportedException(String.Format("File extension not recognized: {0}", extension));
+                    return GenericFileParser.Parse(path, MetaType.File);
             }
         }
 
@@ -97,6 +97,8 @@ namespace ExifOrganizer.Meta
                         return list;
                 }
             }
+
+            list.Add(DirectoryParser.Parse(path));
 
             foreach (string file in Directory.GetFiles(path))
             {

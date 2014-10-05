@@ -26,6 +26,9 @@ namespace ExifOrganizer.Meta
 {
     public enum MetaType
     {
+        Directory,
+        File,
+
         Image,
         Video,
         Music

@@ -1,5 +1,5 @@
 ﻿//
-// Generic.cs: Generic meta data parser class.
+// GenericFileParser.cs: Generic meta data parser class.
 //
 // Copyright (C) 2014 Rikard Johansson
 //
@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta.Parsers
 {
-    internal class Generic : Parser
+    internal class GenericFileParser : Parser
     {
         public static MetaData Parse(string filename, MetaType type)
         {

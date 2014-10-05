@@ -1,5 +1,5 @@
 ﻿//
-// Parser.cs: Base class for meta data parser classes.
+// DirectoryParser.cs: Directory meta data parser class.
 //
 // Copyright (C) 2014 Rikard Johansson
 //
@@ -26,11 +26,23 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta.Parsers
 {
-    internal class Parser
+    internal class DirectoryParser : Parser
     {
-        protected static long GetFileSize(string filename)
+        public static MetaData Parse(string path)
         {
-            return new FileInfo(filename).Length;
+            if (!Directory.Exists(path))
+                throw new MetaParseException("Directory not found: {0}", path);
+
+            MetaData meta = new MetaData();
+            meta.Type = MetaType.Directory;
+            meta.Path = path;
+            //meta.Data = new Dictionary<MetaKey, object>();
+            //meta.Data[MetaKey.FileName] = Path.GetFileName(path);
+            //meta.Data[MetaKey.OriginalName] = meta.Data[MetaKey.FileName];
+            //meta.Data[MetaKey.Size] = GetFileSize(path);
+            //meta.Data[MetaKey.Date] = File.GetCreationTime(path);
+            //meta.Data[MetaKey.Tags] = new string[0];
+            return meta;
         }
     }
 }
