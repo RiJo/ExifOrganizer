@@ -502,7 +502,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %y", MetaKey.Date);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, GroupType.Year);
 
                         DateTime datetime = (DateTime)temp;
                         return datetime.Year.ToString();
@@ -512,7 +512,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, GroupType.MonthNumber);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -524,7 +524,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, GroupType.MonthName);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -536,7 +536,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, GroupType.DayNumber);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -548,7 +548,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %m", MetaKey.Date);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, GroupType.DayName);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -560,7 +560,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.FileName, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.FileName);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.FileName, GroupType.FileName);
 
                         return Path.GetFileNameWithoutExtension((string)temp);
                     }
@@ -569,7 +569,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.OriginalName, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.OriginalName);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.OriginalName, GroupType.OriginalName);
 
                         return Path.GetFileName((string)temp);
                     }
@@ -578,7 +578,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.FileName, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.FileName);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.FileName, GroupType.FileExtension);
 
                         return Path.GetExtension((string)temp).Substring(1);
                     }
@@ -587,7 +587,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Tags, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %t", MetaKey.Tags);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Tags, GroupType.Tags);
 
                         string[] tags = temp as string[];
                         if (tags == null || tags.Length == 0)
@@ -601,7 +601,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Camera, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %t", MetaKey.Camera);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Camera, GroupType.Camera);
 
                         return (string)temp;
                     }
