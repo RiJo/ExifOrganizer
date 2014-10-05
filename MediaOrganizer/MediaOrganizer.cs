@@ -569,7 +569,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.OriginalName, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.FileName);
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %o", MetaKey.OriginalName);
 
                         return Path.GetFileName((string)temp);
                     }
