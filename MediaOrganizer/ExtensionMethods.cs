@@ -28,7 +28,7 @@ namespace ExifOrganizer.Organizer
 {
     public static class ExtensionMethods
     {
-        public static bool AreFilesIdentical(this FileInfo fileInfo, FileInfo otherFile)
+        public static bool AreFilesIdentical(this FileInfo fileInfo, FileInfo otherFile, FileComparator comparator)
         {
             if (fileInfo == null)
                 throw new ArgumentNullException("fileInfo");
@@ -39,7 +39,28 @@ namespace ExifOrganizer.Organizer
             if (!otherFile.Exists)
                 return false;
 
-            return fileInfo.GetMD5Sum() == otherFile.GetMD5Sum();
+            bool identical = true;
+            if (identical && comparator.HasFlag(FileComparator.FileName))
+                identical &= (fileInfo.FullName == otherFile.FullName);
+            if (identical && comparator.HasFlag(FileComparator.FileSize))
+                identical &= (fileInfo.Length == otherFile.Length);
+            if (identical && comparator.HasFlag(FileComparator.Checksum))
+                identical &= fileInfo.GetMD5Sum() == otherFile.GetMD5Sum();
+            return identical;
+        }
+
+        public static string SuffixFileName(this FileInfo fileInfo, int index)
+        {
+            if (fileInfo == null)
+                throw new ArgumentNullException("fileInfo");
+            if (index < 0)
+                throw new ArgumentException("index");
+
+            string path = fileInfo.DirectoryName;
+            string fileName = Path.GetFileNameWithoutExtension(fileInfo.FullName);
+            string extension = Path.GetExtension(fileInfo.FullName);
+
+            return String.Format("{0}\\{1}({2}){3}", path, fileName, index, extension);
         }
 
         public static string GetMD5Sum(this FileInfo fileInfo)

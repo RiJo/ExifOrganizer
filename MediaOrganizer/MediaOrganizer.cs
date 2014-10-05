@@ -41,13 +41,17 @@ namespace ExifOrganizer.Organizer
         KeepExisting,
         Delta,
         ForceOverwrite,
+        KeepAll
     }
 
-    public enum DuplicateMode
+    [Flags]
+    public enum FileComparator
     {
-        Ignore,
-        Unique,
-        KeepAll
+        None = 0x00,
+        FileName = 0x01,
+        FileSize = 0x02,
+        Checksum = 0x04,
+        All = 0xFF
     }
 
     public enum ExceptionHandling
@@ -61,20 +65,14 @@ namespace ExifOrganizer.Organizer
     {
         public string[] parsed;
         public string[] ignored;
-
-        public string[] valid;
-        public string[] duplicates;
-
         public string[] totalFiles;
         public string[] totalDirectories;
 
         public override string ToString()
         {
-            return String.Format("Summary {{ Parsed: {0} (Ignored: {1}), Valid: {2}, Duplicates: {3}, Total files: {4}, Total directories: {5} }}",
+            return String.Format("Summary {{ Parsed: {0} (Ignored: {1}), Total files: {2}, Total directories: {3} }}",
                 parsed != null ? parsed.Length : 0,
                 ignored != null ? ignored.Length : 0,
-                valid != null ? valid.Length : 0,
-                duplicates != null ? duplicates.Length : 0,
                 totalFiles != null ? totalFiles.Length : 0,
                 totalDirectories != null ? totalDirectories.Length : 0
             );
@@ -112,8 +110,8 @@ namespace ExifOrganizer.Organizer
         public string DestinationPatternVideo = @"%y/%m %M/Video/%t/%n.%e";
         public string DestinationPatternAudio = @"%y/%m %M/Audio/%t/%n.%e";
         public CopyPrecondition CopyPrecondition = CopyPrecondition.None;
-        public CopyMode CopyMode = CopyMode.Delta;
-        public DuplicateMode DuplicateMode = DuplicateMode.Unique;
+        public FileComparator FileComparator = FileComparator.FileSize | FileComparator.Checksum;
+        public CopyMode CopyMode = CopyMode.KeepAll;
         public ExceptionHandling ExceptionHandling = ExceptionHandling.Throw;
         public string[] IgnorePaths = null;
 
@@ -139,22 +137,16 @@ namespace ExifOrganizer.Organizer
             if (sourcePath.DirectoryAreSame(destinationPath))
             {
                 throw new NotSupportedException("TODO");
-                // TODO: how to properly handle
-                //if (CopyMode == CopyMode.WipeBefore || CopyMode == CopyMode.RequireEmpty)
-                //    throw new MediaOrganizerException("Copy mode {0} does not support same source and destination paths", CopyMode);
             }
 
             OrganizeSummary summary = new OrganizeSummary();
+
+            OnProgress(this, 0.1);
 
             copyItems = new CopyItems();
             copyItems.sourcePath = sourcePath;
             copyItems.destinationPath = destinationPath;
             copyItems.items = ParseItems(sourcePath, destinationPath, ref summary);
-
-            OnProgress(this, 0.1);
-
-            FilterDuplicateItems(ref summary);
-            summary.valid = Array.ConvertAll<CopyItem, string>(copyItems.items.ToArray(), x => x.sourcePath);
 
             OnProgress(this, 0.2);
 
@@ -190,45 +182,53 @@ namespace ExifOrganizer.Organizer
                     }
                 }
 
-                bool overwrite;
-                bool skipIdentical;
-                switch (CopyMode)
+                bool overwrite = false;
+                string destinationPath = item.destinationPath;
+                if (File.Exists(destinationPath))
                 {
-                    case CopyMode.KeepExisting:
-                        overwrite = false;
-                        skipIdentical = true;
-                        break;
+                    if (CopyMode == CopyMode.KeepExisting)
+                        continue; // No need to compare files
 
-                    case CopyMode.Delta:
-                        overwrite = true;
-                        skipIdentical = true;
-                        break;
-
-                    case CopyMode.ForceOverwrite:
-                        overwrite = true;
-                        skipIdentical = false;
-                        break;
-
-                    default:
-                        throw new NotImplementedException(String.Format("CopyMode: {0}", CopyMode));
-                }
-
-                if (File.Exists(item.destinationPath))
-                {
-                    if (!overwrite)
-                        continue;
-
-                    if (skipIdentical)
+                    if (CopyMode == CopyMode.ForceOverwrite)
                     {
-                        bool filesIdentical = item.sourceInfo.AreFilesIdentical(new FileInfo(item.destinationPath));
-                        if (filesIdentical)
-                            continue;
+                        overwrite = true;
+                    }
+                    else
+                    {
+                        // Potentially slow, therefore previous optimizations
+                        FileInfo destinationInfo = new FileInfo(destinationPath);
+                        bool filesIdentical = item.sourceInfo.AreFilesIdentical(destinationInfo, FileComparator);
+
+                        switch (CopyMode)
+                        {
+                            case CopyMode.Delta:
+                                if (filesIdentical)
+                                    continue;
+                                overwrite = true;
+                                break;
+
+                            case CopyMode.KeepAll:
+                                // Find next unused filename
+                                int index = 1;
+                                while (!filesIdentical)
+                                {
+                                    destinationPath = destinationInfo.SuffixFileName(index++);
+                                    filesIdentical = item.sourceInfo.AreFilesIdentical(new FileInfo(destinationPath), FileComparator);
+                                }
+                                if (filesIdentical)
+                                    continue;
+                                overwrite = false;
+                                break;
+
+                            default:
+                                throw new NotImplementedException(String.Format("CopyMode: {0}", CopyMode));
+                        }
                     }
                 }
 
                 try
                 {
-                    File.Copy(item.sourcePath, item.destinationPath, overwrite);
+                    File.Copy(item.sourcePath, destinationPath, overwrite);
                 }
                 catch (Exception ex)
                 {
@@ -243,90 +243,6 @@ namespace ExifOrganizer.Organizer
             }
 
             OnProgress(this, 1.0);
-        }
-
-        private void FilterDuplicateItems(ref OrganizeSummary summary)
-        {
-            HashSet<string> handledFilenames = new HashSet<string>();
-            Dictionary<string, HashSet<string>> handledChecksums = new Dictionary<string, HashSet<string>>();
-            Dictionary<DateTime, HashSet<string>> handledTimestamps = new Dictionary<DateTime, HashSet<string>>();
-            Dictionary<long, HashSet<string>> handledSizes = new Dictionary<long, HashSet<string>>();
-
-            HashSet<string> duplicates = new HashSet<string>();
-            foreach (CopyItem item in copyItems.items.ToArray())
-            {
-                // TODO: better comparison: md5 etc
-                bool conflictingDestination = !handledFilenames.Add(item.destinationPath);
-
-                object temp;
-
-                bool conflictingTimestamp = false;
-                if (item.meta.TryGetValue(MetaKey.Date, out temp))
-                {
-                    DateTime timestamp = (DateTime)temp;
-                    if (!handledTimestamps.ContainsKey(timestamp))
-                        handledTimestamps[timestamp] = new HashSet<string>();
-
-                    handledTimestamps[timestamp].Add(item.sourcePath);
-                    conflictingTimestamp = handledTimestamps[timestamp].Count > 1;
-                }
-
-                bool conflictingSize = false;
-                if (item.meta.TryGetValue(MetaKey.Size, out temp))
-                {
-                    long size = (long)temp;
-                    if (!handledSizes.ContainsKey(size))
-                        handledSizes[size] = new HashSet<string>();
-
-                    handledSizes[size].Add(item.sourcePath);
-                    conflictingSize = handledSizes[size].Count > 1;
-                }
-
-                bool conflictingChecksum = false;
-                if (conflictingTimestamp || conflictingSize)
-                {
-                    string checksum = item.GetChecksum();
-                    if (!handledChecksums.ContainsKey(checksum))
-                        handledChecksums[checksum] = new HashSet<string>();
-
-                    handledChecksums[checksum].Add(item.sourcePath);
-                    conflictingChecksum = handledChecksums[checksum].Count > 1;
-                }
-
-                bool anyConflict = (conflictingDestination || conflictingChecksum || conflictingTimestamp || conflictingSize);
-
-                switch (DuplicateMode)
-                {
-                    case DuplicateMode.Ignore:
-                        // Noop
-                        if (anyConflict)
-                            duplicates.Add(item.sourcePath);
-                        break;
-                    case DuplicateMode.Unique:
-                        // TODO: implement selection logic (which one to keep)
-                        if (anyConflict)
-                        {
-                            Console.WriteLine("Ignoring not unique (destination: {0}, checksum: {1}, timestamp: {2}) file: {3}", conflictingDestination, conflictingChecksum, conflictingTimestamp, item);
-                            copyItems.items.Remove(item);
-                            duplicates.Add(item.sourcePath);
-                            continue;
-                        }
-                        break;
-                    case DuplicateMode.KeepAll:
-                        int i = 2;
-                        while (conflictingDestination)
-                        {
-                            string newDestinationPath = String.Format("{0}\\{1}({2}){3}", Path.GetDirectoryName(item.destinationPath), Path.GetFileNameWithoutExtension(item.destinationPath), i++, Path.GetExtension(item.destinationPath));
-                            conflictingDestination = !handledFilenames.Add(newDestinationPath);
-                            if (!conflictingDestination)
-                                item.destinationPath = newDestinationPath;
-                        }
-                        break;
-                    default:
-                        throw new NotImplementedException(String.Format("Unhandled duplicate mode: {0}", DuplicateMode));
-                }
-            }
-            summary.duplicates = duplicates.ToArray();
         }
 
         private void PrepareDestinationPath()
@@ -400,7 +316,6 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        // TODO: use hashset to remove duplicates? Or better: define behaviour of which to insert into list
         private List<CopyItem> ParseItems(string sourcePath, string destinationPath, ref OrganizeSummary summary)
         {
             List<string> ignore = new List<string>();
@@ -518,6 +433,90 @@ namespace ExifOrganizer.Organizer
 
             return Path.Combine(destinationPath, subPath);
         }
+
+        /*private void FilterDuplicateItems(ref OrganizeSummary summary)
+        {
+            HashSet<string> handledFilenames = new HashSet<string>();
+            Dictionary<string, HashSet<string>> handledChecksums = new Dictionary<string, HashSet<string>>();
+            Dictionary<DateTime, HashSet<string>> handledTimestamps = new Dictionary<DateTime, HashSet<string>>();
+            Dictionary<long, HashSet<string>> handledSizes = new Dictionary<long, HashSet<string>>();
+
+            HashSet<string> duplicates = new HashSet<string>();
+            foreach (CopyItem item in copyItems.items.ToArray())
+            {
+                // TODO: better comparison: md5 etc
+                bool conflictingDestination = !handledFilenames.Add(item.destinationPath);
+
+                object temp;
+
+                bool conflictingTimestamp = false;
+                if (item.meta.TryGetValue(MetaKey.Date, out temp))
+                {
+                    DateTime timestamp = (DateTime)temp;
+                    if (!handledTimestamps.ContainsKey(timestamp))
+                        handledTimestamps[timestamp] = new HashSet<string>();
+
+                    handledTimestamps[timestamp].Add(item.sourcePath);
+                    conflictingTimestamp = handledTimestamps[timestamp].Count > 1;
+                }
+
+                bool conflictingSize = false;
+                if (item.meta.TryGetValue(MetaKey.Size, out temp))
+                {
+                    long size = (long)temp;
+                    if (!handledSizes.ContainsKey(size))
+                        handledSizes[size] = new HashSet<string>();
+
+                    handledSizes[size].Add(item.sourcePath);
+                    conflictingSize = handledSizes[size].Count > 1;
+                }
+
+                bool conflictingChecksum = false;
+                if (conflictingTimestamp || conflictingSize)
+                {
+                    string checksum = item.GetChecksum();
+                    if (!handledChecksums.ContainsKey(checksum))
+                        handledChecksums[checksum] = new HashSet<string>();
+
+                    handledChecksums[checksum].Add(item.sourcePath);
+                    conflictingChecksum = handledChecksums[checksum].Count > 1;
+                }
+
+                bool anyConflict = (conflictingDestination || conflictingChecksum || conflictingTimestamp || conflictingSize);
+
+                switch (DuplicateMode)
+                {
+                    case DuplicateMode.Ignore:
+                        // Noop
+                        if (anyConflict)
+                            duplicates.Add(item.sourcePath);
+                        break;
+                    case DuplicateMode.Unique:
+                        // TODO: implement selection logic (which one to keep)
+                        if (anyConflict)
+                        {
+                            Console.WriteLine("Ignoring not unique (destination: {0}, checksum: {1}, timestamp: {2}) file: {3}", conflictingDestination, conflictingChecksum, conflictingTimestamp, item);
+                            copyItems.items.Remove(item);
+                            duplicates.Add(item.sourcePath);
+                            continue;
+                        }
+                        break;
+                    case DuplicateMode.KeepAll:
+                        int i = 2;
+                        while (conflictingDestination)
+                        {
+                            string newDestinationPath = String.Format("{0}\\{1}({2}){3}", Path.GetDirectoryName(item.destinationPath), Path.GetFileNameWithoutExtension(item.destinationPath), i++, Path.GetExtension(item.destinationPath));
+                            conflictingDestination = !handledFilenames.Add(newDestinationPath);
+                            if (!conflictingDestination)
+                                item.destinationPath = newDestinationPath;
+                        }
+                        break;
+                    default:
+                        throw new NotImplementedException(String.Format("Unhandled duplicate mode: {0}", DuplicateMode));
+                }
+            }
+            summary.duplicates = duplicates.ToArray();
+        }*/
 
         private string GetPatternReplacement(MetaData meta, int index, string subpattern)
         {
