@@ -82,7 +82,8 @@ namespace ExifOrganizer.Organizer
             OriginalName,
             FileName,
             FileExtension,
-            Tags
+            Tags,
+            Camera
         }
 
         public MediaOrganizer()
@@ -115,7 +116,8 @@ namespace ExifOrganizer.Organizer
             { "%n", GroupType.FileName },
             { "%e", GroupType.FileExtension },
             { "%N", GroupType.OriginalName },
-            { "%t", GroupType.Tags }
+            { "%t", GroupType.Tags },
+            { "%c", GroupType.Camera }
         };
 
         public CopyItems copyItems;
@@ -593,6 +595,15 @@ namespace ExifOrganizer.Organizer
 
                         string tag = tags[0]; // TODO: how to solve multiple tags?
                         return tag;
+                    }
+
+                case GroupType.Camera:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Camera, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key {0} from meta data to parse %t", MetaKey.Camera);
+
+                        return (string)temp;
                     }
 
                 default:
