@@ -186,26 +186,27 @@ namespace ExifOrganizer.Organizer
                 string destinationPath = item.destinationPath;
                 bool fileExists = File.Exists(destinationPath);
 
-                if (fileExists && CopyMode == CopyMode.KeepExisting)
-                    continue; // No need to compare files
-
-                if (fileExists && CopyMode == CopyMode.ForceOverwrite)
+                switch (CopyMode)
                 {
-                    overwrite = true;
-                }
-                else
-                {
-                    FileInfo sourceInfo = item.sourceInfo;
-                    FileInfo destinationInfo = new FileInfo(destinationPath);
-                    if (fileExists)
-                    {
-                        // Potentially slow, therefore previous optimizations
-                        if (sourceInfo.AreFilesIdentical(destinationInfo, FileComparator))
-                            continue;
-                    }
+                    case CopyMode.ForceOverwrite:
+                        overwrite = true;
+                        break;
 
-                    if (CopyMode == CopyMode.KeepAll)
-                    {
+                    case CopyMode.KeepExisting:
+                        if (fileExists)
+                            continue; // No need to compare files
+                        break;
+
+                    case CopyMode.KeepAll:
+                        FileInfo sourceInfo = item.sourceInfo;
+                        FileInfo destinationInfo = new FileInfo(destinationPath);
+                        if (fileExists)
+                        {
+                            // Potentially slow, therefore previous optimizations
+                            if (sourceInfo.AreFilesIdentical(destinationInfo, FileComparator))
+                                continue;
+                        }
+
                         if (sourceInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator))
                             continue; // Source file already exists in target directory
 
@@ -216,10 +217,11 @@ namespace ExifOrganizer.Organizer
                             destinationPath = destinationInfo.SuffixFileName(index++);
                             fileExists = File.Exists(destinationPath);
                         }
-                        overwrite = false;
-                    }
-                }
+                        break;
 
+                    default:
+                        throw new NotImplementedException(String.Format("CopyMode: {0}", CopyMode));
+                }
 
                 try
                 {
@@ -228,7 +230,7 @@ namespace ExifOrganizer.Organizer
                 catch (Exception ex)
                 {
                     if (ExceptionHandling == ExceptionHandling.Throw)
-                        throw new MediaOrganizerException(String.Format("Failed to copy file. Overwrite: {0}. Source: {1}. Destination: {2}", overwrite, item.sourcePath, item.destinationPath), ex.Message);
+                        throw new MediaOrganizerException(String.Format("Failed to copy file. Mode: {0}. Overwrite: {1}. Source: {2}. Destination: {3}", CopyMode, overwrite, item.sourcePath, item.destinationPath), ex.Message);
                     else
                         continue;
                 }
