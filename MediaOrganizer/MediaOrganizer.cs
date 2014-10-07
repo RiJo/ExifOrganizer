@@ -39,7 +39,7 @@ namespace ExifOrganizer.Organizer
     public enum CopyMode
     {
         KeepExisting,
-        Delta,
+        //Delta,
         ForceOverwrite,
         KeepAll
     }
@@ -184,48 +184,42 @@ namespace ExifOrganizer.Organizer
 
                 bool overwrite = false;
                 string destinationPath = item.destinationPath;
-                if (File.Exists(destinationPath))
-                {
-                    if (CopyMode == CopyMode.KeepExisting)
-                        continue; // No need to compare files
+                bool fileExists = File.Exists(destinationPath);
 
-                    if (CopyMode == CopyMode.ForceOverwrite)
-                    {
-                        overwrite = true;
-                    }
-                    else
+                if (fileExists && CopyMode == CopyMode.KeepExisting)
+                    continue; // No need to compare files
+
+                if (fileExists && CopyMode == CopyMode.ForceOverwrite)
+                {
+                    overwrite = true;
+                }
+                else
+                {
+                    FileInfo sourceInfo = item.sourceInfo;
+                    FileInfo destinationInfo = new FileInfo(destinationPath);
+                    if (fileExists)
                     {
                         // Potentially slow, therefore previous optimizations
-                        FileInfo sourceInfo = item.sourceInfo;
-                        FileInfo destinationInfo = new FileInfo(destinationPath);
                         if (sourceInfo.AreFilesIdentical(destinationInfo, FileComparator))
-                            continue; // Source and destination files are identical
+                            continue;
+                    }
 
-                        switch (CopyMode)
+                    if (CopyMode == CopyMode.KeepAll)
+                    {
+                        if (sourceInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator))
+                            continue; // Source file already exists in target directory
+
+                        // Find next unused filename
+                        int index = 1;
+                        while (fileExists)
                         {
-                            case CopyMode.Delta:
-                                overwrite = true;
-                                break;
-
-                            case CopyMode.KeepAll:
-                                if (sourceInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator))
-                                    continue; // Source file already exists in target directory
-
-                                // Find next unused filename
-                                int index = 1;
-                                do
-                                {
-                                    destinationPath = destinationInfo.SuffixFileName(index++);
-                                } while (File.Exists(destinationPath));
-
-                                overwrite = false;
-                                break;
-
-                            default:
-                                throw new NotImplementedException(String.Format("CopyMode: {0}", CopyMode));
+                            destinationPath = destinationInfo.SuffixFileName(index++);
+                            fileExists = File.Exists(destinationPath);
                         }
+                        overwrite = false;
                     }
                 }
+
 
                 try
                 {
