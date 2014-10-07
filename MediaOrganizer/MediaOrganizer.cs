@@ -198,27 +198,26 @@ namespace ExifOrganizer.Organizer
                         // Potentially slow, therefore previous optimizations
                         FileInfo sourceInfo = item.sourceInfo;
                         FileInfo destinationInfo = new FileInfo(destinationPath);
-                        bool fileExists = sourceInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator);
+                        if (sourceInfo.AreFilesIdentical(destinationInfo, FileComparator))
+                            continue; // Source and destination files are identical
 
                         switch (CopyMode)
                         {
                             case CopyMode.Delta:
-                                if (fileExists)
-                                    continue;
                                 overwrite = true;
                                 break;
 
                             case CopyMode.KeepAll:
+                                if (sourceInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator))
+                                    continue; // Source file already exists in target directory
+
                                 // Find next unused filename
                                 int index = 1;
-                                while (!fileExists)
+                                do
                                 {
                                     destinationPath = destinationInfo.SuffixFileName(index++);
-                                    DirectoryInfo destinationDirectory = new DirectoryInfo(destinationPath);
-                                    fileExists = sourceInfo.FileExistsInDirectory(destinationDirectory, FileComparator);
-                                }
-                                if (fileExists)
-                                    continue;
+                                } while (File.Exists(destinationPath));
+
                                 overwrite = false;
                                 break;
 
