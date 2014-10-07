@@ -196,8 +196,9 @@ namespace ExifOrganizer.Organizer
                     else
                     {
                         // Potentially slow, therefore previous optimizations
+                        FileInfo sourceInfo = item.sourceInfo;
                         FileInfo destinationInfo = new FileInfo(destinationPath);
-                        bool fileExists = destinationInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator);
+                        bool fileExists = sourceInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator);
 
                         switch (CopyMode)
                         {
@@ -213,8 +214,8 @@ namespace ExifOrganizer.Organizer
                                 while (!fileExists)
                                 {
                                     destinationPath = destinationInfo.SuffixFileName(index++);
-                                    FileInfo tempFileInfo = new FileInfo(destinationPath);
-                                    fileExists = tempFileInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator);
+                                    DirectoryInfo destinationDirectory = new DirectoryInfo(destinationPath);
+                                    fileExists = sourceInfo.FileExistsInDirectory(destinationDirectory, FileComparator);
                                 }
                                 if (fileExists)
                                     continue;
