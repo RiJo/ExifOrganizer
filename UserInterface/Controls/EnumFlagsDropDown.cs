@@ -64,7 +64,9 @@ namespace ExifOrganizer.UI.Controls
                 enumValue = null;
 
                 foreach (Enum item in Enum.GetValues(value))
-                    Add(new CheckBoxItem() { Text = item.ToString() });
+                {
+                    Add(new CheckBoxItem() { Value = enumValue.GetInt64(), Text = item.ToString() });
+                }
             }
         }
 
@@ -78,21 +80,57 @@ namespace ExifOrganizer.UI.Controls
                 if (value.GetType() != enumType)
                     throw new ArgumentException(String.Format("Value must be of predefined Enum type: {0}", enumType));
 
+                if (value == enumValue)
+                    return;
+
+                Enum previousValue = enumValue;
                 enumValue = value;
+
+                foreach (Enum item in Enum.GetValues(enumType))
+                {
+                    if (previousValue != null)
+                    {
+                        if (item.HasFlag(previousValue) == item.HasFlag(enumValue))
+                            continue; // Enum flag not altered
+                    }
+
+                    bool active = enumValue.HasFlag(item);
+                    Update(new CheckBoxItem() { Value = enumValue.GetInt64(), Text = enumValue.ToString(), Checked = active });
+                }
             }
         }
     }
 
     public static class EnumExtensions
     {
+        public static int GetInt32(this Enum value)
+        {
+            if (value == null)
+                return 0;
+            return Convert.ToInt32(value);
+        }
+
+        public static long GetInt64(this Enum value)
+        {
+            if (value == null)
+                return 0;
+            return Convert.ToInt64(value);
+        }
+
         public static bool Flags(this Enum value)
         {
+            if (value == null)
+                return false;
+
             Type type = value.GetType();
             return type.HasAttributesFlags();
         }
 
         public static bool HasAttributesFlags(this Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException("type");
+
             object[] attributes = type.GetCustomAttributes(true);
             foreach (object attribute in attributes)
             {

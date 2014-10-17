@@ -30,7 +30,7 @@ namespace ExifOrganizer.UI.Controls
 {
     public class CheckBoxItem
     {
-        public int Value;
+        public long Value;
         public string Text;
         public bool Checked;
     }
@@ -117,6 +117,8 @@ namespace ExifOrganizer.UI.Controls
             tsi.BackColor = this.BackColor;
             tsi.CheckedChanged += CheckedChanged;
             popup.Items.Add(tsi);
+
+            UpdateText();
         }
 
         protected void Remove(CheckBoxItem item)
@@ -126,12 +128,38 @@ namespace ExifOrganizer.UI.Controls
 
             // TODO: remove from popup
             //tsi.CheckedChanged -= tsi_CheckedChanged;
+
+            UpdateText();
+        }
+
+        protected void Update(CheckBoxItem item)
+        {
+            foreach (CheckBoxItem foo in items)
+            {
+                if (item.Value != foo.Value)
+                    continue;
+
+                if (foo.Checked != item.Checked)
+                {
+                    foreach (ToolStripCheckboxItem bar in popup.Items)
+                    {
+                        if (foo != bar.Item)
+                            continue;
+
+                        bar.CheckBox.Checked = item.Checked;
+                    }
+                }
+
+                //TODO: hotwo handle Text change?
+            }
         }
 
         protected void Clear()
         {
             items.Clear();
             popup.Items.Clear();
+
+            UpdateText();
         }
 
         private void CheckedChanged(object sender, EventArgs e)
@@ -145,7 +173,7 @@ namespace ExifOrganizer.UI.Controls
 
         private void UpdateText()
         {
-            List<string> selected = new List<string>();
+            List<CheckBoxItem> checkedItems = new List<CheckBoxItem>();
             foreach (ToolStripItem item in popup.Items)
             {
                 ToolStripCheckboxItem foo = item as ToolStripCheckboxItem;
@@ -153,12 +181,22 @@ namespace ExifOrganizer.UI.Controls
                     continue;
 
                 if (foo.Item.Checked)
-                    selected.Add(foo.Item.Text);
+                    checkedItems.Add(foo.Item);
             }
+            string text = GetPresentationText(checkedItems);
 
-            string text = String.Join(",", selected.ToArray());
-            SelectedText = text;
-            //Text = text;
+            // Set presentation text (simulate selected item)
+            this.Items.Clear();
+            this.Items.Add(text);
+            this.SelectedIndex = 0;
+        }
+
+        private string GetPresentationText(IEnumerable<CheckBoxItem> checkedItems)
+        {
+            List<string> names = new List<string>();
+            foreach (CheckBoxItem item in checkedItems)
+                names.Add(item.Text);
+            return String.Join(",", names.ToArray());
         }
     }
 }
