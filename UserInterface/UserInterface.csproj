@@ -58,10 +58,10 @@
     <Compile Include="Controls\EnumFlagsDropDown.Designer.cs">
       <DependentUpon>EnumFlagsDropDown.cs</DependentUpon>
     </Compile>
-    <Compile Include="FileBrowseControl.cs">
+    <Compile Include="Controls\FileBrowseControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="FileBrowseControl.Designer.cs">
+    <Compile Include="Controls\FileBrowseControl.Designer.cs">
       <DependentUpon>FileBrowseControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Main.cs">
@@ -76,7 +76,7 @@
     <EmbeddedResource Include="Controls\CheckBoxDropDown.resx">
       <DependentUpon>CheckBoxDropDown.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FileBrowseControl.resx">
+    <EmbeddedResource Include="Controls\FileBrowseControl.resx">
       <DependentUpon>FileBrowseControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
