@@ -64,9 +64,9 @@ namespace ExifOrganizer.UI.Controls
                 item = foo;
 
                 checkbox = Control as CheckBox;
+                checkbox.AutoSize = true;
                 checkbox.Checked = item.Checked;
                 checkbox.Text = item.Text;
-                checkbox.AutoSize = true;
                 checkbox.CheckedChanged += delegate(object sender, EventArgs e)
                 {
                     item.Checked = checkbox.Checked;
@@ -107,6 +107,7 @@ namespace ExifOrganizer.UI.Controls
             Rectangle rect = RectangleToScreen(this.ClientRectangle);
             Point location = new Point(rect.X, rect.Y + this.Size.Height);
             popup.Show(location, ToolStripDropDownDirection.BelowRight);
+            //popup.
         }
 
         protected void Add(CheckBoxItem item)

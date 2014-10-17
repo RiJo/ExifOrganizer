@@ -66,6 +66,8 @@ namespace ExifOrganizer.UI.Controls
 
                 foreach (Enum item in Enum.GetValues(value))
                 {
+                    if (!item.OneBitSet())
+                        continue;
                     Add(new CheckBoxItem() { Value = item.GetInt64(), Text = item.ToString() });
                 }
             }
@@ -159,6 +161,12 @@ namespace ExifOrganizer.UI.Controls
                     return true;
             }
             return false;
+        }
+
+        public static bool OneBitSet(this Enum value)
+        {
+            long x = value.GetInt64();
+            return (x != 0) && (x & (x - 1)) == 0;
         }
     }
 }
