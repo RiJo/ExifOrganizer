@@ -37,6 +37,7 @@ namespace ExifOrganizer.UI
     public partial class FileBrowseControl : UserControl
     {
         public FileBrowseControl()
+            : base()
         {
             InitializeComponent();
         }

@@ -68,7 +68,7 @@ namespace ExifOrganizer.UI
             organizer.destinationPath = destination;
             organizer.Recursive = recursive;
             //organizer.DuplicateMode = DuplicateMode.KeepAll;
-            organizer.CopyMode = CopyMode.Delta;
+            organizer.CopyMode = CopyMode.KeepAll;
             //organizer.DestinationPatternImage = patternImage.Text;
             //organizer.DestinationPatternVideo = patternVideo.Text;
             //organizer.DestinationPatternAudio = patternAudio.Text;

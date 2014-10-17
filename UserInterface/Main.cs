@@ -48,9 +48,12 @@ namespace ExifOrganizer.UI
         private void Main_Load(object sender, EventArgs e)
         {
             // DuplicateMode enum
-            foreach (FileComparator comparator in Enum.GetValues(typeof(FileComparator)))
-                fileComparator.Items.Add(comparator);
-            fileComparator.SelectedItem = organizer.FileComparator;
+            //foreach (FileComparator comparator in Enum.GetValues(typeof(FileComparator)))
+            //    fileComparator.Items.Add(comparator);
+            //fileComparator.Items.Add(organizer.FileComparator);
+            //fileComparator.SelectedItem = organizer.FileComparator;
+            fileComparator.EnumType = typeof(FileComparator);
+            fileComparator.EnumValue = organizer.FileComparator;
 
             // CopyPrecondition enum
             foreach (CopyPrecondition precondition in Enum.GetValues(typeof(CopyPrecondition)))
