@@ -80,7 +80,7 @@ namespace ExifOrganizer.UI
             organizer.sourcePath = sourcePath.Path;
             organizer.destinationPath = destinationPath.Path;
             organizer.Recursive = recursive.Checked;
-            organizer.FileComparator = (FileComparator)fileComparator.SelectedItem;
+            organizer.FileComparator = (FileComparator)fileComparator.EnumValue;
             organizer.CopyPrecondition = (CopyPrecondition)copyPrecondition.SelectedItem;
             organizer.CopyMode = (CopyMode)copyMode.SelectedItem;
             organizer.DestinationPatternImage = patternImage.Text;
