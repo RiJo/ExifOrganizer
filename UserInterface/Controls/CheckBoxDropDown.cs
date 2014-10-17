@@ -30,6 +30,7 @@ namespace ExifOrganizer.UI.Controls
 {
     public class CheckBoxItem
     {
+        public int Value;
         public string Text;
         public bool Checked;
     }
@@ -42,39 +43,42 @@ namespace ExifOrganizer.UI.Controls
         private class ToolStripCheckboxItem : ToolStripControlHost
         {
             public event Action<object, EventArgs> CheckedChanged;
-            public event Action<object, EventArgs> CheckStateChanged;
+            //public event Action<object, EventArgs> CheckStateChanged;
 
-            CheckBox checkbox;
+            private CheckBoxItem item;
+            private CheckBox checkbox;
 
+            public CheckBoxItem Item { get { return item; } }
             public CheckBox CheckBox { get { return checkbox; } }
             public bool Checked { get { return checkbox.Checked; } }
             public CheckState CheckState { get { return checkbox.CheckState; } }
 
-            // TODO
             //public ToolStripCheckboxItem(string text, CheckState state = CheckState.Unchecked)
             //{
 
             //}
 
-            public ToolStripCheckboxItem(string text, bool check = false)
+            public ToolStripCheckboxItem(CheckBoxItem foo)
                 : base(new CheckBox())
             {
+                item = foo;
+
                 checkbox = Control as CheckBox;
-                checkbox.Checked = check;
-                checkbox.CheckState = check ? CheckState.Checked : CheckState.Unchecked;
-                checkbox.Text = text;
+                checkbox.Checked = item.Checked;
+                checkbox.Text = item.Text;
                 checkbox.AutoSize = true;
                 checkbox.CheckedChanged += delegate(object sender, EventArgs e)
                 {
+                    item.Checked = checkbox.Checked;
 
                     if (CheckedChanged != null)
                         CheckedChanged(this, e);
                 };
-                checkbox.CheckStateChanged += delegate(object sender, EventArgs e)
-                {
-                    if (CheckStateChanged != null)
-                        CheckStateChanged(this, e);
-                };
+                //checkbox.CheckStateChanged += delegate(object sender, EventArgs e)
+                //{
+                //    if (CheckStateChanged != null)
+                //        CheckStateChanged(this, e);
+                //};
             }
         }
 
@@ -88,12 +92,6 @@ namespace ExifOrganizer.UI.Controls
             popup.AutoClose = true;
             popup.DropShadowEnabled = true;
 
-            foreach (string foo in new string[] { "x", "foo", "bar", "this is a very long string..." })
-            {
-                ToolStripItem item = new ToolStripCheckboxItem(foo);
-                popup.Items.Add(item);
-            }
-
             InitializeComponent();
         }
 
@@ -101,37 +99,23 @@ namespace ExifOrganizer.UI.Controls
         {
             base.OnDropDown(e);
 
+            this.DropDownHeight = 1;
+
             if (popup.Visible)
                 return;
 
             Rectangle rect = RectangleToScreen(this.ClientRectangle);
             Point location = new Point(rect.X, rect.Y + this.Size.Height);
             popup.Show(location, ToolStripDropDownDirection.BelowRight);
-
-            //if (checkBoxes.Visible)
-            //    return;
-            this.DropDownHeight = 1;
-            //this.DroppedDown = false;
-
-            //ToolStripDropDown foo = new ToolStripDropDown();
-            //ToolStripDrop
-            //foo.Items.Add("hejsan");
-            //foo.Show(this.Location);
-
-            //checkBoxes.Show();
-            //Form parent = this.FindForm();
-            //if (parent == null)
-            //    return;
-
-            //popup.Show(this.FindForm());
-            //SetPosition(popup);
         }
 
         protected void Add(CheckBoxItem item)
         {
             items.Add(item);
 
-            ToolStripItem tsi = new ToolStripCheckboxItem(item.Text, item.Checked);
+            ToolStripCheckboxItem tsi = new ToolStripCheckboxItem(item);
+            tsi.BackColor = this.BackColor;
+            tsi.CheckedChanged += CheckedChanged;
             popup.Items.Add(tsi);
         }
 
@@ -141,6 +125,7 @@ namespace ExifOrganizer.UI.Controls
                 return;
 
             // TODO: remove from popup
+            //tsi.CheckedChanged -= tsi_CheckedChanged;
         }
 
         protected void Clear()
@@ -149,87 +134,31 @@ namespace ExifOrganizer.UI.Controls
             popup.Items.Clear();
         }
 
-        //protected override void OnDropDownClosed(EventArgs e)
-        //{
-        //    base.OnDropDownClosed(e);
+        private void CheckedChanged(object sender, EventArgs e)
+        {
+            ToolStripCheckboxItem item = sender as ToolStripCheckboxItem;
+            if (item == null)
+                return;
 
-        //    if (!popup.Visible)
-        //        return;
-        //    //popup.Hide();
-        //}
+            UpdateText();
+        }
 
-        //private void SetPosition(Form form)
-        //{
-        //    Rectangle rect = RectangleToScreen(this.ClientRectangle);
-        //    //form.Location = new Point(0, 0);
-        //    form.Location = new Point(rect.X, rect.Y + this.Size.Height);
+        private void UpdateText()
+        {
+            List<string> selected = new List<string>();
+            foreach (ToolStripItem item in popup.Items)
+            {
+                ToolStripCheckboxItem foo = item as ToolStripCheckboxItem;
+                if (item == null)
+                    continue;
 
-        //    //control.Location = new Point(rect.X + 50, rect.Y + this.Size.Height);
-        //    //int count = control.Items.Count;
-        //    //if (count > this.MaxDropDownItems)
-        //    //{
-        //    //    count = this.MaxDropDownItems;
-        //    //}
-        //    //else if (count == 0)
-        //    //{
-        //    //    count = 1;
-        //    //}
-        //    //form.Size = new Size(this.Size.Width, this.DropDownHeight);
-        //}
+                if (foo.Item.Checked)
+                    selected.Add(foo.Item.Text);
+            }
 
-        //private void DoDropDown()
-        //{
-        //    if (!dropdown.Visible)
-        //    {
-        //        Rectangle rect = RectangleToScreen(this.ClientRectangle);
-        //        dropdown.Location = new Point(rect.X, rect.Y + this.Size.Height);
-        //        int count = dropdown.List.Items.Count;
-        //        if (count > this.MaxDropDownItems)
-        //        {
-        //            count = this.MaxDropDownItems;
-        //        }
-        //        else if (count == 0)
-        //        {
-        //            count = 1;
-        //        }
-        //        dropdown.Size = new Size(this.Size.Width,
-        //                       (dropdown.List.ItemHeight + 1) * count);
-        //        dropdown.Show(this);
-        //    }
-        //}
-
-        //protected override void OnKeyDown(KeyEventArgs e)
-        //{
-        //    if (e.KeyCode == Keys.Down)
-        //    {
-        //        OnDropDown(null);
-        //    }
-        //    // Make sure that certain keys or combinations are not blocked.
-        //    e.Handled = !e.Alt && !(e.KeyCode == Keys.Tab) &&
-        //        !((e.KeyCode == Keys.Left) || (e.KeyCode == Keys.Right) ||
-        //    (e.KeyCode == Keys.Home) || (e.KeyCode == Keys.End));
-        //    base.OnKeyDown(e);
-        //}
-
-        //protected override void OnKeyPress(KeyPressEventArgs e)
-        //{
-        //    e.Handled = true;
-        //    base.OnKeyPress(e);
-        //}
-
-        //protected override void OnDeactivate(EventArgs e)
-        //{
-        //    base.OnDeactivate(e);
-        //    CCBoxEventArgs ce = e as CCBoxEventArgs;
-        //    if (ce != null)
-        //    {
-        //        CloseDropdown(ce.AssignValues);
-        //    }
-        //    else
-        //    {
-
-        //        CloseDropdown(true);
-        //    }
-        //}
+            string text = String.Join(",", selected.ToArray());
+            SelectedText = text;
+            //Text = text;
+        }
     }
 }

@@ -29,6 +29,10 @@ using System.Windows.Forms;
 
 namespace ExifOrganizer.UI.Controls
 {
+    /*
+     * TODO:
+     *  - Handle None and All (subset) values: check if match
+     */
     public partial class EnumFlagsDropDown : CheckBoxDropDown
     {
         private Type enumType;
