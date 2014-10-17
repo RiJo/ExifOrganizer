@@ -134,6 +134,7 @@ namespace ExifOrganizer.UI.Controls
 
         protected void Update(CheckBoxItem item)
         {
+            bool altered = false;
             foreach (CheckBoxItem foo in items)
             {
                 if (item.Value != foo.Value)
@@ -147,11 +148,15 @@ namespace ExifOrganizer.UI.Controls
                             continue;
 
                         bar.CheckBox.Checked = item.Checked;
+                        altered = true;
                     }
                 }
 
                 //TODO: hotwo handle Text change?
             }
+
+            if (altered)
+                UpdateText();
         }
 
         protected void Clear()
@@ -169,6 +174,11 @@ namespace ExifOrganizer.UI.Controls
                 return;
 
             UpdateText();
+            CheckedChanged(item.Item);
+        }
+
+        protected virtual void CheckedChanged(CheckBoxItem item)
+        {
         }
 
         private void UpdateText()

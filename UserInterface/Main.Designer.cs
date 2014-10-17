@@ -30,13 +30,13 @@
         {
             this.organize = new System.Windows.Forms.Button();
             this.source = new System.Windows.Forms.GroupBox();
+            this.fileComparator = new ExifOrganizer.UI.Controls.EnumFlagsDropDown();
             this.infoFileComparator = new System.Windows.Forms.Label();
             this.infoSourceDirectory = new System.Windows.Forms.Label();
             this.infoRecursive = new System.Windows.Forms.Label();
             this.recursive = new System.Windows.Forms.CheckBox();
             this.sourcePath = new ExifOrganizer.UI.FileBrowseControl();
             this.destination = new System.Windows.Forms.GroupBox();
-            this.fileComparator = new ExifOrganizer.UI.Controls.EnumFlagsDropDown();
             this.infoCopyPrecondition = new System.Windows.Forms.Label();
             this.copyPrecondition = new System.Windows.Forms.ComboBox();
             this.infoDestinationDirectory = new System.Windows.Forms.Label();
@@ -83,6 +83,21 @@
             this.source.TabIndex = 0;
             this.source.TabStop = false;
             this.source.Text = "Source";
+            // 
+            // fileComparator
+            // 
+            this.fileComparator.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.fileComparator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.fileComparator.EnumType = null;
+            this.fileComparator.EnumValue = null;
+            this.fileComparator.FormattingEnabled = true;
+            this.fileComparator.Items.AddRange(new object[] {
+            ""});
+            this.fileComparator.Location = new System.Drawing.Point(103, 68);
+            this.fileComparator.Name = "fileComparator";
+            this.fileComparator.Size = new System.Drawing.Size(218, 21);
+            this.fileComparator.TabIndex = 12;
             // 
             // infoFileComparator
             // 
@@ -161,16 +176,6 @@
             this.destination.TabIndex = 4;
             this.destination.TabStop = false;
             this.destination.Text = "Destination";
-            // 
-            // fileComparator
-            // 
-            this.fileComparator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.fileComparator.EnumType = null;
-            this.fileComparator.FormattingEnabled = true;
-            this.fileComparator.Location = new System.Drawing.Point(103, 68);
-            this.fileComparator.Name = "fileComparator";
-            this.fileComparator.Size = new System.Drawing.Size(121, 21);
-            this.fileComparator.TabIndex = 12;
             // 
             // infoCopyPrecondition
             // 

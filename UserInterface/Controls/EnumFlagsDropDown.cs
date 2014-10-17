@@ -32,6 +32,7 @@ namespace ExifOrganizer.UI.Controls
     /*
      * TODO:
      *  - Handle None and All (subset) values: check if match
+     *  - move bitfield (of values) to CheckBoxDrop down: then only cast from Enum to int is required (alt. use array of values)
      */
     public partial class EnumFlagsDropDown : CheckBoxDropDown
     {
@@ -65,7 +66,7 @@ namespace ExifOrganizer.UI.Controls
 
                 foreach (Enum item in Enum.GetValues(value))
                 {
-                    Add(new CheckBoxItem() { Value = enumValue.GetInt64(), Text = item.ToString() });
+                    Add(new CheckBoxItem() { Value = item.GetInt64(), Text = item.ToString() });
                 }
             }
         }
@@ -75,6 +76,8 @@ namespace ExifOrganizer.UI.Controls
             get { return enumValue; }
             set
             {
+                if (value == null)
+                    return;
                 if (enumType == null)
                     throw new ArgumentException("Enum type not yet defined");
                 if (value.GetType() != enumType)
@@ -94,10 +97,28 @@ namespace ExifOrganizer.UI.Controls
                             continue; // Enum flag not altered
                     }
 
-                    bool active = enumValue.HasFlag(item);
-                    Update(new CheckBoxItem() { Value = enumValue.GetInt64(), Text = enumValue.ToString(), Checked = active });
+                    bool active = item.GetInt64() > 0 && enumValue.HasFlag(item);
+                    Update(new CheckBoxItem() { Value = item.GetInt64(), Text = item.ToString(), Checked = active });
                 }
             }
+        }
+
+        protected override void CheckedChanged(CheckBoxItem item)
+        {
+            base.CheckedChanged(item);
+
+            Enum previous = enumValue;
+            if (previous == null)
+                return;
+
+            long value = previous.GetInt64();
+
+            if (item.Checked)
+                value |= item.Value;
+            else
+                value &= ~item.Value;
+
+            enumValue = (Enum)Enum.ToObject(enumType, value);
         }
     }
 
