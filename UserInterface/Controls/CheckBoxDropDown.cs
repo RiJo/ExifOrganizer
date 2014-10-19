@@ -43,7 +43,7 @@ namespace ExifOrganizer.UI.Controls
         private class ToolStripCheckboxItem : ToolStripControlHost
         {
             public event Action<object, EventArgs> CheckedChanged;
-            //public event Action<object, EventArgs> CheckStateChanged;
+            public event Action<object, EventArgs> CheckStateChanged;
 
             private CheckBoxItem item;
             private CheckBox checkbox;
@@ -51,14 +51,9 @@ namespace ExifOrganizer.UI.Controls
             public CheckBoxItem Item { get { return item; } }
             public CheckBox CheckBox { get { return checkbox; } }
             public long Value { get { return item.Value; } }
-            public new string Text { get { return item.Text; } }
+            public new string Text { get { return checkbox.Text; } }
             public bool Checked { get { return checkbox.Checked; } }
             public CheckState CheckState { get { return checkbox.CheckState; } }
-
-            //public ToolStripCheckboxItem(string text, CheckState state = CheckState.Unchecked)
-            //{
-
-            //}
 
             public ToolStripCheckboxItem(CheckBoxItem foo)
                 : base(new CheckBox())
@@ -76,11 +71,11 @@ namespace ExifOrganizer.UI.Controls
                     if (CheckedChanged != null)
                         CheckedChanged(this, e);
                 };
-                //checkbox.CheckStateChanged += delegate(object sender, EventArgs e)
-                //{
-                //    if (CheckStateChanged != null)
-                //        CheckStateChanged(this, e);
-                //};
+                checkbox.CheckStateChanged += delegate(object sender, EventArgs e)
+                {
+                    if (CheckStateChanged != null)
+                        CheckStateChanged(this, e);
+                };
             }
         }
 
