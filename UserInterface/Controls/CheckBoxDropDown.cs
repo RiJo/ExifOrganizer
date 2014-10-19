@@ -50,6 +50,8 @@ namespace ExifOrganizer.UI.Controls
 
             public CheckBoxItem Item { get { return item; } }
             public CheckBox CheckBox { get { return checkbox; } }
+            public long Value { get { return item.Value; } }
+            public new string Text { get { return item.Text; } }
             public bool Checked { get { return checkbox.Checked; } }
             public CheckState CheckState { get { return checkbox.CheckState; } }
 
@@ -107,7 +109,6 @@ namespace ExifOrganizer.UI.Controls
             Rectangle rect = RectangleToScreen(this.ClientRectangle);
             Point location = new Point(rect.X, rect.Y + this.Size.Height);
             popup.Show(location, ToolStripDropDownDirection.BelowRight);
-            //popup.
         }
 
         protected void Add(CheckBoxItem item)
