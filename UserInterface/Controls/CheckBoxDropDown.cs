@@ -208,29 +208,17 @@ namespace ExifOrganizer.UI.Controls
 
         protected void Update(CheckBoxItem item)
         {
-            bool altered = false;
-            foreach (CheckBoxItem foo in GetCheckBoxItems())
+            foreach (ToolStripCheckboxItem tsi in GetToolStripCheckboxItem())
             {
-                if (item.Value != foo.Value)
+                if (item.Value != tsi.Item.Value)
                     continue;
 
-                if (foo.Checked != item.Checked)
-                {
-                    foreach (ToolStripCheckboxItem bar in popup.Items)
-                    {
-                        if (foo != bar.Item)
-                            continue;
+                if (item.Text != tsi.Item.Text)
+                    tsi.SetText(item.Text);
 
-                        bar.CheckBox.Checked = item.Checked;
-                        altered = true;
-                    }
-                }
-
-                //TODO: hotwo handle Text change?
+                if (item.Checked != tsi.Item.Checked)
+                    tsi.SetChecked(item.Checked);
             }
-
-            if (altered)
-                ItemsAltered();
         }
 
         protected void Clear()

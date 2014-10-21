@@ -93,6 +93,9 @@ namespace ExifOrganizer.UI.Controls
 
                 foreach (Enum item in Enum.GetValues(enumType))
                 {
+                    if (!item.OneBitSet())
+                        continue;
+
                     if (previousValue != null)
                     {
                         if (item.HasFlag(previousValue) == item.HasFlag(enumValue))
