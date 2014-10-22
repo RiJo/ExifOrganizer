@@ -58,7 +58,6 @@ namespace ExifOrganizer.Organizer
     {
         Throw,
         Ignore,
-        //Revert,
     }
 
     public class OrganizeSummary
