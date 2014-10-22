@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta
 {
-    public static class Extensions
+    public static class ExtensionMethods
     {
         //public static string ToString<T>(this Array collection, string separator = ",")
         //{
