@@ -1,0 +1,19 @@
+ * how to solve multiple tags in meta data?
+ * Printout how many skipped files (grouped by extension/type)
+ * Invalid path exception if "<tag>" was used in path?
+ * Ability to escape/use "%" in paths (currently identifies pattern)
+
+Features:
+    - Verify files: evaluate checksums of all copied files
+    - Parallell loading/saving (use threads)
+    - Config file to store patterns etc
+    - Handle tags across years/months
+
+GUI:
+    - Create ICON (.ico)
+    - print percent in progressbar
+    - separate settings/advanced form for improved usability
+    - Remember GUI settings
+    - button to run prepare and prinotut information about copying
+    - Separate progress of Parse() and Organize into 0.0-1.0 for each + message in event
+    - Printout version information
