@@ -46,7 +46,7 @@
     <Compile Include="MetaParser.cs" />
     <Compile Include="Parsers\DirectoryParser.cs" />
     <Compile Include="Parsers\ExifParser.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="ExtensionMethods.cs" />
     <Compile Include="MetaData.cs" />
     <Compile Include="Parsers\GenericFileParser.cs" />
     <Compile Include="Parsers\Parser.cs" />

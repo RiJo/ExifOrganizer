@@ -1,5 +1,5 @@
 ﻿//
-// Extensions.cs: Custom extension methods.
+// ExtensionMethods.cs: Static extension methods used within the project.
 //
 // Copyright (C) 2014 Rikard Johansson
 //
