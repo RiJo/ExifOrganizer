@@ -64,8 +64,11 @@ namespace ExifOrganizer.UI.Controls
             {
                 item = foo;
 
+                this.Width = 100;
+
                 checkbox = Control as CheckBox;
-                checkbox.AutoSize = true;
+                //checkbox.AutoSize = true;
+                //checkbox.Width = 100;
                 checkbox.Checked = item.Checked;
                 checkbox.Text = item.Text;
                 checkbox.CheckedChanged += delegate(object sender, EventArgs e)
@@ -182,8 +185,10 @@ namespace ExifOrganizer.UI.Controls
 
         protected ToolStripCheckboxItem Add(CheckBoxItem item)
         {
+            this.SetAutoSizeMode(AutoSizeMode.GrowAndShrink);
             ToolStripCheckboxItem tsi = new ToolStripCheckboxItem(item);
             tsi.BackColor = this.BackColor;
+            tsi.Width = this.Width - 35;
             tsi.CheckedChanged += CheckedChanged;
             popup.Items.Add(tsi);
 
