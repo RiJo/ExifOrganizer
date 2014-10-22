@@ -64,13 +64,14 @@
     <Compile Include="Controls\FileBrowseControl.Designer.cs">
       <DependentUpon>FileBrowseControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Main.Designer.cs">
       <DependentUpon>Main.cs</DependentUpon>
     </Compile>
-    <Compile Include="ProgramArgs.cs" />
+    <Compile Include="ParseArgs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Controls\CheckBoxDropDown.resx">
