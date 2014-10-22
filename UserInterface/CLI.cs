@@ -35,7 +35,7 @@ namespace ExifOrganizer.UI
 
         public int Run(string[] args)
         {
-            IEnumerable<Arg> parsedArgs = ProgramArgs.Parse(args, new string[] { "-r" }, new string[] { "-s", "-d" });
+            IEnumerable<Arg> parsedArgs = ParseArgs.Parse(args, new string[] { "-r" }, new string[] { "-s", "-d" });
 #if DEBUG
             Console.WriteLine("Arguments parsed:");
             foreach (Arg arg in parsedArgs)
