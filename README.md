@@ -1,11 +1,9 @@
 ExifOrganizer
 =============
 
-## Status
-Currently in development of first beta version.
-
-## Summary
 Organize image collections based on Exif data with customizable destination paths.
+### Status
+Currently in development of first beta version.
 
 ## Screenshot
 ![ExifOrganizer GUI](screenshot.png)
