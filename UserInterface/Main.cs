@@ -66,7 +66,8 @@ namespace ExifOrganizer.UI
             copyMode.SelectedItem = organizer.CopyMode;
 
             // CultureInfo localization
-            localization.Items.Add(organizer.Localization);
+            foreach (CultureInfo culture in CultureInfo.GetCultures(CultureTypes.AllCultures))
+                localization.Items.Add(culture);
             localization.SelectedItem = organizer.Localization;
 
             // Patterns
