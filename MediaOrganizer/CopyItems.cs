@@ -1,5 +1,5 @@
 ﻿//
-// CopyItem.cs: Data structure describing multiple items to be copied.
+// CopyItems.cs: Data structure describing multiple items to be copied.
 //
 // Copyright (C) 2014 Rikard Johansson
 //
