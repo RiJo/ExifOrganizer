@@ -38,19 +38,19 @@ namespace ExifOrganizer.Organizer
 
     public enum CopyMode
     {
+        KeepUnique,
         KeepExisting,
-        //Delta,
-        ForceOverwrite,
-        KeepAll
+        OverwriteExisting,
     }
 
     [Flags]
     public enum FileComparator
     {
         None = 0x00,
-        FileName = 0x01,
-        FileSize = 0x02,
-        Checksum = 0x04,
+        FileSize = 0x01,
+        Checksum = 0x02,
+        Created = 0x04,
+        Modified = 0x08,
         All = 0xFF
     }
 
@@ -111,7 +111,7 @@ namespace ExifOrganizer.Organizer
         public string DestinationPatternAudio = @"%y/%m %M/Audio/%t/%n.%e";
         public CopyPrecondition CopyPrecondition = CopyPrecondition.None;
         public FileComparator FileComparator = FileComparator.FileSize | FileComparator.Checksum;
-        public CopyMode CopyMode = CopyMode.KeepAll;
+        public CopyMode CopyMode = CopyMode.KeepUnique;
         public ExceptionHandling ExceptionHandling = ExceptionHandling.Throw;
         public string[] IgnorePaths = null;
 
@@ -188,16 +188,16 @@ namespace ExifOrganizer.Organizer
 
                 switch (CopyMode)
                 {
-                    case CopyMode.ForceOverwrite:
+                    case CopyMode.OverwriteExisting:
                         overwrite = true;
                         break;
 
                     case CopyMode.KeepExisting:
                         if (fileExists)
-                            continue; // No need to compare files
+                            continue;
                         break;
 
-                    case CopyMode.KeepAll:
+                    case CopyMode.KeepUnique:
                         FileInfo sourceInfo = item.sourceInfo;
                         FileInfo destinationInfo = new FileInfo(destinationPath);
                         if (fileExists)

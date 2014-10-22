@@ -50,12 +50,14 @@ namespace ExifOrganizer.Organizer
                 return false;
 
             bool identical = true;
-            if (identical && comparator.HasFlag(FileComparator.FileName))
-                identical &= (fileInfo.FullName == otherFile.FullName);
             if (identical && comparator.HasFlag(FileComparator.FileSize))
                 identical &= (fileInfo.Length == otherFile.Length);
             if (identical && comparator.HasFlag(FileComparator.Checksum))
                 identical &= fileInfo.GetMD5Sum() == otherFile.GetMD5Sum();
+            if (identical && comparator.HasFlag(FileComparator.Created))
+                identical &= (fileInfo.CreationTimeUtc == otherFile.CreationTimeUtc);
+            if (identical && comparator.HasFlag(FileComparator.Modified))
+                identical &= (fileInfo.LastWriteTimeUtc == otherFile.LastWriteTimeUtc);
             return identical;
         }
 
