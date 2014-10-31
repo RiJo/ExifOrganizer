@@ -1,4 +1,4 @@
-﻿namespace ExifOrganizer.UI
+﻿namespace ExifOrganizer.UI.Controls
 {
     partial class FileBrowseControl
     {

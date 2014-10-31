@@ -26,7 +26,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ExifOrganizer.UI
+namespace ExifOrganizer.UI.Controls
 {
     public enum FileBrowseType
     {
