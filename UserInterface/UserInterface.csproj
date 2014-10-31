@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -63,6 +66,12 @@
     </Compile>
     <Compile Include="Controls\FileBrowseControl.Designer.cs">
       <DependentUpon>FileBrowseControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ProgressBarText.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ProgressBarText.Designer.cs">
+      <DependentUpon>ProgressBarText.cs</DependentUpon>
     </Compile>
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Main.cs">
@@ -115,6 +124,9 @@
       <Project>{19204b12-e95e-405f-9604-52de1411c8b1}</Project>
       <Name>MetaParser</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

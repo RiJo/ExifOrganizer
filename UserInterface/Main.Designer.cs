@@ -1,4 +1,6 @@
-﻿namespace ExifOrganizer.UI
+﻿using ExifOrganizer.UI.Controls;
+
+namespace ExifOrganizer.UI
 {
     partial class Main
     {
@@ -28,6 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.organize = new System.Windows.Forms.Button();
             this.source = new System.Windows.Forms.GroupBox();
             this.infoSourceDirectory = new System.Windows.Forms.Label();
@@ -48,10 +51,10 @@
             this.patternImage = new System.Windows.Forms.TextBox();
             this.localization = new System.Windows.Forms.ComboBox();
             this.copyMode = new System.Windows.Forms.ComboBox();
-            this.progress = new System.Windows.Forms.ProgressBar();
+            this.progress = new ExifOrganizer.UI.Controls.ProgressBarText();
             this.fileComparator = new ExifOrganizer.UI.Controls.EnumFlagsDropDown();
-            this.destinationPath = new ExifOrganizer.UI.FileBrowseControl();
-            this.sourcePath = new ExifOrganizer.UI.FileBrowseControl();
+            this.destinationPath = new ExifOrganizer.UI.Controls.FileBrowseControl();
+            this.sourcePath = new ExifOrganizer.UI.Controls.FileBrowseControl();
             this.source.SuspendLayout();
             this.destination.SuspendLayout();
             this.SuspendLayout();
@@ -267,8 +270,10 @@
             // 
             // progress
             // 
+            this.progress.Font = new System.Drawing.Font("Arial", 8.25F);
             this.progress.Location = new System.Drawing.Point(12, 336);
             this.progress.Name = "progress";
+            this.progress.ProgressText = null;
             this.progress.Size = new System.Drawing.Size(246, 23);
             this.progress.TabIndex = 12;
             this.progress.Visible = false;
@@ -286,6 +291,7 @@
             this.fileComparator.Items.AddRange(new object[] {
             "<None>",
             "<None>",
+            "<None>",
             "All"});
             this.fileComparator.Location = new System.Drawing.Point(103, 102);
             this.fileComparator.Name = "fileComparator";
@@ -296,7 +302,7 @@
             // 
             this.destinationPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.destinationPath.BrowseType = ExifOrganizer.UI.FileBrowseType.Directory;
+            this.destinationPath.BrowseType = ExifOrganizer.UI.Controls.FileBrowseType.Directory;
             this.destinationPath.DialogTitle = "Destination directory";
             this.destinationPath.Location = new System.Drawing.Point(103, 19);
             this.destinationPath.Name = "destinationPath";
@@ -309,7 +315,7 @@
             // 
             this.sourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.sourcePath.BrowseType = ExifOrganizer.UI.FileBrowseType.Directory;
+            this.sourcePath.BrowseType = ExifOrganizer.UI.Controls.FileBrowseType.Directory;
             this.sourcePath.DialogTitle = "Source directory";
             this.sourcePath.Location = new System.Drawing.Point(103, 19);
             this.sourcePath.Name = "sourcePath";
@@ -327,6 +333,7 @@
             this.Controls.Add(this.destination);
             this.Controls.Add(this.source);
             this.Controls.Add(this.organize);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Main";
             this.Text = "ExifOrganizer";
             this.Load += new System.EventHandler(this.Main_Load);
@@ -341,8 +348,8 @@
         #endregion
 
         private System.Windows.Forms.Button organize;
-        private FileBrowseControl sourcePath;
-        private FileBrowseControl destinationPath;
+        private Controls.FileBrowseControl sourcePath;
+        private Controls.FileBrowseControl destinationPath;
         private System.Windows.Forms.GroupBox source;
         private System.Windows.Forms.GroupBox destination;
         private System.Windows.Forms.CheckBox recursive;
@@ -360,7 +367,7 @@
         private System.Windows.Forms.Label infoPatternVideo;
         private System.Windows.Forms.Label infoPatternAudio;
         private System.Windows.Forms.Label infoFileComparator;
-        private System.Windows.Forms.ProgressBar progress;
+        private Controls.ProgressBarText progress;
         private System.Windows.Forms.Label infoCopyPrecondition;
         private System.Windows.Forms.ComboBox copyPrecondition;
         private Controls.EnumFlagsDropDown fileComparator;

@@ -116,6 +116,10 @@ namespace ExifOrganizer.UI
                 progress.Value = progress.Minimum;
             else
                 progress.Value = current;
+
+            progress.Refresh();
+            int percent = (int)(((double)progress.Value / (double)progress.Maximum) * 100);
+            progress.CreateGraphics().DrawString(percent.ToString() + "%", new Font("Arial", (float)8.25, FontStyle.Regular), Brushes.Black, new PointF(progress.Width / 2 - 10, progress.Height / 2 - 7));
         }
 
         private void ProgressStarted()
