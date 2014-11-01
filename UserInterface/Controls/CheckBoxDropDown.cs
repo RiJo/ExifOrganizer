@@ -146,7 +146,6 @@ namespace ExifOrganizer.UI.Controls
                     checkboxNone.CheckedChanged += CheckedChangedNone;
                     popup.Items.Add(checkboxNone);
 
-                    //ItemsAltered();
                 }
                 else
                 {
@@ -154,6 +153,8 @@ namespace ExifOrganizer.UI.Controls
                     checkboxNone.CheckedChanged -= CheckedChangedNone;
                     checkboxNone = null;
                 }
+
+                ItemsAltered();
             }
         }
 
@@ -176,8 +177,6 @@ namespace ExifOrganizer.UI.Controls
                     checkboxAll.Width = this.Width - 35;
                     checkboxAll.CheckedChanged += CheckedChangedAll;
                     popup.Items.Add(checkboxAll);
-
-                    //ItemsAltered();
                 }
                 else
                 {
@@ -185,6 +184,8 @@ namespace ExifOrganizer.UI.Controls
                     checkboxAll.CheckedChanged -= CheckedChangedAll;
                     checkboxAll = null;
                 }
+
+                ItemsAltered();
             }
         }
 
