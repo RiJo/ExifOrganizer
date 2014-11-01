@@ -40,6 +40,7 @@ namespace ExifOrganizer.UI.Controls
         private Enum enumValue;
 
         public EnumFlagsDropDown()
+            : base()
         {
             InitializeComponent();
         }
