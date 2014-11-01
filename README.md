@@ -12,7 +12,7 @@ The idea is to select a source path to be organized, where media files (mainly i
 ![ExifOrganizer GUI](screenshot.png)
 
 ## Environment
-Everything is written in C# using Visual Studio 2012. There are no external dependencies.
+Everything is written in C# and .NET 4.5 using Visual Studio 2012. There are no external dependencies.
 
 ## License
 This project is licensed under GPLv3.
