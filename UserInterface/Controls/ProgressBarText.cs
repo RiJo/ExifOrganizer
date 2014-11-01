@@ -31,37 +31,95 @@ namespace ExifOrganizer.UI.Controls
     public partial class ProgressBarText : ProgressBar
     {
         public ProgressBarText()
+            : base()
         {
+            SetStyle(ControlStyles.UserPaint, true);
         }
 
-        public string ProgressText
+        protected override void OnPaint(PaintEventArgs e)
         {
-            get;
-            set;
+            // Render base
+            Graphics graphics = e.Graphics;
+            Rectangle targetRectangle = ClientRectangle;
+            ProgressBarRenderer.DrawHorizontalBar(graphics, targetRectangle);
+
+            // Render progress bar
+            if (Value > 0)
+            {
+                targetRectangle.Inflate(-3, -3);
+                Rectangle clip = new Rectangle(targetRectangle.X, targetRectangle.Y, (int)Math.Round(((float)Value / Maximum) * targetRectangle.Width), targetRectangle.Height);
+                ProgressBarRenderer.DrawHorizontalChunks(graphics, clip);
+            }
+
+            // Render text
+            string text = GetProgressText();
+            if (!String.IsNullOrEmpty(text))
+            {
+                SizeF textLength = graphics.MeasureString(text, Font);
+                int pointY = (int)((Height / 2.0) - (textLength.Height / 2.0));
+                int pointX;
+                if (CenterText)
+                    pointX = (int)((Width / 2.0) - (textLength.Width / 2.0));
+                else
+                    pointX = 10;
+                Point textLocation = new Point(pointX, pointY);
+                graphics.DrawString(text, Font, Brush ?? Brushes.Black, textLocation);
+            }
         }
 
-        public double Progress
-        {
-            get { return ((double)(Value - Minimum) / (double)(Maximum - Minimum)); }
-        }
+        #region Properties
 
-        public string GetProgressText()
-        {
-            if (!String.IsNullOrEmpty(ProgressText))
-                return ProgressText;
-
-            return String.Format("{0}%", Math.Round(Progress, 1));
-        }
-
+        /// <summary>
+        /// Brush used to render progress text.
+        /// </summary>
         public Brush Brush
         {
             get;
             set;
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        /// <summary>
+        /// If progress text should be centered horizontally on bar.
+        /// </summary>
+        public bool CenterText
         {
-            // TODO
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Override progress text (progress in percent) rendered on bar. Default value is null.
+        /// </summary>
+        public string ProgressText
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Factor (0.0-1.0) of current progress.
+        /// </summary>
+        public double ProgressFactor
+        {
+            get { return ((double)(Value - Minimum) / (double)(Maximum - Minimum)).Clamp(0.0, 1.0); }
+        }
+
+        /// <summary>
+        /// Percent (0.0-100.0) of current progress.
+        /// </summary>
+        public double ProgressPercent
+        {
+            get { return (ProgressFactor * 100.0).Clamp(0.0, 100.0); ; }
+        }
+
+        #endregion
+
+        public string GetProgressText()
+        {
+            if (ProgressText != null)
+                return ProgressText;
+
+            return String.Format("{0}%", Math.Round(ProgressPercent, 1));
         }
     }
 }

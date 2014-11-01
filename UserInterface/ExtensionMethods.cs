@@ -68,5 +68,14 @@ namespace ExifOrganizer.UI
             long x = value.GetInt64();
             return (x != 0) && (x & (x - 1)) == 0;
         }
+
+        public static double Clamp(this double value, double min, double max)
+        {
+            if (value < min)
+                return min;
+            if (value > max)
+                return max;
+            return value;
+        }
     }
 }
