@@ -99,7 +99,7 @@ namespace ExifOrganizer.Organizer
         {
         }
 
-        public event Action<MediaOrganizer, double> OnProgress = delegate { };
+        public event Action<MediaOrganizer, double, string> OnProgress = delegate { };
 
         public string sourcePath;
         public string destinationPath;
@@ -138,16 +138,16 @@ namespace ExifOrganizer.Organizer
                 throw new NotSupportedException("TODO");
             }
 
-            OrganizeSummary summary = new OrganizeSummary();
+            OnProgress(this, 0.0, "Initializing parser");
 
-            OnProgress(this, 0.1);
+            OrganizeSummary summary = new OrganizeSummary();
 
             copyItems = new CopyItems();
             copyItems.sourcePath = sourcePath;
             copyItems.destinationPath = destinationPath;
             copyItems.items = ParseItems(sourcePath, destinationPath, ref summary);
 
-            OnProgress(this, 0.2);
+            OnProgress(this, 0.1, "Parsing complete");
 
             return summary;
         }
@@ -156,6 +156,8 @@ namespace ExifOrganizer.Organizer
         {
             if (copyItems == null)
                 throw new InvalidOperationException("Parse() must be executed prior to Organize()");
+
+            OnProgress(this, 0.0, "Initializing organizer");
 
             PrepareDestinationPath();
 
@@ -234,11 +236,12 @@ namespace ExifOrganizer.Organizer
                         continue;
                 }
 
-                if ((((float)i / (float)itemCount) * 10) % 2 == 0)
-                    OnProgress(this, 0.2 + ((double)i / (double)itemCount));
+                float progress = (float)(i + 1) / (float)itemCount;
+                if ((progress * 10) % 2 == 0)
+                    OnProgress(this, 0.1 + (progress * 0.9), String.Format("Organizing {0} of {1}", i + 1, itemCount));
             }
 
-            OnProgress(this, 1.0);
+            OnProgress(this, 1.0, "Organization complete");
         }
 
         private void PrepareDestinationPath()
