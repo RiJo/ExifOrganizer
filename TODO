@@ -10,7 +10,6 @@ Features:
     - Handle tags across years/months
 
 GUI:
-    - FileBrowseControl should set directory on dialog when opened
     - separate settings/advanced form for improved usability
     - Remember GUI settings
     - button to run prepare and prinotut information about copying

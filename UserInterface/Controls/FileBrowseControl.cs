@@ -25,6 +25,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace ExifOrganizer.UI.Controls
 {
@@ -41,6 +42,8 @@ namespace ExifOrganizer.UI.Controls
         {
             InitializeComponent();
         }
+
+        #region Properties
 
         public FileBrowseType BrowseType
         {
@@ -60,7 +63,7 @@ namespace ExifOrganizer.UI.Controls
             set { path.Text = value; }
         }
 
-        public string Path
+        public string SelectedPath
         {
             get { return path.Text; }
             set { path.Text = value; }
@@ -72,6 +75,8 @@ namespace ExifOrganizer.UI.Controls
             set;
         }
 
+        #endregion
+
         private void browse_Click(object sender, EventArgs e)
         {
             if (BrowseType == FileBrowseType.File)
@@ -79,7 +84,8 @@ namespace ExifOrganizer.UI.Controls
                 OpenFileDialog dialog = new OpenFileDialog();
                 dialog.Title = DialogTitle;
                 dialog.Multiselect = false;
-                dialog.FileName = path.Text;
+                dialog.InitialDirectory = Path.GetDirectoryName(path.Text);
+                dialog.FileName = Path.GetFileName(path.Text);
                 if (dialog.ShowDialog() == DialogResult.OK)
                     path.Text = dialog.FileName;
             }

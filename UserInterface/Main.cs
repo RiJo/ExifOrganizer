@@ -78,8 +78,8 @@ namespace ExifOrganizer.UI
 
         private void organize_Click(object sender, EventArgs e)
         {
-            organizer.sourcePath = sourcePath.Path;
-            organizer.destinationPath = destinationPath.Path;
+            organizer.sourcePath = sourcePath.SelectedPath;
+            organizer.destinationPath = destinationPath.SelectedPath;
             organizer.Recursive = recursive.Checked;
             organizer.FileComparator = (FileComparator)fileComparator.EnumValue;
             organizer.CopyPrecondition = (CopyPrecondition)copyPrecondition.SelectedItem;
