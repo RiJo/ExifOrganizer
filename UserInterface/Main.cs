@@ -99,12 +99,12 @@ namespace ExifOrganizer.UI
 
         #endregion
 
-        private void ReportProgress(MediaOrganizer organizer, double value)
+        private void ReportProgress(MediaOrganizer organizer, double value, string message)
         {
             if (InvokeRequired)
             {
-                Action<MediaOrganizer, double> action = new Action<MediaOrganizer, double>(ReportProgress);
-                BeginInvoke(action, organizer, value);
+                Action<MediaOrganizer, double, string> action = new Action<MediaOrganizer, double, string>(ReportProgress);
+                BeginInvoke(action, organizer, value, message);
                 return;
             }
 
@@ -116,6 +116,11 @@ namespace ExifOrganizer.UI
                 progress.Value = progress.Minimum;
             else
                 progress.Value = current;
+
+            if (String.IsNullOrEmpty(message))
+                progress.ProgressText = String.Format("{0}%", Math.Round(progress.ProgressPercent, 1));
+            else
+                progress.ProgressText = String.Format("{0}% - {1}", Math.Round(progress.ProgressPercent, 1), message);
         }
 
         private void ProgressStarted()
