@@ -59,10 +59,10 @@ namespace ExifOrganizer.UI.Controls
             public bool Checked { get { return checkbox.Checked; } }
             public CheckState CheckState { get { return checkbox.CheckState; } }
 
-            public ToolStripCheckboxItem(CheckBoxItem foo)
+            public ToolStripCheckboxItem(CheckBoxItem source, bool allowUserCheck = true, bool allowUserUncheck = true)
                 : base(new CheckBox())
             {
-                item = foo;
+                item = source;
 
                 this.Width = 100;
 
@@ -71,6 +71,15 @@ namespace ExifOrganizer.UI.Controls
                 //checkbox.Width = 100;
                 checkbox.Checked = item.Checked;
                 checkbox.Text = item.Text;
+                checkbox.AutoCheck = false;
+                checkbox.Click += delegate(object sender, EventArgs e)
+                {
+                    if (checkbox.Checked && !allowUserUncheck)
+                        return;
+                    if (!checkbox.Checked && !allowUserCheck)
+                        return;
+                    checkbox.Checked = !checkbox.Checked;
+                };
                 checkbox.CheckedChanged += delegate(object sender, EventArgs e)
                 {
                     item.Checked = checkbox.Checked;
@@ -131,12 +140,17 @@ namespace ExifOrganizer.UI.Controls
                     foreach (CheckBoxItem item in GetCheckBoxItems())
                         check &= !item.Checked;
 
-                    checkboxNone = Add(new CheckBoxItem() { Value = 0, Text = TEXT_ITEM_NONE, Checked = check });
-                    checkboxNone.CheckedChanged -= CheckedChanged;
+                    checkboxNone = new ToolStripCheckboxItem(new CheckBoxItem() { Value = 0, Text = TEXT_ITEM_NONE, Checked = check }, true, false);
+                    checkboxNone.BackColor = this.BackColor;
+                    checkboxNone.Width = this.Width - 35;
                     checkboxNone.CheckedChanged += CheckedChangedNone;
+                    popup.Items.Add(checkboxNone);
+
+                    //ItemsAltered();
                 }
                 else
                 {
+                    popup.Items.Remove(checkboxNone);
                     checkboxNone.CheckedChanged -= CheckedChangedNone;
                     checkboxNone = null;
                 }
@@ -157,12 +171,17 @@ namespace ExifOrganizer.UI.Controls
                     foreach (CheckBoxItem item in GetCheckBoxItems())
                         check &= item.Checked;
 
-                    checkboxAll = Add(new CheckBoxItem() { Value = Int64.MaxValue, Text = TEXT_ITEM_ALL, Checked = check });
-                    checkboxAll.CheckedChanged -= CheckedChanged;
+                    checkboxAll = new ToolStripCheckboxItem(new CheckBoxItem() { Value = Int64.MaxValue, Text = TEXT_ITEM_ALL, Checked = check }, true, false);
+                    checkboxAll.BackColor = this.BackColor;
+                    checkboxAll.Width = this.Width - 35;
                     checkboxAll.CheckedChanged += CheckedChangedAll;
+                    popup.Items.Add(checkboxAll);
+
+                    //ItemsAltered();
                 }
                 else
                 {
+                    popup.Items.Remove(checkboxAll);
                     checkboxAll.CheckedChanged -= CheckedChangedAll;
                     checkboxAll = null;
                 }
@@ -185,7 +204,6 @@ namespace ExifOrganizer.UI.Controls
 
         protected ToolStripCheckboxItem Add(CheckBoxItem item)
         {
-            this.SetAutoSizeMode(AutoSizeMode.GrowAndShrink);
             ToolStripCheckboxItem tsi = new ToolStripCheckboxItem(item);
             tsi.BackColor = this.BackColor;
             tsi.Width = this.Width - 35;
