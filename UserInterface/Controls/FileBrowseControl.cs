@@ -86,7 +86,7 @@ namespace ExifOrganizer.UI.Controls
                 dialog.Multiselect = false;
                 dialog.InitialDirectory = Path.GetDirectoryName(path.Text);
                 dialog.FileName = Path.GetFileName(path.Text);
-                if (dialog.ShowDialog() == DialogResult.OK)
+                if (dialog.ShowDialog(FindForm(), FormStartPosition.CenterParent) == DialogResult.OK)
                     path.Text = dialog.FileName;
             }
             else
@@ -94,9 +94,29 @@ namespace ExifOrganizer.UI.Controls
                 FolderBrowserDialog dialog = new FolderBrowserDialog();
                 dialog.Description = DialogTitle;
                 dialog.SelectedPath = path.Text;
-                if (dialog.ShowDialog() == DialogResult.OK)
+                if (dialog.ShowDialog(FindForm(), FormStartPosition.CenterParent) == DialogResult.OK)
                     path.Text = dialog.SelectedPath;
             }
+        }
+    }
+
+    public static class CommonDialogExtensions
+    {
+        public static DialogResult ShowDialog(this CommonDialog dialog, IWin32Window owner, FormStartPosition position)
+        {
+            if (owner == null)
+                return dialog.ShowDialog();
+            if (position != FormStartPosition.CenterParent && position != FormStartPosition.CenterScreen)
+                return dialog.ShowDialog(owner);
+
+            // TODO: implement
+            //using (Form form = new Form())
+            //{
+            //    form.Owner = owner as Form;
+            //    form.StartPosition = position;
+            //    return dialog.ShowDialog(form);
+            //}
+            return dialog.ShowDialog(owner);
         }
     }
 }
