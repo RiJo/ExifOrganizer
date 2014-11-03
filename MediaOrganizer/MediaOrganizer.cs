@@ -80,6 +80,8 @@ namespace ExifOrganizer.Organizer
 
     public class MediaOrganizer
     {
+        private const double PARSE_PROGRESS_FACTOR = 0.1;
+
         private enum GroupType
         {
             Index,
@@ -131,6 +133,7 @@ namespace ExifOrganizer.Organizer
 
         public CopyItems copyItems;
 
+
         public OrganizeSummary Parse()
         {
             if (sourcePath.DirectoryAreSame(destinationPath))
@@ -138,7 +141,7 @@ namespace ExifOrganizer.Organizer
                 throw new NotSupportedException("TODO");
             }
 
-            OnProgress(this, 0.0, "Initializing parser");
+            OnProgress(this, 0.0, "Parsing source");
 
             OrganizeSummary summary = new OrganizeSummary();
 
@@ -147,7 +150,7 @@ namespace ExifOrganizer.Organizer
             copyItems.destinationPath = destinationPath;
             copyItems.items = ParseItems(sourcePath, destinationPath, ref summary);
 
-            OnProgress(this, 0.1, "Parsing complete");
+            OnProgress(this, PARSE_PROGRESS_FACTOR, "Parsing complete");
 
             return summary;
         }
@@ -157,14 +160,19 @@ namespace ExifOrganizer.Organizer
             if (copyItems == null)
                 throw new InvalidOperationException("Parse() must be executed prior to Organize()");
 
-            OnProgress(this, 0.0, "Initializing organizer");
+            OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1, "Prepare destination");
 
             PrepareDestinationPath();
+
 
             // Copy items to destination path
             int itemCount = copyItems.items.Count;
             for (int i = 0; i < itemCount; i++)
             {
+                float progress = (float)(i) / (float)itemCount;
+                if ((int)(progress * 10) % 2 == 0)
+                    OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1 + (progress * (1.0 - PARSE_PROGRESS_FACTOR - 0.1)), String.Format("Organizing {0} of {1}", i + 1, itemCount));
+
                 CopyItem item = copyItems.items[i];
 
                 if (!Directory.Exists(Path.GetDirectoryName(item.destinationPath)))
@@ -235,10 +243,6 @@ namespace ExifOrganizer.Organizer
                     else
                         continue;
                 }
-
-                float progress = (float)(i + 1) / (float)itemCount;
-                if ((progress * 10) % 2 == 0)
-                    OnProgress(this, 0.1 + (progress * 0.9), String.Format("Organizing {0} of {1}", i + 1, itemCount));
             }
 
             OnProgress(this, 1.0, "Organization complete");
