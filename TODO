@@ -1,15 +1,15 @@
- * how to solve multiple tags in meta data?
- * Printout how many skipped files (grouped by extension/type)
 
 Features:
-    - Verify files: evaluate checksums of all copied files
+0.1 - Verify files: evaluate checksums of all copied files + add option to GUI
     - Parallell loading/saving (use threads)
     - Config file to store patterns etc
-    - Handle tags across years/months
+0.2 - Handle tags across years/months
+0.2 - Handle multiple tags in meta-data (comma-separated)
 
 GUI:
-    - separate settings/advanced form for improved usability
-    - Remember GUI settings
+0.2 - separate settings/advanced form for improved usability
+0.1 - Remember GUI settings
     - button to run prepare and prinotut information about copying
     - Separate progress of Parse() and Organize into 0.0-1.0 for each + message in event
-    - Printout version information
+0.1 - Printout version information
+    - * Printout how many skipped files (grouped by extension/type)
