@@ -114,6 +114,7 @@ namespace ExifOrganizer.Organizer
         public FileComparator FileComparator = FileComparator.FileSize | FileComparator.Checksum;
         public CopyMode CopyMode = CopyMode.KeepUnique;
         public ExceptionHandling ExceptionHandling = ExceptionHandling.Throw;
+        public bool VerifyFiles;
         public string[] IgnorePaths = null;
 
         private readonly Dictionary<string, GroupType> organizeGroups = new Dictionary<string, GroupType>()
@@ -235,6 +236,11 @@ namespace ExifOrganizer.Organizer
                 try
                 {
                     File.Copy(item.sourcePath, destinationPath, overwrite);
+                    if (VerifyFiles)
+                    {
+                        if (!item.sourceInfo.AreFilesIdentical(new FileInfo(destinationPath), Organizer.FileComparator.Checksum))
+                            throw new MediaOrganizerException("File verification failed. Source: {0}. Destination: {1}", item.sourcePath, destinationPath);
+                    }
                 }
                 catch (Exception ex)
                 {
