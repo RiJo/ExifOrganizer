@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ExifOrganizer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("User interface (GUI and CLI) of ExifOrganizer application.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("ExifOrganizer")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyCopyright("Licensed under GPLv3")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
