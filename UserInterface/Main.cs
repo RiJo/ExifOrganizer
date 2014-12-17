@@ -47,6 +47,8 @@ namespace ExifOrganizer.UI
 
         private void Main_Load(object sender, EventArgs e)
         {
+            infoVersion.Text = String.Format("Version: {0}", Application.ProductVersion);
+
             // DuplicateMode enum
             //foreach (FileComparator comparator in Enum.GetValues(typeof(FileComparator)))
             //    fileComparator.Items.Add(comparator);

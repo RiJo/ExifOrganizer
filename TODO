@@ -11,5 +11,4 @@ GUI:
 0.1 - Remember GUI settings
     - button to run prepare and prinotut information about copying
     - Separate progress of Parse() and Organize into 0.0-1.0 for each + message in event
-0.1 - Printout version information
-    - * Printout how many skipped files (grouped by extension/type)
+    - Printout how many skipped files (grouped by extension/type)
