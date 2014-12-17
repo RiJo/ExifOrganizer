@@ -435,7 +435,7 @@ namespace ExifOrganizer.Organizer
                     temp = Regex.Replace(temp, @"(?<!%)" + kvp.Key, kvp.Value);
                 temp = temp.Replace("%%", "%"); // Remove escape character
 
-                if (Regex.IsMatch(temp, "$" + regex + "^"))
+                if (Regex.IsMatch(temp, "^" + regex + "$"))
                     continue; // Pattern matched but not replaced: skip in path
 
                 temp = temp.ReplaceInvalidPathChars();
