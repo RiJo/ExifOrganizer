@@ -42,7 +42,7 @@ namespace ExifOrganizer.Organizer
         {
             if (fileInfo == null)
                 throw new ArgumentNullException("fileInfo");
-            if (fileInfo == null)
+            if (otherFile == null)
                 throw new ArgumentNullException("otherFile");
             if (!fileInfo.Exists)
                 return false;
