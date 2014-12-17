@@ -410,7 +410,7 @@ namespace ExifOrganizer.Organizer
                 Dictionary<string, string> replacements = new Dictionary<string, string>();
 
                 // Gather replacements
-                string regex = "%[a-zA-Z]";
+                string regex = @"(?<!%)%[a-zA-Z]";
                 foreach (Match match in Regex.Matches(subPattern, regex))
                 {
                     if (replacements.ContainsKey(match.Value))
@@ -426,10 +426,11 @@ namespace ExifOrganizer.Organizer
                 // Perform replacement
                 string temp = subPattern;
                 foreach (KeyValuePair<string, string> kvp in replacements)
-                    temp = temp.Replace(kvp.Key, kvp.Value);
+                    temp = Regex.Replace(temp, @"(?<!%)" + kvp.Key, kvp.Value);
+                temp = temp.Replace("%%", "%"); // Remove escape character
 
-                if (Regex.IsMatch(temp, regex))
-                    continue;
+                if (Regex.IsMatch(temp, "$" + regex + "^"))
+                    continue; // Pattern matched but not replaced: skip in path
 
                 temp = temp.ReplaceInvalidPathChars();
                 subPath = Path.Combine(subPath, temp);

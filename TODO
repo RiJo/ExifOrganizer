@@ -1,6 +1,5 @@
  * how to solve multiple tags in meta data?
  * Printout how many skipped files (grouped by extension/type)
- * Ability to escape/use "%" in paths (currently identifies pattern)
 
 Features:
     - Verify files: evaluate checksums of all copied files
