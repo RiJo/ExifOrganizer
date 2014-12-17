@@ -114,7 +114,7 @@ namespace ExifOrganizer.Organizer
         public FileComparator FileComparator = FileComparator.FileSize | FileComparator.Checksum;
         public CopyMode CopyMode = CopyMode.KeepUnique;
         public ExceptionHandling ExceptionHandling = ExceptionHandling.Throw;
-        public bool VerifyFiles;
+        public bool VerifyFiles = true;
         public string[] IgnorePaths = null;
 
         private readonly Dictionary<string, GroupType> organizeGroups = new Dictionary<string, GroupType>()
