@@ -198,7 +198,8 @@ namespace ExifOrganizer.UI
                 return;
             }
 
-            MessageBox.Show(ex.Message, "Media parse failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Exception innerException = ex.GetInnerMost();
+            MessageBox.Show(innerException.Message, "Media parse failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             ProgressEnded();
         }
 
@@ -242,7 +243,8 @@ namespace ExifOrganizer.UI
                 return;
             }
 
-            MessageBox.Show(ex.Message, "Media organization failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Exception innerException = ex.GetInnerMost();
+            MessageBox.Show(innerException.Message, "Media organization failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             ProgressEnded();
         }
 

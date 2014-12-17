@@ -77,5 +77,15 @@ namespace ExifOrganizer.UI
                 return max;
             return value;
         }
+
+        public static Exception GetInnerMost(this Exception exception)
+        {
+            if (exception == null)
+                return null;
+            if (exception.InnerException == null)
+                return exception;
+
+            return exception.InnerException.GetInnerMost();
+        }
     }
 }
