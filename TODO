@@ -1,6 +1,5 @@
  * how to solve multiple tags in meta data?
  * Printout how many skipped files (grouped by extension/type)
- * Invalid path exception if "<tag>" was used in path?
  * Ability to escape/use "%" in paths (currently identifies pattern)
 
 Features:

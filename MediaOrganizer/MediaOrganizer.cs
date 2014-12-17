@@ -431,9 +431,11 @@ namespace ExifOrganizer.Organizer
                 if (Regex.IsMatch(temp, regex))
                     continue;
 
+                temp = temp.ReplaceInvalidPathChars();
                 subPath = Path.Combine(subPath, temp);
             }
 
+            destinationPath = destinationPath.ReplaceInvalidPathChars();
             return Path.Combine(destinationPath, subPath);
         }
 

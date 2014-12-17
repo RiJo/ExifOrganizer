@@ -93,5 +93,12 @@ namespace ExifOrganizer.Organizer
                 }
             }
         }
+
+        public static string ReplaceInvalidPathChars(this string path, char replacement = '_')
+        {
+            foreach (char invalidChar in Path.GetInvalidPathChars())
+                path = path.Replace(invalidChar, replacement);
+            return path;
+        }
     }
 }
