@@ -186,7 +186,7 @@ namespace ExifOrganizer.Organizer
                     catch (Exception ex)
                     {
                         if (ExceptionHandling == ExceptionHandling.Throw)
-                            throw new MediaOrganizerException(String.Format("Failed to create directory: {0}", destinationDirectory), ex.Message);
+                            throw new MediaOrganizerException(String.Format("Failed to create directory: {0}", destinationDirectory), ex);
                         else
                             continue;
                     }
@@ -245,7 +245,7 @@ namespace ExifOrganizer.Organizer
                 catch (Exception ex)
                 {
                     if (ExceptionHandling == ExceptionHandling.Throw)
-                        throw new MediaOrganizerException(String.Format("Failed to copy file. Mode: {0}. Overwrite: {1}. Source: {2}. Destination: {3}", CopyMode, overwrite, item.sourcePath, item.destinationPath), ex.Message);
+                        throw new MediaOrganizerException(String.Format("Failed to copy file. Mode: {0}. Overwrite: {1}. Source: {2}. Destination: {3}", CopyMode, overwrite, item.sourcePath, item.destinationPath), ex);
                     else
                         continue;
                 }
