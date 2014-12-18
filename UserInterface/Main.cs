@@ -49,11 +49,11 @@ namespace ExifOrganizer.UI
         {
             infoVersion.Text = String.Format("Version: {0}", Application.ProductVersion);
 
-            // DuplicateMode enum
-            //foreach (FileComparator comparator in Enum.GetValues(typeof(FileComparator)))
-            //    fileComparator.Items.Add(comparator);
-            //fileComparator.Items.Add(organizer.FileComparator);
-            //fileComparator.SelectedItem = organizer.FileComparator;
+            sourcePath.Text = organizer.sourcePath;
+            destinationPath.Text = organizer.destinationPath;
+            recursive.Checked = organizer.Recursive;
+
+            // FileComparator enum
             fileComparator.EnumType = typeof(FileComparator);
             fileComparator.EnumValue = organizer.FileComparator;
 

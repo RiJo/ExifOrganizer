@@ -36,10 +36,8 @@ namespace ExifOrganizer.UI
             this.infoSourceDirectory = new System.Windows.Forms.Label();
             this.infoRecursive = new System.Windows.Forms.Label();
             this.recursive = new System.Windows.Forms.CheckBox();
-            this.sourcePath = new ExifOrganizer.UI.Controls.FileBrowseControl();
             this.infoFileComparator = new System.Windows.Forms.Label();
             this.destination = new System.Windows.Forms.GroupBox();
-            this.fileComparator = new ExifOrganizer.UI.Controls.EnumFlagsDropDown();
             this.infoCopyPrecondition = new System.Windows.Forms.Label();
             this.copyPrecondition = new System.Windows.Forms.ComboBox();
             this.infoDestinationDirectory = new System.Windows.Forms.Label();
@@ -53,12 +51,14 @@ namespace ExifOrganizer.UI
             this.patternImage = new System.Windows.Forms.TextBox();
             this.localization = new System.Windows.Forms.ComboBox();
             this.copyMode = new System.Windows.Forms.ComboBox();
-            this.destinationPath = new ExifOrganizer.UI.Controls.FileBrowseControl();
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.infoVersion = new System.Windows.Forms.ToolStripStatusLabel();
-            this.progress = new ExifOrganizer.UI.Controls.ProgressBarText();
             this.infoVerifyFiles = new System.Windows.Forms.Label();
             this.verifyFiles = new System.Windows.Forms.CheckBox();
+            this.progress = new ExifOrganizer.UI.Controls.ProgressBarText();
+            this.fileComparator = new ExifOrganizer.UI.Controls.EnumFlagsDropDown();
+            this.destinationPath = new ExifOrganizer.UI.Controls.FileBrowseControl();
+            this.sourcePath = new ExifOrganizer.UI.Controls.FileBrowseControl();
             this.source.SuspendLayout();
             this.destination.SuspendLayout();
             this.statusBar.SuspendLayout();
@@ -111,26 +111,11 @@ namespace ExifOrganizer.UI
             // recursive
             // 
             this.recursive.AutoSize = true;
-            this.recursive.Checked = true;
-            this.recursive.CheckState = System.Windows.Forms.CheckState.Checked;
             this.recursive.Location = new System.Drawing.Point(103, 48);
             this.recursive.Name = "recursive";
             this.recursive.Size = new System.Drawing.Size(15, 14);
             this.recursive.TabIndex = 2;
             this.recursive.UseVisualStyleBackColor = true;
-            // 
-            // sourcePath
-            // 
-            this.sourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.sourcePath.BrowseType = ExifOrganizer.UI.Controls.FileBrowseType.Directory;
-            this.sourcePath.DialogTitle = "Source directory";
-            this.sourcePath.Location = new System.Drawing.Point(103, 19);
-            this.sourcePath.Name = "sourcePath";
-            this.sourcePath.ReadOnly = false;
-            this.sourcePath.SelectedPath = "C:\\temp";
-            this.sourcePath.Size = new System.Drawing.Size(226, 23);
-            this.sourcePath.TabIndex = 1;
             // 
             // infoFileComparator
             // 
@@ -170,30 +155,6 @@ namespace ExifOrganizer.UI
             this.destination.TabIndex = 3;
             this.destination.TabStop = false;
             this.destination.Text = "Destination";
-            // 
-            // fileComparator
-            // 
-            this.fileComparator.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.fileComparator.CheckBoxAll = true;
-            this.fileComparator.CheckBoxNone = true;
-            this.fileComparator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.fileComparator.EnumType = null;
-            this.fileComparator.EnumValue = null;
-            this.fileComparator.FormattingEnabled = true;
-            this.fileComparator.Items.AddRange(new object[] {
-            "<None>",
-            "<None>",
-            "<None>",
-            "<None>",
-            "<None>",
-            "<None>",
-            "<None>",
-            "All"});
-            this.fileComparator.Location = new System.Drawing.Point(103, 102);
-            this.fileComparator.Name = "fileComparator";
-            this.fileComparator.Size = new System.Drawing.Size(151, 21);
-            this.fileComparator.TabIndex = 7;
             // 
             // infoCopyPrecondition
             // 
@@ -318,19 +279,6 @@ namespace ExifOrganizer.UI
             this.copyMode.Size = new System.Drawing.Size(151, 21);
             this.copyMode.TabIndex = 6;
             // 
-            // destinationPath
-            // 
-            this.destinationPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.destinationPath.BrowseType = ExifOrganizer.UI.Controls.FileBrowseType.Directory;
-            this.destinationPath.DialogTitle = "Destination directory";
-            this.destinationPath.Location = new System.Drawing.Point(103, 19);
-            this.destinationPath.Name = "destinationPath";
-            this.destinationPath.ReadOnly = false;
-            this.destinationPath.SelectedPath = "C:\\temp\\backup";
-            this.destinationPath.Size = new System.Drawing.Size(226, 23);
-            this.destinationPath.TabIndex = 4;
-            // 
             // statusBar
             // 
             this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -347,6 +295,24 @@ namespace ExifOrganizer.UI
             this.infoVersion.Size = new System.Drawing.Size(74, 17);
             this.infoVersion.Text = "Version: x.y.z";
             // 
+            // infoVerifyFiles
+            // 
+            this.infoVerifyFiles.AutoSize = true;
+            this.infoVerifyFiles.Location = new System.Drawing.Point(6, 130);
+            this.infoVerifyFiles.Name = "infoVerifyFiles";
+            this.infoVerifyFiles.Size = new System.Drawing.Size(54, 13);
+            this.infoVerifyFiles.TabIndex = 12;
+            this.infoVerifyFiles.Text = "Verify files";
+            // 
+            // verifyFiles
+            // 
+            this.verifyFiles.AutoSize = true;
+            this.verifyFiles.Location = new System.Drawing.Point(103, 129);
+            this.verifyFiles.Name = "verifyFiles";
+            this.verifyFiles.Size = new System.Drawing.Size(15, 14);
+            this.verifyFiles.TabIndex = 11;
+            this.verifyFiles.UseVisualStyleBackColor = true;
+            // 
             // progress
             // 
             this.progress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -361,25 +327,55 @@ namespace ExifOrganizer.UI
             this.progress.TabIndex = 12;
             this.progress.Visible = false;
             // 
-            // infoVerifyFiles
+            // fileComparator
             // 
-            this.infoVerifyFiles.AutoSize = true;
-            this.infoVerifyFiles.Location = new System.Drawing.Point(6, 130);
-            this.infoVerifyFiles.Name = "infoVerifyFiles";
-            this.infoVerifyFiles.Size = new System.Drawing.Size(54, 13);
-            this.infoVerifyFiles.TabIndex = 12;
-            this.infoVerifyFiles.Text = "Verify files";
+            this.fileComparator.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.fileComparator.CheckBoxAll = true;
+            this.fileComparator.CheckBoxNone = true;
+            this.fileComparator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.fileComparator.EnumType = null;
+            this.fileComparator.EnumValue = null;
+            this.fileComparator.FormattingEnabled = true;
+            this.fileComparator.Items.AddRange(new object[] {
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "All"});
+            this.fileComparator.Location = new System.Drawing.Point(103, 102);
+            this.fileComparator.Name = "fileComparator";
+            this.fileComparator.Size = new System.Drawing.Size(151, 21);
+            this.fileComparator.TabIndex = 7;
             // 
-            // verifyFiles
+            // destinationPath
             // 
-            this.verifyFiles.AutoSize = true;
-            this.verifyFiles.Checked = true;
-            this.verifyFiles.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.verifyFiles.Location = new System.Drawing.Point(103, 129);
-            this.verifyFiles.Name = "verifyFiles";
-            this.verifyFiles.Size = new System.Drawing.Size(15, 14);
-            this.verifyFiles.TabIndex = 11;
-            this.verifyFiles.UseVisualStyleBackColor = true;
+            this.destinationPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.destinationPath.BrowseType = ExifOrganizer.UI.Controls.FileBrowseType.Directory;
+            this.destinationPath.DialogTitle = "Destination directory";
+            this.destinationPath.Location = new System.Drawing.Point(103, 19);
+            this.destinationPath.Name = "destinationPath";
+            this.destinationPath.ReadOnly = false;
+            this.destinationPath.SelectedPath = "";
+            this.destinationPath.Size = new System.Drawing.Size(226, 23);
+            this.destinationPath.TabIndex = 4;
+            // 
+            // sourcePath
+            // 
+            this.sourcePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.sourcePath.BrowseType = ExifOrganizer.UI.Controls.FileBrowseType.Directory;
+            this.sourcePath.DialogTitle = "Source directory";
+            this.sourcePath.Location = new System.Drawing.Point(103, 19);
+            this.sourcePath.Name = "sourcePath";
+            this.sourcePath.ReadOnly = false;
+            this.sourcePath.SelectedPath = "";
+            this.sourcePath.Size = new System.Drawing.Size(226, 23);
+            this.sourcePath.TabIndex = 1;
             // 
             // Main
             // 
