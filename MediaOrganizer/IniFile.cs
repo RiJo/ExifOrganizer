@@ -44,6 +44,19 @@ namespace ExifOrganizer.Organizer
             return values.ContainsKey(key);
         }
 
+        public bool TryLoad(string filename)
+        {
+            try
+            {
+                Load(filename);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public void Load(string filename)
         {
             if (String.IsNullOrEmpty(filename))
@@ -67,6 +80,19 @@ namespace ExifOrganizer.Organizer
                 string key = keyValue[0].Trim();
                 string value = keyValue[1].Trim();
                 values[key] = value;
+            }
+        }
+
+        public bool TrySave(string filename)
+        {
+            try
+            {
+                Save(filename);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
