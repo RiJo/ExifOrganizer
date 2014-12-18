@@ -60,7 +60,7 @@ namespace ExifOrganizer.Organizer
                 if (line.Trim().StartsWith(";"))
                     continue;
 
-                string[] keyValue = line.Split(new char[] { ';' }, 2);
+                string[] keyValue = line.Split(new char[] { ':' }, 2);
                 if (keyValue.Length != 2)
                     continue; // Invalid row
 
