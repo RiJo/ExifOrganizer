@@ -132,7 +132,7 @@ namespace ExifOrganizer.Organizer
             { "%c", GroupType.Camera }
         };
 
-        public CopyItems copyItems;
+        private CopyItems copyItems;
 
 
         public OrganizeSummary Parse()
