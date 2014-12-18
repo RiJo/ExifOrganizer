@@ -40,6 +40,7 @@ namespace ExifOrganizer.UI
         {
             InitializeComponent();
 
+            organizer.LoadConfig();
             organizer.OnProgress += ReportProgress;
         }
 
@@ -93,6 +94,7 @@ namespace ExifOrganizer.UI
             organizer.DestinationPatternVideo = patternVideo.Text;
             organizer.DestinationPatternAudio = patternAudio.Text;
             organizer.Localization = (CultureInfo)localization.SelectedItem;
+            organizer.SaveConfig();
 
             ProgressStarted();
 
