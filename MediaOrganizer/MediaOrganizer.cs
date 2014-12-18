@@ -133,7 +133,6 @@ namespace ExifOrganizer.Organizer
 
         public MediaOrganizer()
         {
-            LoadConfig();
         }
 
         private string IniConfigFileName
@@ -146,7 +145,7 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        private void LoadConfig() {
+        public void LoadConfig() {
             string iniFilePath = IniConfigFileName;
 
             if (!File.Exists(iniFilePath))
@@ -170,7 +169,7 @@ namespace ExifOrganizer.Organizer
                 Recursive = iniFile["recursive"] == "1";
         }
 
-        private void SaveConfig()
+        public void SaveConfig()
         {
             IniFile iniFile = new IniFile();
             iniFile["sourcePath"] = sourcePath;
