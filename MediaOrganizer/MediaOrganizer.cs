@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -97,10 +98,6 @@ namespace ExifOrganizer.Organizer
             Camera
         }
 
-        public MediaOrganizer()
-        {
-        }
-
         public event Action<MediaOrganizer, double, string> OnProgress = delegate { };
 
         public string sourcePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
@@ -134,6 +131,33 @@ namespace ExifOrganizer.Organizer
 
         private CopyItems copyItems;
 
+        public MediaOrganizer()
+        {
+            LoadConfig();
+        }
+
+        private void LoadConfig() {
+            string executablePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string iniFilePath = Path.Combine(executablePath, "MediaOrganizer.ini");
+
+            if (!File.Exists(iniFilePath))
+                return; // TODO: generate default ini file
+
+            IniFile iniFile = new IniFile();
+            try 
+            {
+                iniFile.Load(iniFilePath);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            if (iniFile.Contains("sourcePath"))
+                sourcePath = iniFile["sourcePath"];
+            if (iniFile.Contains("destinationPath"))
+                destinationPath = iniFile["destinationPath"];
+        }
 
         public OrganizeSummary Parse()
         {
