@@ -152,14 +152,7 @@ namespace ExifOrganizer.Organizer
                 SaveConfig();
 
             IniFile iniFile = new IniFile();
-            try 
-            {
-                iniFile.Load(iniFilePath);
-            }
-            catch (Exception)
-            {
-                return;
-            }
+            iniFile.TryLoad(iniFilePath);
 
             if (iniFile.Contains("sourcePath"))
                 sourcePath = iniFile["sourcePath"];
@@ -177,7 +170,7 @@ namespace ExifOrganizer.Organizer
             iniFile["recursive"] = Recursive ? "1" : "0";
 
             string iniFilePath = IniConfigFileName;
-            iniFile.Save(iniFilePath);
+            iniFile.TrySave(iniFilePath);
         }
 
         public OrganizeSummary Parse()
