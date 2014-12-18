@@ -3,10 +3,11 @@ Features:
     - Config file to store patterns etc
 0.2 - Handle tags across years/months
 0.2 - Handle multiple tags in meta-data (comma-separated)
+    - Comments in ini file using IniFile class
 
 GUI:
 0.2 - separate settings/advanced form for improved usability
-0.1 - Remember GUI settings
+0.1 - Remember GUI settings (MediaOrganizer.ini)
     - button to run prepare and prinotut information about copying
     - Separate progress of Parse() and Organize into 0.0-1.0 for each + message in event
     - Printout how many skipped files (grouped by extension/type)
