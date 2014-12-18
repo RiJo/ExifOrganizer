@@ -103,8 +103,8 @@ namespace ExifOrganizer.Organizer
 
         public event Action<MediaOrganizer, double, string> OnProgress = delegate { };
 
-        public string sourcePath;
-        public string destinationPath;
+        public string sourcePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+        public string destinationPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         public bool Recursive = true;
         public CultureInfo Localization = Thread.CurrentThread.CurrentCulture;
         public string DestinationPatternImage = @"%y/%m %M/%t/%n.%e";
