@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="CopyItem.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="IniFile.cs" />
     <Compile Include="MediaOrganizerException.cs" />
     <Compile Include="MediaOrganizer.cs" />
     <Compile Include="CopyItems.cs" />
