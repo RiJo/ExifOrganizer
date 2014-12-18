@@ -136,12 +136,21 @@ namespace ExifOrganizer.Organizer
             LoadConfig();
         }
 
+        private string IniConfigFileName
+        {
+            get
+            {
+                string executablePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                string iniFilePath = Path.Combine(executablePath, "MediaOrganizer.ini");
+                return iniFilePath;
+            }
+        }
+
         private void LoadConfig() {
-            string executablePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            string iniFilePath = Path.Combine(executablePath, "MediaOrganizer.ini");
+            string iniFilePath = IniConfigFileName;
 
             if (!File.Exists(iniFilePath))
-                return; // TODO: generate default ini file
+                SaveConfig();
 
             IniFile iniFile = new IniFile();
             try 
@@ -157,6 +166,19 @@ namespace ExifOrganizer.Organizer
                 sourcePath = iniFile["sourcePath"];
             if (iniFile.Contains("destinationPath"))
                 destinationPath = iniFile["destinationPath"];
+            if (iniFile.Contains("recursive"))
+                Recursive = bool.Parse(iniFile["recursive"]);
+        }
+
+        private void SaveConfig()
+        {
+            IniFile iniFile = new IniFile();
+            iniFile["sourcePath"] = sourcePath;
+            iniFile["destinationPath"] = destinationPath;
+            iniFile["recursive"] = Recursive ? "1" : "0";
+
+            string iniFilePath = IniConfigFileName;
+            iniFile.Save(iniFilePath);
         }
 
         public OrganizeSummary Parse()
