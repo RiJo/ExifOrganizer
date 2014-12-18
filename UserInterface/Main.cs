@@ -67,6 +67,8 @@ namespace ExifOrganizer.UI
                 copyMode.Items.Add(mode);
             copyMode.SelectedItem = organizer.CopyMode;
 
+            verifyFiles.Checked = organizer.VerifyFiles;
+
             // CultureInfo localization
             foreach (CultureInfo culture in CultureInfo.GetCultures(CultureTypes.AllCultures))
                 localization.Items.Add(culture);
@@ -86,6 +88,7 @@ namespace ExifOrganizer.UI
             organizer.FileComparator = (FileComparator)fileComparator.EnumValue;
             organizer.CopyPrecondition = (CopyPrecondition)copyPrecondition.SelectedItem;
             organizer.CopyMode = (CopyMode)copyMode.SelectedItem;
+            organizer.VerifyFiles = verifyFiles.Checked;
             organizer.DestinationPatternImage = patternImage.Text;
             organizer.DestinationPatternVideo = patternVideo.Text;
             organizer.DestinationPatternAudio = patternAudio.Text;

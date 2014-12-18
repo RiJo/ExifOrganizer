@@ -1,6 +1,4 @@
-
 Features:
-0.1 - Verify files: evaluate checksums of all copied files + add option to GUI
     - Parallell loading/saving (use threads)
     - Config file to store patterns etc
 0.2 - Handle tags across years/months
@@ -12,3 +10,4 @@ GUI:
     - button to run prepare and prinotut information about copying
     - Separate progress of Parse() and Organize into 0.0-1.0 for each + message in event
     - Printout how many skipped files (grouped by extension/type)
+    - Set default directories (My media)
