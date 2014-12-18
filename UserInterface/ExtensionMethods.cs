@@ -87,5 +87,10 @@ namespace ExifOrganizer.UI
 
             return exception.InnerException.GetInnerMost();
         }
+
+        public static string Get(this Version version)
+        {
+            return String.Format("{0}.{1}.{2} build {3}", version.Major, version.Minor, version.Build, version.Revision);
+        }
     }
 }

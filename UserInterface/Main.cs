@@ -48,7 +48,7 @@ namespace ExifOrganizer.UI
 
         private void Main_Load(object sender, EventArgs e)
         {
-            infoVersion.Text = String.Format("Version: {0}", Application.ProductVersion);
+            infoVersion.Text = String.Format("Version: {0}", new Version(Application.ProductVersion).Get());
 
             sourcePath.Text = organizer.sourcePath;
             destinationPath.Text = organizer.destinationPath;
