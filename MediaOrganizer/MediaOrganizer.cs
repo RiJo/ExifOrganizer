@@ -167,7 +167,7 @@ namespace ExifOrganizer.Organizer
             if (iniFile.Contains("destinationPath"))
                 destinationPath = iniFile["destinationPath"];
             if (iniFile.Contains("recursive"))
-                Recursive = bool.Parse(iniFile["recursive"]);
+                Recursive = iniFile["recursive"] == "1";
         }
 
         private void SaveConfig()
