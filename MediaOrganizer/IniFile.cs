@@ -33,6 +33,12 @@ namespace ExifOrganizer.Organizer
         {
         }
 
+        public IniFile(string filename)
+            : base()
+        {
+            TryLoad(filename);
+        }
+
         public bool TryLoad(string filename)
         {
             try
