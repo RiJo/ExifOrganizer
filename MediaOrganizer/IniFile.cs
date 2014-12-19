@@ -1,5 +1,5 @@
 ﻿//
-// IniFile.cs: Data structure used to save/load ini files.
+// IniFile.cs: Data structure used to save/load an ini file.
 //
 // Copyright (C) 2014 Rikard Johansson
 //
@@ -17,6 +17,7 @@
 //
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,23 +26,11 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Organizer
 {
-    public class IniFile
+    public class IniFile : Dictionary<string, string>
     {
-        private Dictionary<string, string> values = new Dictionary<string, string>();
-
         public IniFile()
+            : base()
         {
-        }
-
-        public string this[string key]
-        {
-            get { return values[key]; }
-            set { values[key] = value; }
-        }
-
-        public bool Contains(string key)
-        {
-            return values.ContainsKey(key);
         }
 
         public bool TryLoad(string filename)
@@ -64,7 +53,7 @@ namespace ExifOrganizer.Organizer
             if (!File.Exists(filename))
                 throw new FileNotFoundException(filename);
 
-            values.Clear();
+            Clear();
 
             foreach (string line in File.ReadAllLines(filename))
             {
@@ -79,7 +68,7 @@ namespace ExifOrganizer.Organizer
 
                 string key = keyValue[0].Trim();
                 string value = keyValue[1].Trim();
-                values[key] = value;
+                Add(key, value);
             }
         }
 
@@ -102,9 +91,9 @@ namespace ExifOrganizer.Organizer
                 throw new ArgumentNullException("filename");
 
             List<string> lines = new List<string>();
-            foreach (string key in values.Keys)
+            foreach (KeyValuePair<string, string> kvp in this)
             {
-                string line = String.Format("{0}: {1}", key, values[key]);
+                string line = String.Format("{0}: {1}", kvp.Key, kvp.Value);
                 lines.Add(line);
             }
 

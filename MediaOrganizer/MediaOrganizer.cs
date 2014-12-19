@@ -154,11 +154,11 @@ namespace ExifOrganizer.Organizer
             IniFile iniFile = new IniFile();
             iniFile.TryLoad(iniFilePath);
 
-            if (iniFile.Contains("sourcePath"))
+            if (iniFile.ContainsKey("sourcePath"))
                 sourcePath = iniFile["sourcePath"];
-            if (iniFile.Contains("destinationPath"))
+            if (iniFile.ContainsKey("destinationPath"))
                 destinationPath = iniFile["destinationPath"];
-            if (iniFile.Contains("recursive"))
+            if (iniFile.ContainsKey("recursive"))
                 Recursive = iniFile["recursive"] == "1";
         }
 
