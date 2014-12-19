@@ -112,7 +112,7 @@ namespace ExifOrganizer.Organizer
         public CopyMode CopyMode = CopyMode.KeepUnique;
         public ExceptionHandling ExceptionHandling = ExceptionHandling.Throw;
         public bool VerifyFiles = true;
-        public string[] IgnorePaths = null;
+        public string[] IgnorePaths = null; // TODO: implement
 
         private readonly Dictionary<string, GroupType> organizeGroups = new Dictionary<string, GroupType>()
         {
@@ -149,7 +149,7 @@ namespace ExifOrganizer.Organizer
             string iniFilePath = IniConfigFileName;
 
             if (!File.Exists(iniFilePath))
-                SaveConfig();
+                SaveConfig(); // Generate default config file
 
             IniFile iniFile = new IniFile();
             iniFile.TryLoad(iniFilePath);
@@ -159,7 +159,25 @@ namespace ExifOrganizer.Organizer
             if (iniFile.ContainsKey("destinationPath"))
                 destinationPath = iniFile["destinationPath"];
             if (iniFile.ContainsKey("recursive"))
-                Recursive = iniFile["recursive"] == "1";
+                Recursive = iniFile["recursive"].ToBool();
+            if (iniFile.ContainsKey("locale"))
+                Localization = new CultureInfo(iniFile["locale"]);
+            if (iniFile.ContainsKey("patternImage"))
+                DestinationPatternImage = iniFile["patternImage"];
+            if (iniFile.ContainsKey("patternAudio"))
+                DestinationPatternAudio = iniFile["patternAudio"];
+            if (iniFile.ContainsKey("patternVideo"))
+                DestinationPatternVideo = iniFile["patternVideo"];
+            if (iniFile.ContainsKey("precondition"))
+                CopyPrecondition = iniFile["precondition"].ToEnum<CopyPrecondition>();
+            if (iniFile.ContainsKey("comparator"))
+                FileComparator = iniFile["comparator"].ToEnum<FileComparator>();
+            if (iniFile.ContainsKey("copyMode"))
+                CopyMode = iniFile["copyMode"].ToEnum<CopyMode>();
+            if (iniFile.ContainsKey("exceptionHandling"))
+                ExceptionHandling = iniFile["exceptionHandling"].ToEnum<ExceptionHandling>();
+            if (iniFile.ContainsKey("verifyFiles"))
+                VerifyFiles = iniFile["verifyFiles"].ToBool();
         }
 
         public void SaveConfig()
@@ -168,6 +186,15 @@ namespace ExifOrganizer.Organizer
             iniFile["sourcePath"] = sourcePath;
             iniFile["destinationPath"] = destinationPath;
             iniFile["recursive"] = Recursive ? "1" : "0";
+            iniFile["locale"] = Localization.Name;
+            iniFile["patternImage"] = DestinationPatternImage;
+            iniFile["patternAudio"] = DestinationPatternAudio;
+            iniFile["patternVideo"] = DestinationPatternVideo;
+            iniFile["precondition"] = CopyPrecondition.ToString();
+            iniFile["comparator"] = FileComparator.ToString();
+            iniFile["copyMode"] = CopyMode.ToString();
+            iniFile["exceptionHandling"] = ExceptionHandling.ToString();
+            iniFile["verifyFiles"] = VerifyFiles ? "1" : "0";
 
             string iniFilePath = IniConfigFileName;
             iniFile.TrySave(iniFilePath);

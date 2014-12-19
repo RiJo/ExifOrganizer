@@ -7,7 +7,6 @@ Features:
 
 GUI:
 0.2 - separate settings/advanced form for improved usability
-0.1 - Remember GUI settings (MediaOrganizer.ini)
     - button to run prepare and prinotut information about copying
     - Separate progress of Parse() and Organize into 0.0-1.0 for each + message in event
     - Printout how many skipped files (grouped by extension/type)

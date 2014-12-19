@@ -100,5 +100,33 @@ namespace ExifOrganizer.Organizer
                 path = path.Replace(invalidChar, replacement);
             return path;
         }
+
+        public static bool ToBool(this object value)
+        {
+            if (value == null)
+                throw new ArgumentNullException("value");
+
+            string s = value.ToString().ToLower();
+            return !(s == "0" || s == "false");
+        }
+
+        public static T ToEnum<T>(this object value) where T: struct
+        {
+            if (value == null)
+                throw new ArgumentNullException("value");
+
+            string s = value.ToString();
+            long i;
+            if (long.TryParse(s, out i))
+            {
+                // Interpret as numeric enum value
+                return (T)(object)i;
+            }
+            else
+            {
+                // Interpret as string enum name
+                return (T)Enum.Parse(typeof(T), s);
+            }
+        }
     }
 }
