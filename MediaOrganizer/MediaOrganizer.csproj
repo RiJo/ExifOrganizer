@@ -46,6 +46,7 @@
     <Compile Include="MediaOrganizerException.cs" />
     <Compile Include="MediaOrganizer.cs" />
     <Compile Include="CopyItems.cs" />
+    <Compile Include="PatternPathParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
