@@ -45,6 +45,8 @@ namespace ExifOrganizer.Organizer
 
     public class PatternPathParser
     {
+        private const string TagSeparator = ", ";
+
         private readonly Dictionary<string, GroupType> organizeGroups = new Dictionary<string, GroupType>()
         {
             { "%i", GroupType.Index },
@@ -62,6 +64,7 @@ namespace ExifOrganizer.Organizer
 
         private CultureInfo locale = null;
         private Dictionary<MetaData, int> indexes = new Dictionary<MetaData, int>();
+        private Dictionary<int, string> tags = new Dictionary<int, string>();
 
         public PatternPathParser(CultureInfo culture)
         {
@@ -72,11 +75,33 @@ namespace ExifOrganizer.Organizer
         {
             MetaData[] array = items.ToArray();
 
+            // Remove old entries
             indexes.Clear();
+            tags.Clear();
+
+            // Add new entries
+            int index = 0;
             for (int i = 0; i < array.Length; i++)
             {
                 MetaData meta = array[i];
-                indexes[meta] = i;
+                if (meta.Type == MetaType.Directory)
+                    continue;
+                if (meta.Data == null)
+                    continue;
+
+                indexes[meta] = index;
+
+                if (meta.Data.ContainsKey(MetaKey.Tags))
+                {
+                    string[] temp = meta.Data[MetaKey.Tags] as string[];
+                    if (temp != null && temp.Length > 0)
+                    {
+                        string tagString = String.Join(TagSeparator, temp.Select(x => x.Trim()).ToArray());
+                        tags[index] = tagString;
+                    }
+                }
+
+                index++;
             }
         }
 
@@ -225,15 +250,19 @@ namespace ExifOrganizer.Organizer
 
                 case GroupType.Tags:
                     {
-                        object temp;
-                        if (!meta.Data.TryGetValue(MetaKey.Tags, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Tags, GroupType.Tags);
+                        //object temp;
+                        //if (!meta.Data.TryGetValue(MetaKey.Tags, out temp))
+                        //    throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Tags, GroupType.Tags);
 
-                        string[] tags = temp as string[];
-                        if (tags == null || tags.Length == 0)
+                        //string[] tags = temp as string[];
+                        //if (tags == null || tags.Length == 0)
+                        //    return null;
+
+                        //string tag = String.Join(", ", tags);
+                        string tag;
+                        if (!tags.TryGetValue(index, out tag))
                             return null;
 
-                        string tag = tags[0]; // TODO: how to solve multiple tags?
                         return tag;
                     }
 
