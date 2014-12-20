@@ -28,6 +28,8 @@ namespace ExifOrganizer.Meta.Parsers
 {
     internal class ExifParser : Parser
     {
+        private const char TagsSeparator = ';';
+
         private enum ExifDataType : short
         {
             Binary = 1,
@@ -576,7 +578,7 @@ namespace ExifOrganizer.Meta.Parsers
                 case ExifId.ImageXPKeywords:
                     string keywords = Encoding.GetEncoding("ucs-2").GetString(data).RemoveNullChars();
                     if (keywords.Length > 0)
-                        temp = keywords.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                        temp = keywords.Split(new char[] { TagsSeparator }, StringSplitOptions.RemoveEmptyEntries);
                     else
                         temp = new string[0];
                     return true;
