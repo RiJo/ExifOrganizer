@@ -89,7 +89,7 @@ namespace ExifOrganizer.Organizer
         public string sourcePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
         public string destinationPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         public bool Recursive = true;
-        public CultureInfo Localization = Thread.CurrentThread.CurrentCulture;
+        public CultureInfo Locale = Thread.CurrentThread.CurrentCulture;
         public string DestinationPatternImage = @"%y/%m %M/%t/%n.%e";
         public string DestinationPatternVideo = @"%y/%m %M/Video/%t/%n.%e";
         public string DestinationPatternAudio = @"%y/%m %M/Audio/%t/%n.%e";
@@ -132,7 +132,7 @@ namespace ExifOrganizer.Organizer
             if (iniFile.ContainsKey("recursive"))
                 Recursive = iniFile["recursive"].ToBool();
             if (iniFile.ContainsKey("locale"))
-                Localization = new CultureInfo(iniFile["locale"]);
+                Locale = new CultureInfo(iniFile["locale"]);
             if (iniFile.ContainsKey("patternImage"))
                 DestinationPatternImage = iniFile["patternImage"];
             if (iniFile.ContainsKey("patternAudio"))
@@ -157,7 +157,7 @@ namespace ExifOrganizer.Organizer
             iniFile["sourcePath"] = sourcePath;
             iniFile["destinationPath"] = destinationPath;
             iniFile["recursive"] = Recursive ? "1" : "0";
-            iniFile["locale"] = Localization.Name;
+            iniFile["locale"] = Locale.Name;
             iniFile["patternImage"] = DestinationPatternImage;
             iniFile["patternAudio"] = DestinationPatternAudio;
             iniFile["patternVideo"] = DestinationPatternVideo;
@@ -379,7 +379,7 @@ namespace ExifOrganizer.Organizer
                 throw new MediaOrganizerException("Failed to parse meta data", ex);
             }
 
-            PatternPathParser parser = new PatternPathParser(Localization);
+            PatternPathParser parser = new PatternPathParser(Locale);
             parser.Preload(data);
 
             HashSet<string> files = new HashSet<string>();
