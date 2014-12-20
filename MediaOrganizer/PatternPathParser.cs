@@ -65,6 +65,7 @@ namespace ExifOrganizer.Organizer
         private CultureInfo locale = null;
         private Dictionary<MetaData, int> indexes = new Dictionary<MetaData, int>();
         private Dictionary<int, string> tags = new Dictionary<int, string>();
+        private Dictionary<string, DateTime> tagTimestamp = new Dictionary<string, DateTime>();
 
         public PatternPathParser(CultureInfo culture)
         {
@@ -76,6 +77,9 @@ namespace ExifOrganizer.Organizer
             // Remove old entries
             indexes.Clear();
             tags.Clear();
+            tagTimestamp.Clear();
+
+            Dictionary<string, List<DateTime>> tagTimestamps = new Dictionary<string, List<DateTime>>();
 
             // Add new entries
             int index = 0;
@@ -93,12 +97,24 @@ namespace ExifOrganizer.Organizer
                     string[] temp = meta.Data[MetaKey.Tags] as string[];
                     if (temp != null && temp.Length > 0)
                     {
+                        // Store tag name
                         string tagString = String.Join(TagSeparator, temp.Select(x => x.Trim()).ToArray());
                         tags[index] = tagString;
+
+                        // Store tag timestamp
+                        if (!tagTimestamps.ContainsKey(tagString))
+                            tagTimestamps[tagString] = new List<DateTime>();
+                        tagTimestamps[tagString].Add((DateTime)meta.Data[MetaKey.Date]);
                     }
                 }
 
                 index++;
+            }
+
+            foreach (string tag in tagTimestamps.Keys)
+            {
+                tagTimestamps[tag].Sort();
+                tagTimestamp[tag] = tagTimestamps[tag].First();
             }
         }
 
