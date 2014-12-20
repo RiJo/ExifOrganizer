@@ -73,17 +73,14 @@ namespace ExifOrganizer.Organizer
 
         public void Preload(IEnumerable<MetaData> items)
         {
-            MetaData[] array = items.ToArray();
-
             // Remove old entries
             indexes.Clear();
             tags.Clear();
 
             // Add new entries
             int index = 0;
-            for (int i = 0; i < array.Length; i++)
+            foreach (MetaData meta in items)
             {
-                MetaData meta = array[i];
                 if (meta.Type == MetaType.Directory)
                     continue;
                 if (meta.Data == null)
