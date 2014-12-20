@@ -73,7 +73,7 @@ namespace ExifOrganizer.UI
             // CultureInfo localization
             foreach (CultureInfo culture in CultureInfo.GetCultures(CultureTypes.AllCultures))
                 localization.Items.Add(culture);
-            localization.SelectedItem = organizer.Localization;
+            localization.SelectedItem = organizer.Locale;
 
             // Patterns
             patternImage.Text = organizer.DestinationPatternImage;
@@ -93,7 +93,7 @@ namespace ExifOrganizer.UI
             organizer.DestinationPatternImage = patternImage.Text;
             organizer.DestinationPatternVideo = patternVideo.Text;
             organizer.DestinationPatternAudio = patternAudio.Text;
-            organizer.Localization = (CultureInfo)localization.SelectedItem;
+            organizer.Locale = (CultureInfo)localization.SelectedItem;
             organizer.SaveConfig();
 
             ProgressStarted();

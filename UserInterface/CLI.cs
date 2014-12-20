@@ -72,7 +72,7 @@ namespace ExifOrganizer.UI
             //organizer.DestinationPatternImage = patternImage.Text;
             //organizer.DestinationPatternVideo = patternVideo.Text;
             //organizer.DestinationPatternAudio = patternAudio.Text;
-            organizer.Localization = Thread.CurrentThread.CurrentUICulture;
+            organizer.Locale = Thread.CurrentThread.CurrentUICulture;
 
             if (String.IsNullOrEmpty(source))
                 throw new ArgumentException("No source path given (-s)");
