@@ -1,7 +1,6 @@
 Features:
     - Parallell loading/saving (use threads)
-    - Config file to store patterns etc
-0.2 - Handle tags across years/months
+0.2 - Handle tags across years/months (e.g. "New year")
     - Comments in ini file using IniFile class
 
 GUI:
