@@ -28,6 +28,9 @@ namespace ExifOrganizer.Organizer
 {
     public class IniFile : Dictionary<string, string>
     {
+        private const char CommentSymbol = ';';
+        private const char KeyValueSeparator = ':';
+
         public IniFile()
             : base()
         {
@@ -64,11 +67,11 @@ namespace ExifOrganizer.Organizer
             foreach (string line in File.ReadAllLines(filename))
             {
                 if (line.Trim().Length == 0)
-                    continue;
-                if (line.Trim().StartsWith(";"))
-                    continue;
+                    continue; // Empty line
+                if (line.Trim().StartsWith(CommentSymbol.ToString()))
+                    continue; // Comment
 
-                string[] keyValue = line.Split(new char[] { ':' }, 2);
+                string[] keyValue = line.Split(new char[] { KeyValueSeparator }, 2);
                 if (keyValue.Length != 2)
                     continue; // Invalid row
 
@@ -99,7 +102,7 @@ namespace ExifOrganizer.Organizer
             List<string> lines = new List<string>();
             foreach (KeyValuePair<string, string> kvp in this)
             {
-                string line = String.Format("{0}: {1}", kvp.Key, kvp.Value);
+                string line = String.Format("{0}{1} {2}", kvp.Key, KeyValueSeparator, kvp.Value);
                 lines.Add(line);
             }
 
