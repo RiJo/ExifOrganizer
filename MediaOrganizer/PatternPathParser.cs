@@ -172,7 +172,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, GroupType.Year);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, groupType);
 
                         DateTime datetime = (DateTime)temp;
                         return datetime.Year.ToString();
@@ -182,7 +182,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, GroupType.MonthNumber);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, groupType);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -194,7 +194,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, GroupType.MonthName);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, groupType);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -206,7 +206,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, GroupType.DayNumber);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, groupType);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -218,7 +218,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, GroupType.DayName);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, groupType);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -230,7 +230,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.FileName, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.FileName, GroupType.FileName);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.FileName, groupType);
 
                         return Path.GetFileNameWithoutExtension((string)temp);
                     }
@@ -239,7 +239,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.OriginalName, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.OriginalName, GroupType.OriginalName);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.OriginalName, groupType);
 
                         return Path.GetFileName((string)temp);
                     }
@@ -248,7 +248,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.FileName, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.FileName, GroupType.FileExtension);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.FileName, groupType);
 
                         return Path.GetExtension((string)temp).Substring(1);
                     }
@@ -257,7 +257,7 @@ namespace ExifOrganizer.Organizer
                     {
                         //object temp;
                         //if (!meta.Data.TryGetValue(MetaKey.Tags, out temp))
-                        //    throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Tags, GroupType.Tags);
+                        //    throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Tags, groupType);
 
                         //string[] tags = temp as string[];
                         //if (tags == null || tags.Length == 0)
@@ -275,7 +275,7 @@ namespace ExifOrganizer.Organizer
                     {
                         object temp;
                         if (!meta.Data.TryGetValue(MetaKey.Camera, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Camera, GroupType.Camera);
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Camera, groupType);
 
                         return (string)temp;
                     }
