@@ -8,3 +8,12 @@ GUI:
     - button to run prepare and prinotut information about copying
     - Separate progress of Parse() and Organize into 0.0-1.0 for each + message in event
     - Printout how many skipped files (grouped by extension/type)
+
+Bugs 0.1:
+    - Movies has wrong timestamp ("Last changed" should be used instead of "Created" (other types as well?)
+    - Progressbar flickers during organization
+    - Printout elapsed time during progress as well as in completed message dialogue
+    - Disable more controls during organization? Currently only submit-button
+    - Add Abort-button to abort current progress
+    - What happens if [X] (close program) is clicked during organization progress?
+    - New option: merge source w/ destination files (also parse target path)
