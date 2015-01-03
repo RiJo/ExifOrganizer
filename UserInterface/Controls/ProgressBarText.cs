@@ -109,10 +109,42 @@ namespace ExifOrganizer.UI.Controls
         /// </summary>
         public double ProgressPercent
         {
-            get { return (ProgressFactor * 100.0).Clamp(0.0, 100.0); ; }
+            get { return (ProgressFactor * 100.0).Clamp(0.0, 100.0); }
         }
 
         #endregion
+
+        /// <summary>
+        /// Update current progress value and message. Used to prevent unecessary repaints
+        /// of this control.
+        /// </summary>
+        /// <param name="factor">Factor (0.0-1.0) of current progress</param>
+        /// <param name="message">Override progress text (progress in percent) rendered on bar.</param>
+        public void SetProgress(double factor, string message = null)
+        {
+            int interval = (Maximum - Minimum);
+            int value = Minimum + (int)Math.Round(factor * interval);
+            if (value > Maximum)
+                value = Maximum;
+            if (value < Minimum)
+                value = Minimum;
+
+            SetProgress(value, message);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value">Percent (0.0-100.0) of current progress</param>
+        /// <param name="message">Override progress text (progress in percent) rendered on bar.</param>
+        public void SetProgress(int value, string message = null)
+        {
+            if (value == Value && message == ProgressText)
+                return;
+
+            ProgressText = message;
+            Value = value; // Forces repaint
+        }
 
         public string GetProgressText()
         {

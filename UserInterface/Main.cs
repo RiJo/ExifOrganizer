@@ -115,19 +115,12 @@ namespace ExifOrganizer.UI
                 return;
             }
 
-            int interval = (progress.Maximum - progress.Minimum);
-            int current = progress.Minimum + (int)Math.Round(value * interval);
-            if (current > progress.Maximum)
-                progress.Value = progress.Maximum;
-            else if (current < progress.Minimum)
-                progress.Value = progress.Minimum;
-            else
-                progress.Value = current;
-
             if (String.IsNullOrEmpty(message))
-                progress.ProgressText = String.Format("{0}%", Math.Round(progress.ProgressPercent, 1));
+                message = String.Format("{0}%", Math.Round(progress.ProgressPercent, 1));
             else
-                progress.ProgressText = String.Format("{0}% - {1}", Math.Round(progress.ProgressPercent, 1), message);
+                message = String.Format("{0}% - {1}", Math.Round(progress.ProgressPercent, 1), message);
+
+            progress.SetProgress(value, message);
         }
 
         private void ProgressStarted()
