@@ -101,6 +101,7 @@ namespace ExifOrganizer.Organizer
         public string[] IgnorePaths = null; // TODO: implement
 
         private CopyItems copyItems;
+        private Thread workerThread;
 
         public MediaOrganizer()
         {
@@ -116,7 +117,8 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        public void LoadConfig() {
+        public void LoadConfig()
+        {
             string iniFilePath = IniConfigFileName;
 
             if (!File.Exists(iniFilePath))
@@ -171,21 +173,58 @@ namespace ExifOrganizer.Organizer
             iniFile.TrySave(iniFilePath);
         }
 
+        public void Abort()
+        {
+            if (workerThread == null)
+                return;
+
+            try
+            {
+                workerThread.Abort();
+            }
+            catch (Exception)
+            {
+            }
+        }
+
         public OrganizeSummary Parse()
         {
             if (sourcePath.DirectoryAreSame(destinationPath))
             {
+                // TODO: implement
                 throw new NotSupportedException("TODO");
             }
 
+            if (workerThread != null)
+                throw new InvalidOperationException("Cannot start parsing: worker currently running");
+
             OnProgress(this, 0.0, "Parsing source");
 
-            OrganizeSummary summary = new OrganizeSummary();
+            OrganizeSummary summary = null;
+            try
+            {
+                workerThread = new Thread(() =>
+                {
+                    summary = new OrganizeSummary();
 
-            copyItems = new CopyItems();
-            copyItems.sourcePath = sourcePath;
-            copyItems.destinationPath = destinationPath;
-            copyItems.items = ParseItems(sourcePath, destinationPath, ref summary);
+                    copyItems = new CopyItems();
+                    copyItems.sourcePath = sourcePath;
+                    copyItems.destinationPath = destinationPath;
+                    copyItems.items = ParseItems(sourcePath, destinationPath, ref summary);
+                });
+                workerThread.IsBackground = true;
+                workerThread.Name = "MediaOrganizer.Parse()";
+                workerThread.Start();
+                workerThread.Join();
+            }
+            catch (Exception)
+            {
+                summary = null;
+            }
+            finally
+            {
+                workerThread = null;
+            }
 
             OnProgress(this, PARSE_PROGRESS_FACTOR, "Parsing complete");
 
@@ -196,11 +235,33 @@ namespace ExifOrganizer.Organizer
         {
             if (copyItems == null)
                 throw new InvalidOperationException("Parse() must be executed prior to Organize()");
+            if (workerThread != null)
+                throw new InvalidOperationException("Cannot start parsing: worker currently running");
 
             OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1, "Prepare destination");
 
-            PrepareDestinationPath();
+            try
+            {
+                workerThread = new Thread(OrganizationThread);
+                workerThread.IsBackground = true;
+                workerThread.Name = "MediaOrganizer.Organize()";
+                workerThread.Start();
+                workerThread.Join();
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                workerThread = null;
+            }
 
+            OnProgress(this, 1.0, "Organization complete");
+        }
+
+        private void OrganizationThread()
+        {
+            PrepareDestinationPath();
 
             // Copy items to destination path
             int itemCount = copyItems.items.Count;
@@ -286,8 +347,6 @@ namespace ExifOrganizer.Organizer
                         continue;
                 }
             }
-
-            OnProgress(this, 1.0, "Organization complete");
         }
 
         private void PrepareDestinationPath()
