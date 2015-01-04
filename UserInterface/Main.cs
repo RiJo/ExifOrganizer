@@ -115,10 +115,11 @@ namespace ExifOrganizer.UI
                 return;
             }
 
+            double percent = value * 100.0;
             if (String.IsNullOrEmpty(message))
-                message = String.Format("{0}%", Math.Round(progress.ProgressPercent, 1));
+                message = String.Format("{0}%", Math.Round(percent, 1));
             else
-                message = String.Format("{0}% - {1}", Math.Round(progress.ProgressPercent, 1), message);
+                message = String.Format("{0}% - {1}", Math.Round(percent, 1), message);
 
             progress.SetProgress(value, message);
         }
