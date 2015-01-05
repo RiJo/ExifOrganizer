@@ -102,7 +102,7 @@ namespace ExifOrganizer.Organizer
                         // Store tag timestamp
                         if (!tagTimestamps.ContainsKey(tagString))
                             tagTimestamps[tagString] = new HashSet<DateTime>();
-                        tagTimestamps[tagString].Add((DateTime)meta.Data[MetaKey.Date]);
+                        tagTimestamps[tagString].Add((DateTime)meta.Data[MetaKey.Timestamp]);
                     }
                 }
 
@@ -171,8 +171,8 @@ namespace ExifOrganizer.Organizer
                 case GroupType.Year:
                     {
                         object temp;
-                        if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, groupType);
+                        if (!meta.Data.TryGetValue(MetaKey.Timestamp, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Timestamp, groupType);
 
                         DateTime datetime = (DateTime)temp;
                         return datetime.Year.ToString();
@@ -181,8 +181,8 @@ namespace ExifOrganizer.Organizer
                 case GroupType.MonthNumber:
                     {
                         object temp;
-                        if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, groupType);
+                        if (!meta.Data.TryGetValue(MetaKey.Timestamp, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Timestamp, groupType);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -193,8 +193,8 @@ namespace ExifOrganizer.Organizer
                 case GroupType.MonthName:
                     {
                         object temp;
-                        if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, groupType);
+                        if (!meta.Data.TryGetValue(MetaKey.Timestamp, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Timestamp, groupType);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -205,8 +205,8 @@ namespace ExifOrganizer.Organizer
                 case GroupType.DayNumber:
                     {
                         object temp;
-                        if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, groupType);
+                        if (!meta.Data.TryGetValue(MetaKey.Timestamp, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Timestamp, groupType);
 
                         DateTime datetime = (DateTime)temp;
 
@@ -217,8 +217,8 @@ namespace ExifOrganizer.Organizer
                 case GroupType.DayName:
                     {
                         object temp;
-                        if (!meta.Data.TryGetValue(MetaKey.Date, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Date, groupType);
+                        if (!meta.Data.TryGetValue(MetaKey.Timestamp, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Timestamp, groupType);
 
                         DateTime datetime = (DateTime)temp;
 

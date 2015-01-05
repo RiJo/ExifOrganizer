@@ -10,7 +10,6 @@ GUI:
     - Printout how many skipped files (grouped by extension/type)
 
 Bugs 0.1:
-    - Movies has wrong timestamp ("Last changed" should be used instead of "Created" (other types as well?)
     - Progressbar flickers during organization
     - Printout elapsed time during progress as well as in completed message dialogue (separate times for image, audio and video files. Also separate parsing and organazation time elapsed)
     - Disable more controls during organization? Currently only submit-button

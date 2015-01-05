@@ -436,11 +436,13 @@ namespace ExifOrganizer.Meta.Parsers
             meta.Path = filename;
             meta.Data = new Dictionary<MetaKey, object>();
             meta.Data[MetaKey.Size] = GetFileSize(filename);
+            meta.Data[MetaKey.DateCreated] = File.GetCreationTime(filename);
+            meta.Data[MetaKey.DateModified] = File.GetLastWriteTime(filename);
 
             if (exif.ContainsKey(ExifId.PhotoDateTimeOriginal))
-                meta.Data[MetaKey.Date] = exif[ExifId.PhotoDateTimeOriginal];
+                meta.Data[MetaKey.Timestamp] = exif[ExifId.PhotoDateTimeOriginal];
             else
-                meta.Data[MetaKey.Date] = File.GetCreationTime(filename);
+                meta.Data[MetaKey.Timestamp] = meta.Data[MetaKey.DateModified];
 
             meta.Data[MetaKey.FileName] = Path.GetFileName(filename);
             if (exif.ContainsKey(ExifId.ImageOriginalRawFileName))

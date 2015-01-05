@@ -39,7 +39,9 @@ namespace ExifOrganizer.Meta
         OriginalName,
         FileName,
         Size,
-        Date,
+        Timestamp,
+        DateCreated,
+        DateModified,
         Camera,
         Tags
     }

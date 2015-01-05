@@ -40,7 +40,9 @@ namespace ExifOrganizer.Meta.Parsers
             meta.Data[MetaKey.FileName] = Path.GetFileName(filename);
             meta.Data[MetaKey.OriginalName] = meta.Data[MetaKey.FileName];
             meta.Data[MetaKey.Size] = GetFileSize(filename);
-            meta.Data[MetaKey.Date] = File.GetCreationTime(filename);
+            meta.Data[MetaKey.DateCreated] = File.GetCreationTime(filename);
+            meta.Data[MetaKey.DateModified] = File.GetLastWriteTime(filename);
+            meta.Data[MetaKey.Timestamp] = meta.Data[MetaKey.DateModified];
             meta.Data[MetaKey.Tags] = new string[0];
             return meta;
         }
