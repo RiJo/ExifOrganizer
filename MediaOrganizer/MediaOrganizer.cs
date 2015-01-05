@@ -102,6 +102,7 @@ namespace ExifOrganizer.Organizer
 
         private CopyItems copyItems;
         private bool workerRunning;
+        private bool workerAborted;
 
         public MediaOrganizer()
         {
@@ -175,17 +176,10 @@ namespace ExifOrganizer.Organizer
 
         public void Abort()
         {
-            if (workerRunning)
+            if (!workerRunning)
                 return;
 
-            // TODO: implement flag instead (use workerRunning boolean)
-            //try
-            //{
-            //    workerThread.Abort();
-            //}
-            //catch (Exception)
-            //{
-            //}
+            workerAborted = true;
         }
 
         public OrganizeSummary Parse()
@@ -199,6 +193,7 @@ namespace ExifOrganizer.Organizer
             if (workerRunning)
                 throw new InvalidOperationException("Cannot start parsing: worker currently running");
             workerRunning = true;
+            workerAborted = false;
 
             OnProgress(this, 0.0, "Parsing source");
 
@@ -251,6 +246,7 @@ namespace ExifOrganizer.Organizer
             if (workerRunning)
                 throw new InvalidOperationException("Cannot start parsing: worker currently running");
             workerRunning = true;
+            workerAborted = false;
 
             OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1, "Prepare destination");
 
@@ -286,6 +282,9 @@ namespace ExifOrganizer.Organizer
             int itemCount = copyItems.items.Count;
             for (int i = 0; i < itemCount; i++)
             {
+                if (workerAborted)
+                    break;
+
                 float progress = (float)(i) / (float)itemCount;
                 if ((int)(progress * 10) % 2 == 0)
                     OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1 + (progress * (1.0 - PARSE_PROGRESS_FACTOR - 0.1)), String.Format("Organizing {0} of {1}", i + 1, itemCount));
@@ -467,6 +466,9 @@ namespace ExifOrganizer.Organizer
             List<CopyItem> items = new List<CopyItem>();
             foreach (MetaData meta in data)
             {
+                if (workerAborted)
+                    break;
+
                 string path = meta.Path;
 
                 switch (meta.Type)
@@ -492,6 +494,7 @@ namespace ExifOrganizer.Organizer
             summary.totalFiles = files.ToArray();
             summary.parsed = valid.ToArray();
             summary.ignored = ignored.ToArray();
+
             return items;
         }
 
