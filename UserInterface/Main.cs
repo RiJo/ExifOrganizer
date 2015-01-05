@@ -81,6 +81,20 @@ namespace ExifOrganizer.UI
             patternVideo.Text = organizer.DestinationPatternVideo;
         }
 
+        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!organizer.IsRunning || organizer.IsAborted)
+                return;
+
+            if (MessageBox.Show(this, "Organization currently in progress, it must be aborted before the application can  be closed.", "Abort current progress?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            organizer.Abort();
+        }
+
         private void organize_Click(object sender, EventArgs e)
         {
             if (organizer.IsRunning)

@@ -14,7 +14,6 @@ Bugs 0.1:
     - Printout elapsed time during progress as well as in completed message dialogue (separate times for image, audio and video files. Also separate parsing and organazation time elapsed)
     - Disable more controls during organization? Currently only submit-button
     - Add Abort-button to abort current progress
-    - What happens if [X] (close program) is clicked during organization progress?
     - New option: merge source w/ destination files (also parse target path)
     - Checkboxes to skip image, audio, video files (merge w/ patterns?)
     - Property to set extensions of image, audio and video files
