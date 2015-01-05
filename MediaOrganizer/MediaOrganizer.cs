@@ -209,6 +209,8 @@ namespace ExifOrganizer.Organizer
                 worker.Wait();
                 if (worker.Exception != null)
                     throw worker.Exception.InnerException;
+                if (worker.Status != TaskStatus.RanToCompletion)
+                    throw new InvalidOperationException(String.Format("Worker status: {0}", worker.Status));
 
                 return worker.Result;
             }
@@ -257,8 +259,11 @@ namespace ExifOrganizer.Organizer
                 Task worker = new Task(OrganizationThread);
                 worker.Start();
                 worker.Wait();
+
                 if (worker.Exception != null)
                     throw worker.Exception.InnerException;
+                if (worker.Status != TaskStatus.RanToCompletion)
+                    throw new InvalidOperationException(String.Format("Worker status: {0}", worker.Status));
             }
             catch (Exception)
             {
