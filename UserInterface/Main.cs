@@ -86,7 +86,7 @@ namespace ExifOrganizer.UI
             if (!organizer.IsRunning || organizer.IsAborted)
                 return;
 
-            if (MessageBox.Show(this, "Organization currently in progress, it must be aborted before the application can  be closed.", "Abort current progress?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+            if (MessageBox.Show(this, "Organization currently in progress, it must be aborted before the application can be closed.", "Abort current progress?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
             {
                 e.Cancel = true;
                 return;
