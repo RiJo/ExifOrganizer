@@ -174,12 +174,24 @@ namespace ExifOrganizer.Organizer
             iniFile.TrySave(iniFilePath);
         }
 
+        public bool IsRunning
+        {
+            get { return workerRunning; }
+        }
+
+        public bool IsAborted
+        {
+            get { return workerAborted; }
+        }
+
         public void Abort()
         {
             if (!workerRunning)
                 return;
 
             workerAborted = true;
+
+            OnProgress(this, 1.0, "Aborted");
         }
 
         public OrganizeSummary Parse()
