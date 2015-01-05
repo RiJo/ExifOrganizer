@@ -101,7 +101,7 @@ namespace ExifOrganizer.Organizer
         public string[] IgnorePaths = null; // TODO: implement
 
         private CopyItems copyItems;
-        private Thread workerThread;
+        private bool workerRunning;
 
         public MediaOrganizer()
         {
@@ -175,16 +175,17 @@ namespace ExifOrganizer.Organizer
 
         public void Abort()
         {
-            if (workerThread == null)
+            if (workerRunning)
                 return;
 
-            try
-            {
-                workerThread.Abort();
-            }
-            catch (Exception)
-            {
-            }
+            // TODO: implement flag instead (use workerRunning boolean)
+            //try
+            //{
+            //    workerThread.Abort();
+            //}
+            //catch (Exception)
+            //{
+            //}
         }
 
         public OrganizeSummary Parse()
@@ -195,68 +196,81 @@ namespace ExifOrganizer.Organizer
                 throw new NotSupportedException("TODO");
             }
 
-            if (workerThread != null)
+            if (workerRunning)
                 throw new InvalidOperationException("Cannot start parsing: worker currently running");
+            workerRunning = true;
 
             OnProgress(this, 0.0, "Parsing source");
 
-            OrganizeSummary summary = null;
             try
             {
-                workerThread = new Thread(() =>
-                {
-                    summary = new OrganizeSummary();
+                Task<OrganizeSummary> worker = new Task<OrganizeSummary>(ParseThread);
+                worker.Start();
+                worker.Wait();
+                if (worker.Exception != null)
+                    throw worker.Exception.InnerException;
 
-                    copyItems = new CopyItems();
-                    copyItems.sourcePath = sourcePath;
-                    copyItems.destinationPath = destinationPath;
-                    copyItems.items = ParseItems(sourcePath, destinationPath, ref summary);
-                });
-                workerThread.IsBackground = true;
-                workerThread.Name = "MediaOrganizer.Parse()";
-                workerThread.Start();
-                workerThread.Join();
+                return worker.Result;
             }
             catch (Exception)
             {
-                summary = null;
+#if DEBUG
+                throw;
+#else
+                return null;
+#endif
             }
             finally
             {
-                workerThread = null;
-            }
+                workerRunning = false;
 
-            OnProgress(this, PARSE_PROGRESS_FACTOR, "Parsing complete");
+                OnProgress(this, PARSE_PROGRESS_FACTOR, "Parsing complete");
+            }
+        }
+
+        private OrganizeSummary ParseThread()
+        {
+            OrganizeSummary summary = new OrganizeSummary();
+
+            copyItems = new CopyItems();
+            copyItems.sourcePath = sourcePath;
+            copyItems.destinationPath = destinationPath;
+            copyItems.items = ParseItems(sourcePath, destinationPath, ref summary);
 
             return summary;
         }
 
         public void Organize()
         {
+            // TODO: solve in nicer manner
             if (copyItems == null)
                 throw new InvalidOperationException("Parse() must be executed prior to Organize()");
-            if (workerThread != null)
+
+            if (workerRunning)
                 throw new InvalidOperationException("Cannot start parsing: worker currently running");
+            workerRunning = true;
 
             OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1, "Prepare destination");
 
             try
             {
-                workerThread = new Thread(OrganizationThread);
-                workerThread.IsBackground = true;
-                workerThread.Name = "MediaOrganizer.Organize()";
-                workerThread.Start();
-                workerThread.Join();
+                Task worker = new Task(OrganizationThread);
+                worker.Start();
+                worker.Wait();
+                if (worker.Exception != null)
+                    throw worker.Exception.InnerException;
             }
             catch (Exception)
             {
+#if DEBUG
+                throw;
+#endif
             }
             finally
             {
-                workerThread = null;
+                workerRunning = false;
+                OnProgress(this, 1.0, "Organization complete");
             }
-
-            OnProgress(this, 1.0, "Organization complete");
         }
 
         private void OrganizationThread()
