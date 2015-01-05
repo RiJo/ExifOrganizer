@@ -83,6 +83,12 @@ namespace ExifOrganizer.UI
 
         private void organize_Click(object sender, EventArgs e)
         {
+            if (organizer.IsRunning)
+            {
+                AbortProgress();
+                return;
+            }
+
             organizer.sourcePath = sourcePath.SelectedPath;
             organizer.destinationPath = destinationPath.SelectedPath;
             organizer.Recursive = recursive.Checked;
@@ -105,6 +111,11 @@ namespace ExifOrganizer.UI
         }
 
         #endregion
+
+        private void AbortProgress()
+        {
+            organizer.Abort();
+        }
 
         private void ReportProgress(MediaOrganizer organizer, double value, string message)
         {
@@ -133,7 +144,7 @@ namespace ExifOrganizer.UI
                 return;
             }
 
-            organize.Enabled = false;
+            organize.Text = "Abort";
             progress.Value = progress.Minimum;
             progress.Visible = true;
         }
@@ -147,7 +158,7 @@ namespace ExifOrganizer.UI
                 return;
             }
 
-            organize.Enabled = true;
+            organize.Text = "Organize";
             progress.Visible = false;
         }
 
