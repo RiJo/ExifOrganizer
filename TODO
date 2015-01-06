@@ -2,6 +2,9 @@ Features:
     - Parallell loading/saving (use threads)
 0.2 - Handle tags across years/months (e.g. "New year")
     - Comments in ini file using IniFile class
+    - Multiple source/destination paths to be used
+    - Favorites (stars) function for albums (e.g. "Pick out the best images from 2014")
+    - Use database (SQLite?) to cache meta data etc
 
 GUI:
 0.2 - separate settings/advanced form for improved usability
