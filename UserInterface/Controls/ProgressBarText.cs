@@ -33,7 +33,7 @@ namespace ExifOrganizer.UI.Controls
         public ProgressBarText()
             : base()
         {
-            SetStyle(ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.DoubleBuffer, true);
         }
 
         protected override void OnPaint(PaintEventArgs e)
