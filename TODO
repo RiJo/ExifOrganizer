@@ -6,6 +6,9 @@ Features:
     - Favorites (stars) function for albums (e.g. "Pick out the best images from 2014")
     - Use database (SQLite?) to cache meta data etc
 
+Library:
+    - Extract common functions (like extensions) to separate library
+
 GUI:
 0.2 - separate settings/advanced form for improved usability
     - button to run prepare and prinotut information about copying
