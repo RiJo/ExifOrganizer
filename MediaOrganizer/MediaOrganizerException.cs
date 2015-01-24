@@ -19,11 +19,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ExifOrganizer.Organizer
 {
+    [Serializable]
     public class MediaOrganizerException : Exception
     {
         public MediaOrganizerException(string message, params object[] args)
@@ -33,6 +35,11 @@ namespace ExifOrganizer.Organizer
 
         public MediaOrganizerException(string message, Exception innerException)
             : base(message, innerException)
+        {
+        }
+
+        protected MediaOrganizerException(SerializationInfo info, StreamingContext context) 
+            : base(info, context) 
         {
         }
     }
