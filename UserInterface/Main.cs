@@ -184,7 +184,7 @@ namespace ExifOrganizer.UI
 
         #region Parse
 
-        private void ParseComplete(MediaOrganizer organizer, OrganizeSummary summary)
+        private async void ParseComplete(MediaOrganizer organizer, OrganizeSummary summary)
         {
             if (InvokeRequired)
             {
@@ -199,10 +199,15 @@ namespace ExifOrganizer.UI
                 return;
             }
 
-            Thread thread = new Thread(OrganizeThread);
-            thread.IsBackground = true;
-            thread.Name = "Media organize thread";
-            thread.Start(organizer);
+            try
+            {
+                await organizer.OrganizeAsync();
+                OrganizeComplete(organizer);
+            }
+            catch (Exception ex)
+            {
+                OrganizeException(ex);
+            }
         }
 
         private void ParseException(Exception ex)
@@ -222,20 +227,6 @@ namespace ExifOrganizer.UI
         #endregion
 
         #region Organize
-
-        private void OrganizeThread(object arg)
-        {
-            MediaOrganizer organizer = arg as MediaOrganizer;
-            try
-            {
-                organizer.Organize();
-                OrganizeComplete(organizer);
-            }
-            catch (Exception ex)
-            {
-                OrganizeException(ex);
-            }
-        }
 
         private void OrganizeComplete(MediaOrganizer organizer)
         {
