@@ -30,6 +30,18 @@ namespace ExifOrganizer.Meta.Parsers
     {
         public static MetaData Parse(string path)
         {
+            Task<MetaData> task = ParseAsync(path);
+            task.ConfigureAwait(false); // Prevent deadlock of caller
+            return task.Result;
+        }
+
+        public static async Task<MetaData> ParseAsync(string path)
+        {
+            return await Task.Run(() => ParseThread(path));
+        }
+
+        private static MetaData ParseThread(string path)
+        {
             if (!Directory.Exists(path))
                 throw new MetaParseException("Directory not found: {0}", path);
 

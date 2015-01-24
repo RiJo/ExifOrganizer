@@ -23,6 +23,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta.Parsers
 {
@@ -425,6 +426,18 @@ namespace ExifOrganizer.Meta.Parsers
         }
 
         public static MetaData Parse(string filename)
+        {
+            Task<MetaData> task = ParseAsync(filename);
+            task.ConfigureAwait(false); // Prevent deadlock of caller
+            return task.Result;
+        }
+
+        public static async Task<MetaData> ParseAsync(string filename)
+        {
+            return await Task.Run(() => ParseThread(filename));
+        }
+
+        private static MetaData ParseThread(string filename)
         {
             if (!File.Exists(filename))
                 throw new MetaParseException("File not found: {0}", filename);
