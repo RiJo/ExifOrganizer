@@ -1,5 +1,4 @@
 Features:
-    - Parallell saving (use threads), possible?
 0.2 - Handle tags across years/months (e.g. "New year")
     - Comments in ini file using IniFile class
     - Multiple source/destination paths to be used
@@ -8,7 +7,6 @@ Features:
 
 Library:
     - Extract common functions (like extensions) to separate library
-    - Make use of async/await from .NET 4.0
 
 GUI:
 0.2 - separate settings/advanced form for improved usability
