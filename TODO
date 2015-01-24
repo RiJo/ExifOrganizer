@@ -1,5 +1,5 @@
 Features:
-    - Parallell loading/saving (use threads)
+    - Parallell saving (use threads), possible?
 0.2 - Handle tags across years/months (e.g. "New year")
     - Comments in ini file using IniFile class
     - Multiple source/destination paths to be used
