@@ -19,11 +19,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta
 {
+    [Serializable]
     public class MetaParseException : Exception
     {
         public MetaParseException(string message, params object[] args)
@@ -33,6 +35,11 @@ namespace ExifOrganizer.Meta
 
         public MetaParseException(string message, Exception innerException)
             : base(message, innerException)
+        {
+        }
+
+        protected MetaParseException(SerializationInfo info, StreamingContext context) 
+            : base(info, context) 
         {
         }
     }
