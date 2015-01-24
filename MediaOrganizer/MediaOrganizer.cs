@@ -218,15 +218,14 @@ namespace ExifOrganizer.Organizer
 
             try
             {
-                Task<OrganizeSummary> worker = new Task<OrganizeSummary>(ParseThread);
-                worker.Start();
-                await worker;
-                if (worker.Exception != null)
-                    throw worker.Exception.InnerException;
-                if (worker.Status != TaskStatus.RanToCompletion)
-                    throw new InvalidOperationException(String.Format("Worker status: {0}", worker.Status));
+                OrganizeSummary summary = new OrganizeSummary();
 
-                return worker.Result;
+                copyItems = new CopyItems();
+                copyItems.sourcePath = sourcePath;
+                copyItems.destinationPath = destinationPath;
+                copyItems.items = await ParseItemsAsync(sourcePath, destinationPath, summary);
+
+                return summary;
             }
             catch (Exception)
             {
@@ -242,18 +241,6 @@ namespace ExifOrganizer.Organizer
 
                 OnProgress(this, PARSE_PROGRESS_FACTOR, "Parsing complete");
             }
-        }
-
-        private OrganizeSummary ParseThread()
-        {
-            OrganizeSummary summary = new OrganizeSummary();
-
-            copyItems = new CopyItems();
-            copyItems.sourcePath = sourcePath;
-            copyItems.destinationPath = destinationPath;
-            copyItems.items = ParseItems(sourcePath, destinationPath, ref summary);
-
-            return summary;
         }
 
         public void Organize()
@@ -464,7 +451,7 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        private List<CopyItem> ParseItems(string sourcePath, string destinationPath, ref OrganizeSummary summary)
+        private async Task<List<CopyItem>> ParseItemsAsync(string sourcePath, string destinationPath, OrganizeSummary summary)
         {
             List<string> ignore = new List<string>();
             if (IgnorePaths != null)
@@ -475,7 +462,7 @@ namespace ExifOrganizer.Organizer
             IEnumerable<MetaData> data;
             try
             {
-                data = MetaParser.Parse(sourcePath, Recursive, ignore);
+                data = await MetaParser.ParseAsync(sourcePath, Recursive, ignore);
             }
             catch (MetaParseException ex)
             {
