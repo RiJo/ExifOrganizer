@@ -196,6 +196,13 @@ namespace ExifOrganizer.Organizer
 
         public OrganizeSummary Parse()
         {
+            Task<OrganizeSummary> pTask = ParseAsync();
+            pTask.ConfigureAwait(false); // Prevent deadlock of caller
+            return pTask.Result;
+        }
+
+        public async Task<OrganizeSummary> ParseAsync()
+        {
             if (sourcePath.DirectoryAreSame(destinationPath))
             {
                 // TODO: implement
@@ -213,7 +220,7 @@ namespace ExifOrganizer.Organizer
             {
                 Task<OrganizeSummary> worker = new Task<OrganizeSummary>(ParseThread);
                 worker.Start();
-                worker.Wait();
+                await worker;
                 if (worker.Exception != null)
                     throw worker.Exception.InnerException;
                 if (worker.Status != TaskStatus.RanToCompletion)
@@ -251,6 +258,13 @@ namespace ExifOrganizer.Organizer
 
         public void Organize()
         {
+            Task pTask = OrganizeAsync();
+            pTask.ConfigureAwait(false); // Prevent deadlock of caller
+            pTask.Wait();
+        }
+
+        public async Task OrganizeAsync()
+        {
             // TODO: solve in nicer manner
             if (copyItems == null)
                 throw new InvalidOperationException("Parse() must be executed prior to Organize()");
@@ -266,7 +280,7 @@ namespace ExifOrganizer.Organizer
             {
                 Task worker = new Task(OrganizationThread);
                 worker.Start();
-                worker.Wait();
+                await worker;
 
                 if (worker.Exception != null)
                     throw worker.Exception.InnerException;

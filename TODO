@@ -8,6 +8,7 @@ Features:
 
 Library:
     - Extract common functions (like extensions) to separate library
+    - Make use of async/await from .NET 4.0
 
 GUI:
 0.2 - separate settings/advanced form for improved usability
