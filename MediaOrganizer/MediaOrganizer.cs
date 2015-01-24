@@ -196,9 +196,9 @@ namespace ExifOrganizer.Organizer
 
         public OrganizeSummary Parse()
         {
-            Task<OrganizeSummary> pTask = ParseAsync();
-            pTask.ConfigureAwait(false); // Prevent deadlock of caller
-            return pTask.Result;
+            Task<OrganizeSummary> task = ParseAsync();
+            task.ConfigureAwait(false); // Prevent deadlock of caller
+            return task.Result;
         }
 
         public async Task<OrganizeSummary> ParseAsync()
@@ -258,9 +258,9 @@ namespace ExifOrganizer.Organizer
 
         public void Organize()
         {
-            Task pTask = OrganizeAsync();
-            pTask.ConfigureAwait(false); // Prevent deadlock of caller
-            pTask.Wait();
+            Task task = OrganizeAsync();
+            task.ConfigureAwait(false); // Prevent deadlock of caller
+            task.Wait();
         }
 
         public async Task OrganizeAsync()
