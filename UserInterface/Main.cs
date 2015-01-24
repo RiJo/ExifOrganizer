@@ -95,7 +95,7 @@ namespace ExifOrganizer.UI
             organizer.Abort();
         }
 
-        private void organize_Click(object sender, EventArgs e)
+        private async void organize_Click(object sender, EventArgs e)
         {
             if (organizer.IsRunning)
             {
@@ -118,10 +118,16 @@ namespace ExifOrganizer.UI
 
             ProgressStarted();
 
-            Thread thread = new Thread(ParseThread);
-            thread.IsBackground = true;
-            thread.Name = "Media parse thread";
-            thread.Start(organizer);
+            try
+            {
+                Task<OrganizeSummary> summary = organizer.ParseAsync();
+                await summary;
+                ParseComplete(organizer, summary.Result);
+            }
+            catch (Exception ex)
+            {
+                ParseException(ex);
+            }
         }
 
         #endregion
@@ -177,20 +183,6 @@ namespace ExifOrganizer.UI
         }
 
         #region Parse
-
-        private void ParseThread(object arg)
-        {
-            MediaOrganizer organizer = arg as MediaOrganizer;
-            try
-            {
-                OrganizeSummary summary = organizer.Parse();
-                ParseComplete(organizer, summary);
-            }
-            catch (Exception ex)
-            {
-                ParseException(ex);
-            }
-        }
 
         private void ParseComplete(MediaOrganizer organizer, OrganizeSummary summary)
         {
