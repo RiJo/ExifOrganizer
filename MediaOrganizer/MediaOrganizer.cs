@@ -265,14 +265,7 @@ namespace ExifOrganizer.Organizer
 
             try
             {
-                Task worker = new Task(OrganizationThread);
-                worker.Start();
-                await worker;
-
-                if (worker.Exception != null)
-                    throw worker.Exception.InnerException;
-                if (worker.Status != TaskStatus.RanToCompletion)
-                    throw new InvalidOperationException(String.Format("Worker status: {0}", worker.Status));
+                await Task.Run(() => OrganizationThread());
             }
             catch (Exception)
             {
