@@ -120,9 +120,8 @@ namespace ExifOrganizer.UI
 
             try
             {
-                Task<OrganizeSummary> summary = organizer.ParseAsync();
-                await summary;
-                ParseComplete(organizer, summary.Result);
+                OrganizeSummary summary = await organizer.ParseAsync();
+                ParseComplete(organizer, summary);
             }
             catch (Exception ex)
             {
