@@ -54,7 +54,7 @@ namespace ExifOrganizer.Meta
             return task.Result;
         }
 
-        public static async Task<MetaData> ParseFileAsync(string path)
+        public static Task<MetaData> ParseFileAsync(string path)
         {
             if (String.IsNullOrEmpty(path))
                 throw new ArgumentNullException("path");
@@ -69,30 +69,30 @@ namespace ExifOrganizer.Meta
                 case ".jpeg":
                 case ".tif":
                 case ".tiff":
-                    return await ExifParser.ParseAsync(path);
+                    return ExifParser.ParseAsync(path);
 
                 // Images (generic)
                 case ".png":
                 case ".gif":
                 case ".bmp":
-                    return await GenericFileParser.ParseAsync(path, MetaType.Image);
+                    return GenericFileParser.ParseAsync(path, MetaType.Image);
 
                 // Music (generic)
                 case ".mp3": // TODO: id3
                 case ".wav": // TODO: exif
                 case ".flac":
                 case ".aac":
-                    return await GenericFileParser.ParseAsync(path, MetaType.Music);
+                    return GenericFileParser.ParseAsync(path, MetaType.Music);
 
                 // Movies (generic)
                 case ".mpg":
                 case ".mpeg":
                 case ".mov":
                 case ".mp4":
-                    return await GenericFileParser.ParseAsync(path, MetaType.Video);
+                    return GenericFileParser.ParseAsync(path, MetaType.Video);
 
                 default:
-                    return await GenericFileParser.ParseAsync(path, MetaType.File);
+                    return GenericFileParser.ParseAsync(path, MetaType.File);
             }
         }
 
@@ -121,19 +121,19 @@ namespace ExifOrganizer.Meta
             }
 
             // TODO: run sub directories in paralell with files
-            List<Task<MetaData>> fileTasks = new List<Task<MetaData>>();
-            fileTasks.Add(DirectoryParser.ParseAsync(path));
+            LinkedList<Task<MetaData>> fileTasks = new LinkedList<Task<MetaData>>();
+            fileTasks.AddLast(DirectoryParser.ParseAsync(path));
             foreach (string file in Directory.GetFiles(path))
             {
-                fileTasks.Add(ParseFileAsync(file));
+                fileTasks.AddLast(ParseFileAsync(file));
             }
             list.AddRange(await Task.WhenAll(fileTasks));
 
             if (recursive)
             {
-                List<Task<IEnumerable<MetaData>>> directoryTasks = new List<Task<IEnumerable<MetaData>>>();
+                LinkedList<Task<IEnumerable<MetaData>>> directoryTasks = new LinkedList<Task<IEnumerable<MetaData>>>();
                 foreach (string directory in Directory.GetDirectories(path))
-                    directoryTasks.Add(ParseDirectoryAsync(directory, recursive, ignorePaths));
+                    directoryTasks.AddLast(ParseDirectoryAsync(directory, recursive, ignorePaths));
                 foreach (IEnumerable<MetaData> nestedMetaData in await Task.WhenAll(directoryTasks))
                     list.AddRange(nestedMetaData);
             }

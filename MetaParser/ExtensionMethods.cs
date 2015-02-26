@@ -54,7 +54,7 @@ namespace ExifOrganizer.Meta
             if (collection == null)
                 return "<null>";
 
-            List<string> values = new List<string>();
+            List<string> values = new List<string>(collection.Count());
             foreach (T item in collection)
                 values.Add(item.ToString());
             return String.Join(separator, values.ToArray());

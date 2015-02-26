@@ -35,9 +35,10 @@ namespace ExifOrganizer.Meta.Parsers
             return task.Result;
         }
 
-        public static async Task<MetaData> ParseAsync(string path)
+        public static Task<MetaData> ParseAsync(string path)
         {
-            return await Task.Run(() => ParseThread(path));
+            //return Task.Run(() => ParseThread(path));
+            return Task.FromResult(ParseThread(path));
         }
 
         private static MetaData ParseThread(string path)

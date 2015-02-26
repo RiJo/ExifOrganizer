@@ -35,12 +35,12 @@ namespace ExifOrganizer.Meta.Parsers
             return task.Result;
         }
 
-        public static async Task<MetaData> ParseAsync(string filename, MetaType type)
+        public static Task<MetaData> ParseAsync(string filename, MetaType type)
         {
-            return await Task.Run(() => ParseThread(filename, type));
+            return Task.Run(() => ParseThread(filename, type));
         }
 
-        public static MetaData ParseThread(string filename, MetaType type)
+        private static MetaData ParseThread(string filename, MetaType type)
         {
             if (!File.Exists(filename))
                 throw new MetaParseException("File not found: {0}", filename);
