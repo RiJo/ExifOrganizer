@@ -27,206 +27,173 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Querier
 {
-    public enum QueryType
-    {
-        Duplicates,
-        LowResolution
-    }
+	[Flags]
+	public enum QueryType
+	{
+		None = 0x00,
+		EqualFileName = 0x01,
+		EqualFileNameDifferentSize = 0x02,
+		EqualChecksumMD5 = 0x04,
+		EqualFileNameDifferentChecksumMD5 = 0x08,
+		EqualChecksumSHA1 = 0x10,
+		EqualFileNameDifferentChecksumSHA1 = 0x20,
+		LowResolution = 0x40,
+		All = 0xFF
+	}
 
-    [Flags]
-    public enum DuplicateComparator
-    {
-        None = 0x00,
-        FileName = 0x01,
-        FileSize = 0x02,
-        ChecksumMD5 = 0x04,
-        ChecksumSHA1 = 0x08
-    }
+	public class QuerySummary
+	{
+		public Dictionary<string, IEnumerable<Tuple<string, QueryType>>> duplicates;
+	}
 
-    public class QuerySummary
-    {
-        public string[] parsed;
-        public string[] ignored;
-        public string[] totalFiles;
-        public string[] totalDirectories;
+	public class MediaQuerier
+	{
+		public event Action<MediaQuerier, double, string> OnProgress = delegate { };
 
-        public override string ToString()
-        {
-            return String.Format("Summary {{ Parsed: {0} (Ignored: {1}), Total files: {2}, Total directories: {3} }}",
-                parsed != null ? parsed.Length : 0,
-                ignored != null ? ignored.Length : 0,
-                totalFiles != null ? totalFiles.Length : 0,
-                totalDirectories != null ? totalDirectories.Length : 0
-            );
-        }
-    }
+		public MediaQuerier()
+		{
+		}
 
-    public class QueryDuplicateSummary : QuerySummary
-    {
-        public Dictionary<string, IEnumerable<Tuple<string, DuplicateComparator>>> duplicates;
-    }
+		public QuerySummary Query(string sourcePath, bool recursive, QueryType queries)
+		{
+			Task<QuerySummary> task = QueryAsync(sourcePath, recursive, queries);
+			task.ConfigureAwait(false); // Prevent deadlock of caller
+			return task.Result;
+		}
 
-    public class MediaQuerier
-    {
-        public event Action<MediaQuerier, double, string> OnProgress = delegate { };
+		public async Task<QuerySummary> QueryAsync(string sourcePath, bool recursive, QueryType queries)
+		{
+			if (String.IsNullOrEmpty(sourcePath))
+				throw new ArgumentNullException(nameof(sourcePath));
+			if (!Directory.Exists(sourcePath))
+				throw new DirectoryNotFoundException(sourcePath);
+			if (queries == QueryType.None)
+				throw new ArgumentException("No queries given.");
 
-        public MediaQuerier()
-        {
-        }
+			Dictionary<string, IEnumerable<Tuple<string, QueryType>>> duplicates = new Dictionary<string, IEnumerable<Tuple<string, QueryType>>>();
+			Dictionary<string, string> md5sums = new Dictionary<string, string>();
+			Dictionary<string, string> sha1sums = new Dictionary<string, string>();
+			IEnumerable<MetaData> data = await GetMetaData(sourcePath, recursive);
+			foreach (MetaData item in data.Where(x => x.Type != MetaType.Directory && x.Type != MetaType.File))
+			{
+				List<Tuple<string, QueryType>> matches = new List<Tuple<string, QueryType>>();
+				foreach (MetaData other in data.Where(x => x.Type != MetaType.Directory && x.Type != MetaType.File && !x.Equals(item)))
+				{
+					QueryType match = QueryType.None;
 
-        public QueryDuplicateSummary QueryDuplicates(string sourcePath, bool recursive, DuplicateComparator comparator)
-        {
-            Task<QueryDuplicateSummary> task = QueryDuplicatesAsync(sourcePath, recursive, comparator);
-            task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
-        }
+					bool equalFilename = Path.GetFileName(item.Path).Equals(Path.GetFileName(other.Path), StringComparison.Ordinal /* TODO: which type? */);
+					if (queries.HasFlag(QueryType.EqualFileName) && equalFilename)
+							match |= QueryType.EqualFileName;
 
-        public async Task<QueryDuplicateSummary> QueryDuplicatesAsync(string sourcePath, bool recursive, DuplicateComparator comparator)
-        {
-            Dictionary<string, IEnumerable<Tuple<string, DuplicateComparator>>> duplicates = new Dictionary<string, IEnumerable<Tuple<string, DuplicateComparator>>>();
-            Dictionary<string, string> md5sums = new Dictionary<string, string>();
-            Dictionary<string, string> sha1sums = new Dictionary<string, string>();
-            IEnumerable<MetaData> data = await GetMetaData(sourcePath, recursive);
-            foreach (MetaData item in data.Where(x => x.Type != MetaType.Directory))
-            {
-                List<Tuple<string, DuplicateComparator>> matches = new List<Tuple<string, DuplicateComparator>>();
-                foreach (MetaData other in data.Where(x => x.Type != MetaType.Directory && !x.Equals(item)))
-                {
-                    DuplicateComparator match = DuplicateComparator.None;
-                    if (comparator.HasFlag(DuplicateComparator.FileName))
-                    {
-                        if (Path.GetFileName(item.Path).Equals(Path.GetFileName(other.Path), StringComparison.Ordinal /* TODO: which type? */))
-                            match |= DuplicateComparator.FileName;
-                    }
+					if (queries.HasFlag(QueryType.EqualFileNameDifferentSize) && equalFilename)
+					{
+							FileInfo itemInfo = new FileInfo(item.Path);
+							FileInfo otherInfo = new FileInfo(other.Path);
+							if (itemInfo.Length != otherInfo.Length)
+								match |= QueryType.EqualFileNameDifferentSize;
+					}
 
-                    if (comparator.HasFlag(DuplicateComparator.FileSize))
-                    {
-                        FileInfo itemInfo = new FileInfo(item.Path);
-                        FileInfo otherInfo = new FileInfo(other.Path);
+					if (queries.HasFlag(QueryType.EqualChecksumMD5) || queries.HasFlag(QueryType.EqualFileNameDifferentChecksumMD5))
+					{
+							string md5item;
+							if (!md5sums.TryGetValue(item.Path, out md5item))
+							{
+								md5item = GetMD5(item.Path);
+								md5sums[item.Path] = md5item;
+							}
 
-                        // Special case: look for files with same name but different sizes
-                        if (comparator == (DuplicateComparator.FileName | DuplicateComparator.FileSize))
-                        {
-                            if (match.HasFlag(DuplicateComparator.FileName) && itemInfo.Length != otherInfo.Length)
-                                matches.Add(Tuple.Create(other.Path, match | DuplicateComparator.FileSize));
-                            continue;
-                        }
+							string md5other;
+							if (!md5sums.TryGetValue(other.Path, out md5other))
+							{
+								md5other = GetMD5(other.Path);
+								md5sums[other.Path] = md5other;
+							}
 
-                        if (itemInfo.Length == otherInfo.Length)
-                            match |= DuplicateComparator.FileSize;
-                    }
+						bool md5match = md5item.Equals(md5other, StringComparison.Ordinal);
+						if (queries.HasFlag(QueryType.EqualChecksumMD5) && md5match)
+							match |= QueryType.EqualChecksumMD5;
+						if (queries.HasFlag(QueryType.EqualFileNameDifferentChecksumMD5) && equalFilename && !md5match)
+							match |= QueryType.EqualFileNameDifferentChecksumMD5;
+					}
 
-                    if (comparator.HasFlag(DuplicateComparator.ChecksumMD5))
-                    {
-                        if (comparator.HasFlag(DuplicateComparator.FileSize) && !match.HasFlag(DuplicateComparator.FileSize))
-                        {
-                            // Optimization: different sizes must, most of the time, cause different checksums
-                            comparator |= DuplicateComparator.ChecksumMD5;
-                        }
-                        else
-                        {
-                            string md5item;
-                            if (!md5sums.TryGetValue(item.Path, out md5item))
-                            {
-                                md5item = GetMD5(item.Path);
-                                md5sums[item.Path] = md5item;
-                            }
+					if (queries.HasFlag(QueryType.EqualChecksumSHA1) || queries.HasFlag(QueryType.EqualFileNameDifferentChecksumSHA1))
+					{
+						string sha1item;
+						if (!sha1sums.TryGetValue(item.Path, out sha1item))
+						{
+							sha1item = GetSHA1(item.Path);
+							sha1sums[item.Path] = sha1item;
+						}
 
-                            string md5other;
-                            if (!md5sums.TryGetValue(other.Path, out md5other))
-                            {
-                                md5other = GetMD5(other.Path);
-                                md5sums[other.Path] = md5other;
-                            }
+						string sha1other;
+						if (!sha1sums.TryGetValue(other.Path, out sha1other))
+						{
+							sha1other = GetSHA1(other.Path);
+							sha1sums[other.Path] = sha1other;
+						}
 
-                            if (md5item.Equals(md5other, StringComparison.Ordinal))
-                                match |= DuplicateComparator.ChecksumMD5;
-                        }
-                    }
+						bool sha1match = sha1item.Equals(sha1other, StringComparison.Ordinal);
+						if (queries.HasFlag(QueryType.EqualChecksumSHA1) && sha1match)
+							match |= QueryType.EqualChecksumSHA1;
+						if (queries.HasFlag(QueryType.EqualFileNameDifferentChecksumSHA1) && equalFilename && !sha1match)
+							match |= QueryType.EqualFileNameDifferentChecksumSHA1;
+					}
 
-                    if (comparator.HasFlag(DuplicateComparator.ChecksumSHA1))
-                    {
-                        if (comparator.HasFlag(DuplicateComparator.FileSize) && !match.HasFlag(DuplicateComparator.FileSize))
-                        {
-                            // Optimization: different sizes must, most of the time, cause different checksums
-                            comparator |= DuplicateComparator.ChecksumSHA1;
-                        }
-                        else
-                        {
-                            string sha1item;
-                            if (!sha1sums.TryGetValue(item.Path, out sha1item))
-                            {
-                                sha1item = GetSHA1(item.Path);
-                                sha1sums[item.Path] = sha1item;
-                            }
+					if (match != QueryType.None)
+						matches.Add(Tuple.Create(other.Path, match));
+				}
 
-                            string sha1other;
-                            if (!sha1sums.TryGetValue(other.Path, out sha1other))
-                            {
-                                sha1other = GetSHA1(other.Path);
-                                sha1sums[other.Path] = sha1other;
-                            }
+				if (matches.Count > 0)
+					duplicates[item.Path] = matches;
+			}
 
-                            if (sha1item.Equals(sha1other, StringComparison.Ordinal))
-                                match |= DuplicateComparator.ChecksumSHA1;
-                        }
-                    }
+			QuerySummary result = new QuerySummary();
+			result.duplicates = duplicates;
+			return result;
+		}
 
-                    if (match != DuplicateComparator.None)
-                        matches.Add(Tuple.Create(other.Path, match));
-                }
+		private static string GetMD5(string filename)
+		{
 
-                if (matches.Count > 0)
-                    duplicates[item.Path] = matches;
-            }
+			using (FileStream stream = File.OpenRead(filename))
+			{
+				using (var bufferedStream = new BufferedStream(stream, 1024 * 32))
+				{
+					using (MD5 md5 = MD5.Create())
+					{
+						byte[] checksum = md5.ComputeHash(bufferedStream);
+						return BitConverter.ToString(checksum).Replace("-", String.Empty);
+					}
+				}
+			}
+		}
 
-            QueryDuplicateSummary result = new QueryDuplicateSummary();
-            result.duplicates = duplicates;
-            return result;
-        }
+		private static string GetSHA1(string filename)
+		{
 
-        private static string GetMD5(string filename)
-        {
+			using (FileStream stream = File.OpenRead(filename))
+			{
+				using (var bufferedStream = new BufferedStream(stream, 1024 * 32))
+				{
+					using (SHA1 sha1 = SHA1.Create())
+					{
+						byte[] checksum = sha1.ComputeHash(bufferedStream);
+						return BitConverter.ToString(checksum).Replace("-", String.Empty);
+					}
+				}
+			}
+		}
 
-            using (FileStream stream = File.OpenRead(filename))
-            {
-                using (var bufferedStream = new BufferedStream(stream, 1024 * 32))
-                {
-                    using (MD5 md5 = MD5.Create())
-                    {
-                        byte[] checksum = md5.ComputeHash(bufferedStream);
-                        return BitConverter.ToString(checksum).Replace("-", String.Empty);
-                    }
-                }
-            }
-        }
-
-        private static string GetSHA1(string filename)
-        {
-
-            using (FileStream stream = File.OpenRead(filename))
-            {
-                using (var bufferedStream = new BufferedStream(stream, 1024 * 32))
-                {
-                    using (SHA1 sha1 = SHA1.Create())
-                    {
-                        byte[] checksum = sha1.ComputeHash(bufferedStream);
-                        return BitConverter.ToString(checksum).Replace("-", String.Empty);
-                    }
-                }
-            }
-        }
-
-        public async Task<IEnumerable<MetaData>> GetMetaData(string sourcePath, bool recursive)
-        {
-            try
-            {
-                return await MetaParser.ParseAsync(sourcePath, recursive);
-            }
-            catch (MetaParseException ex)
-            {
-                throw new MediaQuerierException("Failed to parse meta data", ex);
-            }
-        }
-    }
+		public async Task<IEnumerable<MetaData>> GetMetaData(string sourcePath, bool recursive)
+		{
+			try
+			{
+				return await MetaParser.ParseAsync(sourcePath, recursive);
+			}
+			catch (MetaParseException ex)
+			{
+				throw new MediaQuerierException("Failed to parse meta data", ex);
+			}
+		}
+	}
 }

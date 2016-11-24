@@ -71,13 +71,13 @@ namespace ExifOrganizer.UI
             if (query)
             {
                 MediaQuerier querier = new MediaQuerier();
-                QueryDuplicateSummary summary = querier.QueryDuplicates(source, recursive, DuplicateComparator.FileName | DuplicateComparator.FileSize);
+				QuerySummary summary = querier.Query(source, recursive, QueryType.All);
                 ConsoleColor originalColor = Console.ForegroundColor;
                 foreach (var foo in summary.duplicates)
                 {
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine(foo.Key);
-                    foreach (Tuple<string, DuplicateComparator> duplicate in foo.Value)
+                    foreach (Tuple<string, QueryType> duplicate in foo.Value)
                     {
                         Console.ForegroundColor = ConsoleColor.DarkGray;
                         Console.Write(" `-- {0} [", duplicate.Item1);
@@ -87,9 +87,11 @@ namespace ExifOrganizer.UI
                         Console.Write("]{0}", Console.Out.NewLine);
                     }
                 }
+				Console.ForegroundColor = originalColor;
                 if (summary.duplicates.Count == 0)
                     Console.WriteLine("<none>");
-                Console.ForegroundColor = originalColor;
+				else
+					Console.WriteLine("DONE");
 
                 return summary.duplicates.Count;
             }
