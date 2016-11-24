@@ -17,6 +17,7 @@
 //
 
 using ExifOrganizer.Organizer;
+using ExifOrganizer.Querier;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,7 @@ namespace ExifOrganizer.UI
             string source = null;
             string destination = null;
             bool recursive = false;
+            bool query = false;
             foreach (Arg arg in parsedArgs)
             {
                 switch (arg.Key)
@@ -60,7 +62,36 @@ namespace ExifOrganizer.UI
                     case "-r":
                         recursive = true;
                         break;
+                    case "-q":
+                        query = true;
+                        break;
                 }
+            }
+
+            if (query)
+            {
+                MediaQuerier querier = new MediaQuerier();
+                QueryDuplicateSummary summary = querier.QueryDuplicates(source, recursive, DuplicateComparator.FileName | DuplicateComparator.FileSize);
+                ConsoleColor originalColor = Console.ForegroundColor;
+                foreach (var foo in summary.duplicates)
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine(foo.Key);
+                    foreach (Tuple<string, DuplicateComparator> duplicate in foo.Value)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.Write(" `-- {0} [", duplicate.Item1);
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(duplicate.Item2);
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.Write("]{0}", Console.Out.NewLine);
+                    }
+                }
+                if (summary.duplicates.Count == 0)
+                    Console.WriteLine("<none>");
+                Console.ForegroundColor = originalColor;
+
+                return summary.duplicates.Count;
             }
 
             MediaOrganizer organizer = new MediaOrganizer();

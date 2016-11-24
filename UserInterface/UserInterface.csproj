@@ -49,9 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CLI.cs" />
-    <Compile Include="Controls\CheckBoxDropDown.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Controls\CheckBoxDropDown.cs" />
     <Compile Include="Controls\CheckBoxDropDown.Designer.cs">
       <DependentUpon>CheckBoxDropDown.cs</DependentUpon>
     </Compile>
@@ -119,6 +117,10 @@
     <ProjectReference Include="..\MediaOrganizer\MediaOrganizer.csproj">
       <Project>{626f29da-4334-4e7e-8d9a-b2353bb37fc1}</Project>
       <Name>MediaOrganizer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MediaQuerier\MediaQuerier.csproj">
+      <Project>{7070940a-c83f-4d3d-bde4-55aee58a9385}</Project>
+      <Name>MediaQuerier</Name>
     </ProjectReference>
     <ProjectReference Include="..\MetaParser\MetaParser.csproj">
       <Project>{19204b12-e95e-405f-9604-52de1411c8b1}</Project>
