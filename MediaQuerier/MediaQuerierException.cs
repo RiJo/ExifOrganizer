@@ -25,22 +25,22 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Querier
 {
-	[Serializable]
-	public class MediaQuerierException : Exception
-	{
-		public MediaQuerierException(string message, params object[] args)
-			: base(String.Format(message, args))
-		{
-		}
+    [Serializable]
+    public class MediaQuerierException : Exception
+    {
+        public MediaQuerierException(string message, params object[] args)
+            : base(String.Format(message, args))
+        {
+        }
 
-		public MediaQuerierException(string message, Exception innerException)
-			: base(message, innerException)
-		{
-		}
+        public MediaQuerierException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
 
-		protected MediaQuerierException(SerializationInfo info, StreamingContext context)
-			: base(info, context)
-		{
-		}
-	}
+        protected MediaQuerierException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+    }
 }
