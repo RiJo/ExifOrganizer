@@ -87,9 +87,7 @@ namespace ExifOrganizer.Querier
 
 					if (queries.HasFlag(QueryType.EqualFileNameDifferentSize) && equalFilename)
 					{
-							FileInfo itemInfo = new FileInfo(item.Path);
-							FileInfo otherInfo = new FileInfo(other.Path);
-							if (itemInfo.Length != otherInfo.Length)
+							if (item.Data[MetaKey.Size] != other.Data[MetaKey.Size])
 								match |= QueryType.EqualFileNameDifferentSize;
 					}
 
@@ -137,6 +135,13 @@ namespace ExifOrganizer.Querier
 							match |= QueryType.EqualChecksumSHA1;
 						if (queries.HasFlag(QueryType.EqualFileNameDifferentChecksumSHA1) && equalFilename && !sha1match)
 							match |= QueryType.EqualFileNameDifferentChecksumSHA1;
+					}
+
+					if (item.Type == MetaType.Image /* TODO: make configurable? */ && queries.HasFlag(QueryType.LowResolution) && item.Data.ContainsKey(MetaKey.Resolution))
+					{
+						const int limit = 960 * 1280;// 1024 * 768;
+						if ((int)item.Data[MetaKey.Width] * (int)item.Data[MetaKey.Height] <= limit)
+							match |= QueryType.LowResolution;
 					}
 
 					if (match != QueryType.None)
