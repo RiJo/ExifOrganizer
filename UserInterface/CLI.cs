@@ -27,103 +27,103 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.UI
 {
-    public class CLI
-    {
-        public CLI()
-        {
-            Console.WriteLine("ExifOrganizer CLI");
-        }
+	public class CLI
+	{
+		public CLI()
+		{
+			Console.WriteLine("ExifOrganizer CLI");
+		}
 
-        public int Run(string[] args)
-        {
-            IEnumerable<Arg> parsedArgs = ParseArgs.Parse(args, new string[] { "-r" }, new string[] { "-s", "-d" });
+		public int Run(string[] args)
+		{
+			IEnumerable<Arg> parsedArgs = ParseArgs.Parse(args, new string[] { "-r" }, new string[] { "-s", "-d" });
 #if DEBUG
-            Console.WriteLine("Arguments parsed:");
-            foreach (Arg arg in parsedArgs)
-                Console.WriteLine(String.Format(" * {0}", arg));
+			Console.WriteLine("Arguments parsed:");
+			foreach (Arg arg in parsedArgs)
+				Console.WriteLine(String.Format(" * {0}", arg));
 #endif
 
 
 
-            string source = null;
-            string destination = null;
-            bool recursive = false;
-            bool query = false;
-            foreach (Arg arg in parsedArgs)
-            {
-                switch (arg.Key)
-                {
-                    case "-s":
-                        source = arg.Value;
-                        break;
-                    case "-d":
-                        destination = arg.Value;
-                        break;
-                    case "-r":
-                        recursive = true;
-                        break;
-                    case "-q":
-                        query = true;
-                        break;
-                }
-            }
+			string source = null;
+			string destination = null;
+			bool recursive = false;
+			bool query = false;
+			foreach (Arg arg in parsedArgs)
+			{
+				switch (arg.Key)
+				{
+					case "-s":
+						source = arg.Value;
+						break;
+					case "-d":
+						destination = arg.Value;
+						break;
+					case "-r":
+						recursive = true;
+						break;
+					case "-q":
+						query = true;
+						break;
+				}
+			}
 
-            if (query)
-            {
-                MediaQuerier querier = new MediaQuerier();
+			if (query)
+			{
+				MediaQuerier querier = new MediaQuerier();
 				QuerySummary summary = querier.Query(source, recursive, QueryType.All);
-                ConsoleColor originalColor = Console.ForegroundColor;
-                foreach (var foo in summary.duplicates)
-                {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine(foo.Key);
-                    foreach (Tuple<string, QueryType> duplicate in foo.Value)
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
-                        Console.Write(" `-- {0} [", duplicate.Item1);
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write(duplicate.Item2);
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
-                        Console.Write("]{0}", Console.Out.NewLine);
-                    }
-                }
+				ConsoleColor originalColor = Console.ForegroundColor;
+				foreach (var foo in summary.duplicates)
+				{
+					Console.ForegroundColor = ConsoleColor.White;
+					Console.WriteLine(foo.Key);
+					foreach (Tuple<string, QueryType> duplicate in foo.Value)
+					{
+						Console.ForegroundColor = ConsoleColor.DarkGray;
+						Console.Write(" `-- {0} [", duplicate.Item1);
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.Write(duplicate.Item2);
+						Console.ForegroundColor = ConsoleColor.DarkGray;
+						Console.Write("]{0}", Console.Out.NewLine);
+					}
+				}
 				Console.ForegroundColor = originalColor;
-                if (summary.duplicates.Count == 0)
-                    Console.WriteLine("<none>");
+				if (summary.duplicates.Count == 0)
+					Console.WriteLine("<none>");
 				else
 					Console.WriteLine("DONE");
 
-                return summary.duplicates.Count;
-            }
+				return summary.duplicates.Count;
+			}
 
-            MediaOrganizer organizer = new MediaOrganizer();
-            organizer.sourcePath = source;
-            organizer.destinationPath = destination;
-            organizer.Recursive = recursive;
-            //organizer.DuplicateMode = DuplicateMode.KeepAll;
-            organizer.CopyMode = CopyMode.KeepUnique;
-            //organizer.DestinationPatternImage = patternImage.Text;
-            //organizer.DestinationPatternVideo = patternVideo.Text;
-            //organizer.DestinationPatternAudio = patternAudio.Text;
-            organizer.Locale = Thread.CurrentThread.CurrentUICulture;
+			MediaOrganizer organizer = new MediaOrganizer();
+			organizer.sourcePath = source;
+			organizer.destinationPath = destination;
+			organizer.Recursive = recursive;
+			//organizer.DuplicateMode = DuplicateMode.KeepAll;
+			organizer.CopyMode = CopyMode.KeepUnique;
+			//organizer.DestinationPatternImage = patternImage.Text;
+			//organizer.DestinationPatternVideo = patternVideo.Text;
+			//organizer.DestinationPatternAudio = patternAudio.Text;
+			organizer.Locale = Thread.CurrentThread.CurrentUICulture;
 
-            if (String.IsNullOrEmpty(source))
-                throw new ArgumentException("No source path given (-s)");
-            if (String.IsNullOrEmpty(destination))
-                throw new ArgumentException("No destination path given (-d)");
+			if (String.IsNullOrEmpty(source))
+				throw new ArgumentException("No source path given (-s)");
+			if (String.IsNullOrEmpty(destination))
+				throw new ArgumentException("No destination path given (-d)");
 
-            try
-            {
-                organizer.Parse();
-                organizer.Organize();
-                Console.WriteLine("Media organization completed successfully");
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine(ex.Message);
-                return 1;
-            }
-        }
-    }
+			try
+			{
+				organizer.Parse();
+				organizer.Organize();
+				Console.WriteLine("Media organization completed successfully");
+				return 0;
+			}
+			catch (Exception ex)
+			{
+				Console.Error.WriteLine(ex.Message);
+				return 1;
+			}
+		}
+	}
 }
