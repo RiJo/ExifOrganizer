@@ -452,6 +452,23 @@ namespace ExifOrganizer.Meta.Parsers
 			meta.Data[MetaKey.DateCreated] = File.GetCreationTime(filename);
 			meta.Data[MetaKey.DateModified] = File.GetLastWriteTime(filename);
 
+			if (exif.ContainsKey(ExifId.PhotoPixelXDimension))
+			{
+				if (exif[ExifId.PhotoPixelXDimension] is int)
+					meta.Data[MetaKey.Width] = (int)exif[ExifId.PhotoPixelXDimension];
+				else
+					meta.Data[MetaKey.Width] = Int32.Parse(exif[ExifId.PhotoPixelXDimension].ToString());
+			}
+			if (exif.ContainsKey(ExifId.PhotoPixelYDimension))
+			{
+				if (exif[ExifId.PhotoPixelYDimension] is int)
+					meta.Data[MetaKey.Height] = (int)exif[ExifId.PhotoPixelYDimension];
+				else
+					meta.Data[MetaKey.Height] = Int32.Parse(exif[ExifId.PhotoPixelYDimension].ToString());
+			}
+			if (meta.Data.ContainsKey(MetaKey.Width) && meta.Data.ContainsKey(MetaKey.Height))
+				meta.Data[MetaKey.Resolution] = String.Format("{0}x{1}", meta.Data[MetaKey.Width], meta.Data[MetaKey.Height]);
+
 			if (exif.ContainsKey(ExifId.PhotoDateTimeOriginal))
 				meta.Data[MetaKey.Timestamp] = exif[ExifId.PhotoDateTimeOriginal];
 			else
