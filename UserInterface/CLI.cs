@@ -16,6 +16,7 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
+using ExifOrganizer.Meta;
 using ExifOrganizer.Organizer;
 using ExifOrganizer.Querier;
 using System;
@@ -71,7 +72,7 @@ namespace ExifOrganizer.UI
 			if (query)
 			{
 				MediaQuerier querier = new MediaQuerier();
-				QuerySummary summary = querier.Query(source, recursive, QueryType.All);
+				QuerySummary summary = querier.Query(source, recursive, QueryType.All, MetaType.Image);
 				ConsoleColor originalColor = Console.ForegroundColor;
 				foreach (var foo in summary.duplicates)
 				{
