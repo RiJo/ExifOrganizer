@@ -32,12 +32,13 @@ namespace ExifOrganizer.Querier
 	{
 		None = 0x00,
 		EqualFileName = 0x01,
-		EqualFileNameDifferentSize = 0x02,
+		EqualFileNameDifferentFileSize = 0x02,
 		EqualChecksumMD5 = 0x04,
 		EqualFileNameDifferentChecksumMD5 = 0x08,
 		EqualChecksumSHA1 = 0x10,
 		EqualFileNameDifferentChecksumSHA1 = 0x20,
 		LowResolution = 0x40,
+		EqualFileNameDifferentResolution = 0x80,
 		All = 0xFF
 	}
 
@@ -85,10 +86,10 @@ namespace ExifOrganizer.Querier
 					if (queries.HasFlag(QueryType.EqualFileName) && equalFilename)
 							match |= QueryType.EqualFileName;
 
-					if (queries.HasFlag(QueryType.EqualFileNameDifferentSize) && equalFilename)
+					if (queries.HasFlag(QueryType.EqualFileNameDifferentFileSize) && equalFilename)
 					{
 							if (item.Data[MetaKey.Size] != other.Data[MetaKey.Size])
-								match |= QueryType.EqualFileNameDifferentSize;
+								match |= QueryType.EqualFileNameDifferentFileSize;
 					}
 
 					if (queries.HasFlag(QueryType.EqualChecksumMD5) || queries.HasFlag(QueryType.EqualFileNameDifferentChecksumMD5))
@@ -137,12 +138,21 @@ namespace ExifOrganizer.Querier
 							match |= QueryType.EqualFileNameDifferentChecksumSHA1;
 					}
 
-					if (item.Type == MetaType.Image /* TODO: make configurable? */ && queries.HasFlag(QueryType.LowResolution) && item.Data.ContainsKey(MetaKey.Resolution))
+					if ((queries.HasFlag(QueryType.LowResolution) || queries.HasFlag(QueryType.EqualFileNameDifferentResolution)) && item.Data.ContainsKey(MetaKey.Resolution))
 					{
 						//const int limit = 960 * 1280;
-						const int limit = 1024 * 768;
-						if ((int)item.Data[MetaKey.Width] * (int)item.Data[MetaKey.Height] <= limit)
+						const int resolutionLimit = 1024 * 768;
+
+						int resolutionItem = (int)item.Data[MetaKey.Width] * (int)item.Data[MetaKey.Height];
+						if (resolutionItem <= resolutionLimit)
 							match |= QueryType.LowResolution;
+
+						if (queries.HasFlag(QueryType.EqualFileNameDifferentResolution) && other.Data.ContainsKey(MetaKey.Resolution) && equalFilename)
+						{
+							int resolutionOther = (int)other.Data[MetaKey.Width] * (int)other.Data[MetaKey.Height];
+							if (resolutionItem != resolutionOther)
+								match |= QueryType.EqualFileNameDifferentResolution;
+						}
 					}
 
 					if (match != QueryType.None)
