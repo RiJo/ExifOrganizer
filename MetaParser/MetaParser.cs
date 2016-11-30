@@ -25,120 +25,137 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta
 {
-    public static class MetaParser
-    {
-        public static IEnumerable<MetaData> Parse(string path, bool recursive, IEnumerable<string> ignorePaths = null)
-        {
-            Task<IEnumerable<MetaData>> task = ParseAsync(path, recursive, ignorePaths);
-            task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
-        }
+	public struct MetaParserConfig
+	{
+		public bool Recursive;
+		public IEnumerable<MetaType> FilterTypes;
+		public IEnumerable<string> IgnorePaths;
+	}
 
-        public static async Task<IEnumerable<MetaData>> ParseAsync(string path, bool recursive, IEnumerable<string> ignorePaths = null)
-        {
-            if (path == null)
-                throw new ArgumentNullException("path");
+	public static class MetaParser
+	{
+		public static IEnumerable<MetaData> Parse(string path, MetaParserConfig config)
+		{
+			Task<IEnumerable<MetaData>> task = ParseAsync(path, config);
+			task.ConfigureAwait(false); // Prevent deadlock of caller
+			return task.Result;
+		}
 
-            if (Directory.Exists(path))
-                return await ParseDirectoryAsync(path, recursive, ignorePaths);
-            else if (File.Exists(path))
-                return new MetaData[] { await ParseFileAsync(path) };
-            else
-                throw new FileNotFoundException(String.Format("Could not find file or directory: {0}", path));
-        }
+		public static async Task<IEnumerable<MetaData>> ParseAsync(string path, MetaParserConfig config)
+		{
+			if (path == null)
+				throw new ArgumentNullException("path");
 
-        public static MetaData ParseFile(string path)
-        {
-            Task<MetaData> task = ParseFileAsync(path);
-            task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
-        }
+			if (Directory.Exists(path))
+				return await ParseDirectoryAsync(path, config);
+			else if (File.Exists(path))
+				return new MetaData[] { await ParseFileAsync(path, config) };
+			else
+				throw new FileNotFoundException(String.Format("Could not find file or directory: {0}", path));
+		}
 
-        public static Task<MetaData> ParseFileAsync(string path)
-        {
-            if (String.IsNullOrEmpty(path))
-                throw new ArgumentNullException("path");
-            if (!File.Exists(path))
-                throw new MetaParseException("File not found: {0}", path);
+		public static MetaData ParseFile(string path, MetaParserConfig config)
+		{
+			Task<MetaData> task = ParseFileAsync(path, config);
+			task.ConfigureAwait(false); // Prevent deadlock of caller
+			return task.Result;
+		}
 
-            string extension = Path.GetExtension(path).ToLower();
-            switch (extension)
-            {
-                // Images (Exif)
-                case ".jpg":
-                case ".jpeg":
-                case ".tif":
-                case ".tiff":
-                    return ExifParser.ParseAsync(path);
+		public static Task<MetaData> ParseFileAsync(string path, MetaParserConfig config)
+		{
+			if (String.IsNullOrEmpty(path))
+				throw new ArgumentNullException("path");
+			if (!File.Exists(path))
+				throw new MetaParseException("File not found: {0}", path);
 
-                // Images (generic)
-                case ".png":
-                case ".gif":
-                case ".bmp":
-                    return GenericFileParser.ParseAsync(path, MetaType.Image);
+			string extension = Path.GetExtension(path).ToLower();
+			switch (extension)
+			{
+				// Images (Exif)
+				case ".jpg":
+				case ".jpeg":
+				case ".tif":
+				case ".tiff":
+					if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Image))
+						return Task.FromResult<MetaData>(null);
+					return ExifParser.ParseAsync(path);
 
-                // Music (generic)
-                case ".mp3": // TODO: id3
-                case ".wav": // TODO: exif
-                case ".flac":
-                case ".aac":
-                    return GenericFileParser.ParseAsync(path, MetaType.Music);
+				// Images (generic)
+				case ".png":
+				case ".gif":
+				case ".bmp":
+					if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Image))
+						return Task.FromResult<MetaData>(null);
+					return GenericFileParser.ParseAsync(path, MetaType.Image);
 
-                // Movies (generic)
-                case ".mpg":
-                case ".mpeg":
-                case ".mov":
-                case ".mp4":
-                    return GenericFileParser.ParseAsync(path, MetaType.Video);
+				// Music (generic)
+				case ".mp3": // TODO: id3
+				case ".wav": // TODO: exif
+				case ".flac":
+				case ".aac":
+					if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Music))
+						return Task.FromResult<MetaData>(null);
+					return GenericFileParser.ParseAsync(path, MetaType.Music);
 
-                default:
-                    return GenericFileParser.ParseAsync(path, MetaType.File);
-            }
-        }
+				// Movies (generic)
+				case ".mpg":
+				case ".mpeg":
+				case ".mov":
+				case ".mp4":
+					if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Video))
+						return Task.FromResult<MetaData>(null);
+					return GenericFileParser.ParseAsync(path, MetaType.Video);
 
-        public static IEnumerable<MetaData> ParseDirectory(string path, bool recursive, IEnumerable<string> ignorePaths = null)
-        {
-            Task<IEnumerable<MetaData>> task = ParseDirectoryAsync(path, recursive, ignorePaths);
-            task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
-        }
+				default:
+					if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.File))
+						return Task.FromResult<MetaData>(null);
+					return GenericFileParser.ParseAsync(path, MetaType.File);
+			}
+		}
 
-        public static async Task<IEnumerable<MetaData>> ParseDirectoryAsync(string path, bool recursive, IEnumerable<string> ignorePaths = null)
-        {
-            if (String.IsNullOrEmpty(path))
-                throw new ArgumentNullException("path");
-            if (!Directory.Exists(path))
-                throw new MetaParseException("Directory not found: {0}", path);
+		public static IEnumerable<MetaData> ParseDirectory(string path, MetaParserConfig config)
+		{
+			Task<IEnumerable<MetaData>> task = ParseDirectoryAsync(path, config);
+			task.ConfigureAwait(false); // Prevent deadlock of caller
+			return task.Result;
+		}
 
-            List<MetaData> list = new List<MetaData>();
-            if (ignorePaths != null)
-            {
-                foreach (string ignorePath in ignorePaths)
-                {
-                    if (ignorePath.DirectoryIsSubPath(path, true))
-                        return list;
-                }
-            }
+		public static async Task<IEnumerable<MetaData>> ParseDirectoryAsync(string path, MetaParserConfig config)
+		{
+			if (String.IsNullOrEmpty(path))
+				throw new ArgumentNullException("path");
+			if (!Directory.Exists(path))
+				throw new MetaParseException("Directory not found: {0}", path);
 
-            // TODO: run sub directories in paralell with files
-            LinkedList<Task<MetaData>> fileTasks = new LinkedList<Task<MetaData>>();
-            fileTasks.AddLast(DirectoryParser.ParseAsync(path));
-            foreach (string file in Directory.GetFiles(path))
-            {
-                fileTasks.AddLast(ParseFileAsync(file));
-            }
-            list.AddRange(await Task.WhenAll(fileTasks));
+			List<MetaData> list = new List<MetaData>();
+			if (config.IgnorePaths != null)
+			{
+				foreach (string ignorePath in config.IgnorePaths)
+				{
+					if (ignorePath.DirectoryIsSubPath(path, true))
+						return list;
+				}
+			}
 
-            if (recursive)
-            {
-                LinkedList<Task<IEnumerable<MetaData>>> directoryTasks = new LinkedList<Task<IEnumerable<MetaData>>>();
-                foreach (string directory in Directory.GetDirectories(path))
-                    directoryTasks.AddLast(ParseDirectoryAsync(directory, recursive, ignorePaths));
-                foreach (IEnumerable<MetaData> nestedMetaData in await Task.WhenAll(directoryTasks))
-                    list.AddRange(nestedMetaData);
-            }
+			// TODO: run sub directories in paralell with files
+			LinkedList<Task<MetaData>> fileTasks = new LinkedList<Task<MetaData>>();
+			fileTasks.AddLast(DirectoryParser.ParseAsync(path));
+			foreach (string file in Directory.GetFiles(path))
+			{
+				fileTasks.AddLast(ParseFileAsync(file, config));
+			}
+			list.AddRange(await Task.WhenAll(fileTasks));
 
-            return list;
-        }
-    }
+			if (config.Recursive)
+			{
+				LinkedList<Task<IEnumerable<MetaData>>> directoryTasks = new LinkedList<Task<IEnumerable<MetaData>>>();
+				foreach (string directory in Directory.GetDirectories(path))
+					directoryTasks.AddLast(ParseDirectoryAsync(directory, config));
+				foreach (IEnumerable<MetaData> nestedMetaData in await Task.WhenAll(directoryTasks))
+					list.AddRange(nestedMetaData);
+			}
+
+			return list.Where(x => x != null);
+		}
+	}
 }
