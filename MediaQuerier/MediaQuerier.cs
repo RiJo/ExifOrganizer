@@ -54,14 +54,14 @@ namespace ExifOrganizer.Querier
 		{
 		}
 
-		public QuerySummary Query(string sourcePath, bool recursive, QueryType queries)
+		public QuerySummary Query(string sourcePath, bool recursive, QueryType queries, params MetaType[] types)
 		{
-			Task<QuerySummary> task = QueryAsync(sourcePath, recursive, queries);
+			Task<QuerySummary> task = QueryAsync(sourcePath, recursive, queries, types);
 			task.ConfigureAwait(false); // Prevent deadlock of caller
 			return task.Result;
 		}
 
-		public async Task<QuerySummary> QueryAsync(string sourcePath, bool recursive, QueryType queries)
+		public async Task<QuerySummary> QueryAsync(string sourcePath, bool recursive, QueryType queries, params MetaType[] types)
 		{
 			if (String.IsNullOrEmpty(sourcePath))
 				throw new ArgumentNullException(nameof(sourcePath));
@@ -73,7 +73,7 @@ namespace ExifOrganizer.Querier
 			Dictionary<string, IEnumerable<Tuple<string, QueryType>>> duplicates = new Dictionary<string, IEnumerable<Tuple<string, QueryType>>>();
 			Dictionary<string, string> md5sums = new Dictionary<string, string>();
 			Dictionary<string, string> sha1sums = new Dictionary<string, string>();
-			IEnumerable<MetaData> data = await GetMetaData(sourcePath, recursive);
+			IEnumerable<MetaData> data = await GetMetaData(sourcePath, recursive, types);
 			foreach (MetaData item in data.Where(x => x.Type != MetaType.Directory && x.Type != MetaType.File))
 			{
 				List<Tuple<string, QueryType>> matches = new List<Tuple<string, QueryType>>();
@@ -139,7 +139,8 @@ namespace ExifOrganizer.Querier
 
 					if (item.Type == MetaType.Image /* TODO: make configurable? */ && queries.HasFlag(QueryType.LowResolution) && item.Data.ContainsKey(MetaKey.Resolution))
 					{
-						const int limit = 960 * 1280;// 1024 * 768;
+						//const int limit = 960 * 1280;
+						const int limit = 1024 * 768;
 						if ((int)item.Data[MetaKey.Width] * (int)item.Data[MetaKey.Height] <= limit)
 							match |= QueryType.LowResolution;
 					}
@@ -189,11 +190,12 @@ namespace ExifOrganizer.Querier
 			}
 		}
 
-		public async Task<IEnumerable<MetaData>> GetMetaData(string sourcePath, bool recursive)
+		public async Task<IEnumerable<MetaData>> GetMetaData(string sourcePath, bool recursive, params MetaType[] types)
 		{
 			try
 			{
-				return await MetaParser.ParseAsync(sourcePath, recursive);
+				MetaParserConfig config = new MetaParserConfig() { Recursive = recursive, FilterTypes = types };
+				return await MetaParser.ParseAsync(sourcePath, config);
 			}
 			catch (MetaParseException ex)
 			{

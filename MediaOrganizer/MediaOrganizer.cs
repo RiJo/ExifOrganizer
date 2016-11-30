@@ -455,7 +455,8 @@ namespace ExifOrganizer.Organizer
             IEnumerable<MetaData> data;
             try
             {
-                data = await MetaParser.ParseAsync(sourcePath, Recursive, ignore);
+                MetaParserConfig config = new MetaParserConfig() { Recursive = Recursive, IgnorePaths = ignore };
+                data = await MetaParser.ParseAsync(sourcePath, config);
             }
             catch (MetaParseException ex)
             {
