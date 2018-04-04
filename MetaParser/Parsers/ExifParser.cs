@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -531,11 +532,9 @@ namespace ExifOrganizer.Meta.Parsers
 
                 foreach (PropertyItem item in items)
                 {
-#if DEBUG
-                    // TODO: replace by trace write
                     if (!Enum.IsDefined(typeof(ExifId), item.Id))
-                        Console.WriteLine("Exif ID not defined: {0:X}", item.Id);
-#endif
+                        Trace.Write($"Exif ID not defined: {item.Id:X}");
+
                     ExifId id = (ExifId)item.Id;
                     ExifDataType type = (ExifDataType)item.Type;
                     object value = ParseValue(id, type, item.Value);
