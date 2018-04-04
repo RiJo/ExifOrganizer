@@ -17,12 +17,8 @@
 //
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExifOrganizer.Organizer
 {
@@ -72,7 +68,7 @@ namespace ExifOrganizer.Organizer
             string fileName = Path.GetFileNameWithoutExtension(fileInfo.FullName);
             string extension = Path.GetExtension(fileInfo.FullName);
 
-            return String.Format("{0}\\{1}({2}){3}", path, fileName, index, extension);
+            return $"{path}\\{fileName}({index}){extension}";
         }
 
         public static string GetMD5Sum(this FileInfo fileInfo)
@@ -110,7 +106,7 @@ namespace ExifOrganizer.Organizer
             return !(s == "0" || s == "false");
         }
 
-        public static T ToEnum<T>(this object value) where T: struct
+        public static T ToEnum<T>(this object value) where T : struct
         {
             if (value == null)
                 throw new ArgumentNullException("value");

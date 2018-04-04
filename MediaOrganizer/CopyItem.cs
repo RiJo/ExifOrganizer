@@ -20,9 +20,6 @@ using ExifOrganizer.Meta;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExifOrganizer.Organizer
 {
@@ -50,7 +47,7 @@ namespace ExifOrganizer.Organizer
 
         public override string ToString()
         {
-            return String.Format("[{0}] ---> [{1}]", sourcePath, destinationPath);
+            return $"[{sourcePath}] ---> [{destinationPath}]";
         }
     }
 }

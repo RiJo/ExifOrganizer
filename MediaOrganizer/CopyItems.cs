@@ -16,13 +16,8 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
-using ExifOrganizer.Meta;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExifOrganizer.Organizer
 {
@@ -38,9 +33,9 @@ namespace ExifOrganizer.Organizer
             if (items != null)
             {
                 foreach (CopyItem item in items)
-itemStrings.Add(item.ToString());
+                    itemStrings.Add(item.ToString());
             }
-            return String.Format("Copy: [{0}] ---> [{1}]{2}Items:{2}{3}", sourcePath, destinationPath, Environment.NewLine, String.Join(Environment.NewLine, itemStrings.ToArray()));
+            return $"Copy: [{sourcePath}] ---> [{destinationPath}]{Environment.NewLine}Items:{Environment.NewLine}{String.Join(Environment.NewLine, itemStrings.ToArray())}";
         }
     }
 }

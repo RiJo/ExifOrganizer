@@ -1,5 +1,5 @@
 ﻿//
-// EnumFlagsDropDown.cs: User control to render checkboxes, representing flags in 
+// EnumFlagsDropDown.cs: User control to render checkboxes, representing flags in
 // Enum tagged with Flags attribute, in a drop-down list.
 //
 // Copyright (C) 2014 Rikard Johansson
@@ -18,14 +18,6 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ExifOrganizer.UI.Controls
 {
@@ -34,6 +26,7 @@ namespace ExifOrganizer.UI.Controls
      *  - Handle None and All (subset) values: check if match
      *  - move bitfield (of values) to CheckBoxDrop down: then only cast from Enum to int is required (alt. use array of values)
      */
+
     public partial class EnumFlagsDropDown : CheckBoxDropDown
     {
         private Type enumType;
@@ -58,9 +51,9 @@ namespace ExifOrganizer.UI.Controls
                 }
 
                 if (!value.IsEnum)
-                    throw new ArgumentException(String.Format("Type must be Enum: {0}", value));
+                    throw new ArgumentException($"Type must be Enum: {value}");
                 if (!value.HasAttributesFlags())
-                    throw new ArgumentException(String.Format("Enum type must have attribute Flags", value));
+                    throw new ArgumentException($"Enum type must have attribute flags: {value}");
 
                 enumType = value;
                 enumValue = null;
@@ -84,7 +77,7 @@ namespace ExifOrganizer.UI.Controls
                 if (enumType == null)
                     throw new ArgumentException("Enum type not yet defined");
                 if (value.GetType() != enumType)
-                    throw new ArgumentException(String.Format("Value must be of predefined Enum type: {0}", enumType));
+                    throw new ArgumentException($"Value must be of predefined Enum type: {enumType}");
 
                 if (value == enumValue)
                     return;

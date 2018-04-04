@@ -17,12 +17,8 @@
 //
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExifOrganizer.Organizer
 {
@@ -102,7 +98,7 @@ namespace ExifOrganizer.Organizer
             List<string> lines = new List<string>();
             foreach (KeyValuePair<string, string> kvp in this)
             {
-                string line = String.Format("{0}{1} {2}", kvp.Key, KeyValueSeparator, kvp.Value);
+                string line = $"{kvp.Key}{KeyValueSeparator} {kvp.Value}";
                 lines.Add(line);
             }
 

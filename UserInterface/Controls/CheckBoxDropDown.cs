@@ -18,12 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ExifOrganizer.UI.Controls
@@ -47,6 +43,7 @@ namespace ExifOrganizer.UI.Controls
         protected class ToolStripCheckboxItem : ToolStripControlHost
         {
             public event Action<object, EventArgs> CheckedChanged;
+
             public event Action<object, EventArgs> CheckStateChanged;
 
             private CheckBoxItem item;
@@ -72,7 +69,7 @@ namespace ExifOrganizer.UI.Controls
                 checkbox.Checked = item.Checked;
                 checkbox.Text = item.Text;
                 checkbox.AutoCheck = false;
-                checkbox.Click += delegate(object sender, EventArgs e)
+                checkbox.Click += delegate (object sender, EventArgs e)
                 {
                     if (checkbox.Checked && !allowUserUncheck)
                         return;
@@ -80,14 +77,14 @@ namespace ExifOrganizer.UI.Controls
                         return;
                     checkbox.Checked = !checkbox.Checked;
                 };
-                checkbox.CheckedChanged += delegate(object sender, EventArgs e)
+                checkbox.CheckedChanged += delegate (object sender, EventArgs e)
                 {
                     item.Checked = checkbox.Checked;
 
                     if (CheckedChanged != null)
                         CheckedChanged(this, e);
                 };
-                checkbox.CheckStateChanged += delegate(object sender, EventArgs e)
+                checkbox.CheckStateChanged += delegate (object sender, EventArgs e)
                 {
                     if (CheckStateChanged != null)
                         CheckStateChanged(this, e);
@@ -145,7 +142,6 @@ namespace ExifOrganizer.UI.Controls
                     checkboxNone.Width = this.Width - 35;
                     checkboxNone.CheckedChanged += CheckedChangedNone;
                     popup.Items.Add(checkboxNone);
-
                 }
                 else
                 {

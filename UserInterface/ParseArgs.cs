@@ -16,11 +16,8 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExifOrganizer.UI
 {
@@ -42,15 +39,17 @@ namespace ExifOrganizer.UI
             switch (Type)
             {
                 case ArgType.Flag:
-                    return String.Format("Arg {{ Flag: \"{0}\" }}", Key);
+                    return $"Arg {{ Flag: \"{Key}\" }}";
+
                 case ArgType.Variable:
-                    return String.Format("Arg {{ Variable: \"{0}\" = \"{1}\" }}", Key, Value);
+                    return $"Arg {{ Variable: \"{Key}\" = \"{Value}\" }}";
+
                 case ArgType.Undefined:
-                    return String.Format("Arg {{ Undefined: \"{0}\" }}", Key);
+                    return $"Arg {{ Undefined: \"{Key}\" }}";
+
                 default:
                     return null;
             }
-
         }
     }
 

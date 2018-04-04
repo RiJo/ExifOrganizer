@@ -17,10 +17,6 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExifOrganizer.UI
 {
@@ -90,7 +86,7 @@ namespace ExifOrganizer.UI
 
         public static string Get(this Version version)
         {
-            return String.Format("{0}.{1}.{2} build {3}", version.Major, version.Minor, version.Build, version.Revision);
+            return $"{version.Major}.{version.Minor}.{version.Build} build {version.Revision}";
         }
     }
 }

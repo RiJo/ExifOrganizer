@@ -23,8 +23,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -82,7 +80,6 @@ namespace ExifOrganizer.Organizer
     public class MediaOrganizer
     {
         private const double PARSE_PROGRESS_FACTOR = 0.1;
-
 
         public event Action<MediaOrganizer, double, string> OnProgress = delegate { };
 
@@ -293,7 +290,7 @@ namespace ExifOrganizer.Organizer
 
                 float progress = (float)(i) / (float)itemCount;
                 if ((int)(progress * 10) % 2 == 0)
-                    OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1 + (progress * (1.0 - PARSE_PROGRESS_FACTOR - 0.1)), String.Format("Organizing {0} of {1}", i + 1, itemCount));
+                    OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1 + (progress * (1.0 - PARSE_PROGRESS_FACTOR - 0.1)), $"Organizing {i + 1} of {itemCount}");
 
                 CopyItem item = copyItems.items[i];
 
@@ -307,7 +304,7 @@ namespace ExifOrganizer.Organizer
                     catch (Exception ex)
                     {
                         if (ExceptionHandling == ExceptionHandling.Throw)
-                            throw new MediaOrganizerException(String.Format("Failed to create directory: {0}", destinationDirectory), ex);
+                            throw new MediaOrganizerException($"Failed to create directory: {destinationDirectory}", ex);
                         else
                             continue;
                     }
@@ -351,7 +348,7 @@ namespace ExifOrganizer.Organizer
                         break;
 
                     default:
-                        throw new NotImplementedException(String.Format("CopyMode: {0}", CopyMode));
+                        throw new NotImplementedException($"CopyMode: {CopyMode}");
                 }
 
                 try
@@ -366,7 +363,7 @@ namespace ExifOrganizer.Organizer
                 catch (Exception ex)
                 {
                     if (ExceptionHandling == ExceptionHandling.Throw)
-                        throw new MediaOrganizerException(String.Format("Failed to copy file. Mode: {0}. Overwrite: {1}. Source: {2}. Destination: {3}", CopyMode, overwrite, item.sourcePath, item.destinationPath), ex);
+                        throw new MediaOrganizerException($"Failed to copy file. Mode: {CopyMode}. Overwrite: {overwrite}. Source: {item.sourcePath}. Destination: {item.destinationPath}", ex);
                     else
                         continue;
                 }
@@ -410,7 +407,7 @@ namespace ExifOrganizer.Organizer
                         }
                         catch (Exception ex)
                         {
-                            throw new MediaOrganizerException(String.Format("Failed to generate temporary directory: {0}", tempSourcePath), ex);
+                            throw new MediaOrganizerException($"Failed to generate temporary directory: {tempSourcePath}", ex);
                         }
                         copyItems.sourcePath = tempSourcePath; // TODO: delete this path after organization
                     }
@@ -422,7 +419,7 @@ namespace ExifOrganizer.Organizer
                         }
                         catch (Exception ex)
                         {
-                            throw new MediaOrganizerException(String.Format("Failed to wipe destination path: {0}", copyItems.destinationPath), ex);
+                            throw new MediaOrganizerException($"Failed to wipe destination path: {copyItems.destinationPath}", ex);
                         }
                     }
 
@@ -434,13 +431,13 @@ namespace ExifOrganizer.Organizer
                         }
                         catch (Exception ex)
                         {
-                            throw new MediaOrganizerException(String.Format("Failed to create destination path: {0}", copyItems.destinationPath), ex);
+                            throw new MediaOrganizerException($"Failed to create destination path: {copyItems.destinationPath}", ex);
                         }
                     }
                     break;
 
                 default:
-                    throw new NotImplementedException(String.Format("CopyPrecondition: {0}", CopyPrecondition));
+                    throw new NotImplementedException($"CopyPrecondition: {CopyPrecondition}");
             }
         }
 
@@ -525,14 +522,17 @@ namespace ExifOrganizer.Organizer
                 case MetaType.Image:
                     destinationPattern = DestinationPatternImage;
                     break;
+
                 case MetaType.Video:
                     destinationPattern = DestinationPatternVideo;
                     break;
+
                 case MetaType.Music:
                     destinationPattern = DestinationPatternAudio;
                     break;
+
                 default:
-                    throw new NotSupportedException(String.Format("Meta media type not supported: {0}", meta.Type));
+                    throw new NotSupportedException($"Meta media type not supported: {meta.Type}");
             }
 
             return parser.Parse(destinationPattern, destinationPath, meta);

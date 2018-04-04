@@ -22,9 +22,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ExifOrganizer.Organizer
 {
@@ -65,7 +63,7 @@ namespace ExifOrganizer.Organizer
         private CultureInfo locale = null;
         private Dictionary<MetaData, int> indexes = new Dictionary<MetaData, int>();
         private Dictionary<int, string> tags = new Dictionary<int, string>();
-        Dictionary<string, HashSet<DateTime>> tagTimestamps = new Dictionary<string, HashSet<DateTime>>();
+        private Dictionary<string, HashSet<DateTime>> tagTimestamps = new Dictionary<string, HashSet<DateTime>>();
 
         public PatternPathParser(CultureInfo culture)
         {
@@ -159,7 +157,6 @@ namespace ExifOrganizer.Organizer
             GroupType groupType;
             if (!organizeGroups.TryGetValue(subpattern, out groupType))
                 throw new MediaOrganizerException("Unhandled pattern item: {0}", subpattern);
-
 
             switch (groupType)
             {
@@ -281,7 +278,7 @@ namespace ExifOrganizer.Organizer
                     }
 
                 default:
-                    throw new NotImplementedException(String.Format("GroupType: {0}", groupType));
+                    throw new NotImplementedException($"GroupType: {groupType}");
             }
         }
     }

@@ -17,13 +17,7 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ExifOrganizer.UI.Controls
@@ -112,7 +106,7 @@ namespace ExifOrganizer.UI.Controls
             get { return (ProgressFactor * 100.0).Clamp(0.0, 100.0); }
         }
 
-        #endregion
+        #endregion Properties
 
         /// <summary>
         /// Update current progress value and message. Used to prevent unecessary repaints
@@ -133,7 +127,7 @@ namespace ExifOrganizer.UI.Controls
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="value">Percent (0.0-100.0) of current progress</param>
         /// <param name="message">Override progress text (progress in percent) rendered on bar.</param>
@@ -151,7 +145,7 @@ namespace ExifOrganizer.UI.Controls
             if (ProgressText != null)
                 return ProgressText;
 
-            return String.Format("{0}%", Math.Round(ProgressPercent, 1));
+            return $"{Math.Round(ProgressPercent, 1)}%";
         }
     }
 }

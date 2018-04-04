@@ -16,25 +16,16 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using ExifOrganizer.Organizer;
-using System.Reflection;
+using System;
 using System.Globalization;
-using System.Threading;
+using System.Windows.Forms;
 
 namespace ExifOrganizer.UI
 {
     public partial class Main : Form
     {
-        MediaOrganizer organizer = new MediaOrganizer();
+        private MediaOrganizer organizer = new MediaOrganizer();
 
         public Main()
         {
@@ -48,7 +39,7 @@ namespace ExifOrganizer.UI
 
         private void Main_Load(object sender, EventArgs e)
         {
-            infoVersion.Text = String.Format("Version: {0}", new Version(Application.ProductVersion).Get());
+            infoVersion.Text = $"Version: {new Version(Application.ProductVersion).Get()}";
 
             sourcePath.Text = organizer.sourcePath;
             destinationPath.Text = organizer.destinationPath;
@@ -129,7 +120,7 @@ namespace ExifOrganizer.UI
             }
         }
 
-        #endregion
+        #endregion Control events
 
         private void AbortProgress()
         {
@@ -147,9 +138,9 @@ namespace ExifOrganizer.UI
 
             double percent = value * 100.0;
             if (String.IsNullOrEmpty(message))
-                message = String.Format("{0}%", Math.Round(percent, 1));
+                message = $"{Math.Round(percent, 1)}%";
             else
-                message = String.Format("{0}% - {1}", Math.Round(percent, 1), message);
+                message = $"{Math.Round(percent, 1)}% - {message}";
 
             progress.SetProgress(value, message);
         }
@@ -223,7 +214,7 @@ namespace ExifOrganizer.UI
             ProgressEnded();
         }
 
-        #endregion
+        #endregion Parse
 
         #region Organize
 
@@ -254,6 +245,6 @@ namespace ExifOrganizer.UI
             ProgressEnded();
         }
 
-        #endregion
+        #endregion Organize
     }
 }

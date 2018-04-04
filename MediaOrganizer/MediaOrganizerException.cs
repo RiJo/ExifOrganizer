@@ -17,11 +17,7 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExifOrganizer.Organizer
 {
@@ -38,8 +34,8 @@ namespace ExifOrganizer.Organizer
         {
         }
 
-        protected MediaOrganizerException(SerializationInfo info, StreamingContext context) 
-            : base(info, context) 
+        protected MediaOrganizerException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
