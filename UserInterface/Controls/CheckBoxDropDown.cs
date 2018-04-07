@@ -133,13 +133,10 @@ namespace ExifOrganizer.UI.Controls
 
                 if (value)
                 {
-                    bool check = true;
-                    foreach (CheckBoxItem item in GetCheckBoxItems())
-                        check &= !item.Checked;
+                    bool check = GetCheckBoxItems().All(x => !x.Checked);
 
                     checkboxNone = new ToolStripCheckboxItem(new CheckBoxItem() { Value = 0, Text = TEXT_ITEM_NONE, Checked = check }, true, false);
                     checkboxNone.BackColor = this.BackColor;
-                    checkboxNone.Width = this.Width - 35;
                     checkboxNone.CheckedChanged += CheckedChangedNone;
                     popup.Items.Add(checkboxNone);
                 }
@@ -164,13 +161,10 @@ namespace ExifOrganizer.UI.Controls
 
                 if (value)
                 {
-                    bool check = true;
-                    foreach (CheckBoxItem item in GetCheckBoxItems())
-                        check &= item.Checked;
+                    bool check = GetCheckBoxItems().All(x => x.Checked);
 
                     checkboxAll = new ToolStripCheckboxItem(new CheckBoxItem() { Value = Int64.MaxValue, Text = TEXT_ITEM_ALL, Checked = check }, true, false);
                     checkboxAll.BackColor = this.BackColor;
-                    checkboxAll.Width = this.Width - 35;
                     checkboxAll.CheckedChanged += CheckedChangedAll;
                     popup.Items.Add(checkboxAll);
                 }
@@ -203,7 +197,6 @@ namespace ExifOrganizer.UI.Controls
         {
             ToolStripCheckboxItem tsi = new ToolStripCheckboxItem(item);
             tsi.BackColor = this.BackColor;
-            tsi.Width = this.Width - 35;
             tsi.CheckedChanged += CheckedChanged;
             popup.Items.Add(tsi);
 
@@ -214,21 +207,24 @@ namespace ExifOrganizer.UI.Controls
 
         protected void Remove(CheckBoxItem item)
         {
-            foreach (ToolStripCheckboxItem tsi in GetToolStripCheckboxItem())
+            int altered = 0;
+            foreach (ToolStripCheckboxItem tsi in GetToolStripCheckboxItems())
             {
                 if (tsi.Value == item.Value)
                 {
                     tsi.CheckedChanged -= CheckedChanged;
                     popup.Items.Remove(tsi);
+                    altered++;
                 }
             }
 
-            ItemsAltered();
+            if (altered > 0)
+                ItemsAltered();
         }
 
         protected void Update(CheckBoxItem item)
         {
-            foreach (ToolStripCheckboxItem tsi in GetToolStripCheckboxItem())
+            foreach (ToolStripCheckboxItem tsi in GetToolStripCheckboxItems())
             {
                 if (item.Value != tsi.Item.Value)
                     continue;
@@ -243,7 +239,9 @@ namespace ExifOrganizer.UI.Controls
 
         protected void Clear()
         {
-            // TODO: keep none and all intact during clear
+            if (popup.Items.Count == 0)
+                return;
+
             bool none = CheckBoxNone;
             bool all = CheckBoxAll;
 
@@ -280,7 +278,7 @@ namespace ExifOrganizer.UI.Controls
             if (checkboxAll != null)
                 checkboxAll.SetChecked(false);
 
-            foreach (ToolStripCheckboxItem item in GetToolStripCheckboxItem())
+            foreach (ToolStripCheckboxItem item in GetToolStripCheckboxItems())
             {
                 if (!item.Checked)
                     continue;
@@ -300,7 +298,7 @@ namespace ExifOrganizer.UI.Controls
             if (checkboxNone != null)
                 checkboxNone.SetChecked(false);
 
-            foreach (ToolStripCheckboxItem item in GetToolStripCheckboxItem())
+            foreach (ToolStripCheckboxItem item in GetToolStripCheckboxItems())
             {
                 if (item.Checked)
                     continue;
@@ -354,13 +352,10 @@ namespace ExifOrganizer.UI.Controls
 
         private IEnumerable<CheckBoxItem> GetCheckBoxItems()
         {
-            foreach (ToolStripCheckboxItem tsi in GetToolStripCheckboxItem())
-            {
-                yield return tsi.Item;
-            }
+            return GetToolStripCheckboxItems().Select(x => x.Item);
         }
 
-        private IEnumerable<ToolStripCheckboxItem> GetToolStripCheckboxItem()
+        private IEnumerable<ToolStripCheckboxItem> GetToolStripCheckboxItems()
         {
             foreach (ToolStripItem temp in popup.Items)
             {
@@ -383,10 +378,7 @@ namespace ExifOrganizer.UI.Controls
             if (checkedItemCount == totalItemCount)
                 return TEXT_ITEM_ALL;
 
-            List<string> names = new List<string>();
-            foreach (CheckBoxItem item in checkedItems)
-                names.Add(item.Text);
-            return String.Join(",", names.ToArray());
+            return String.Join(",", checkedItems.Select(x => x.Text));
         }
     }
 }
