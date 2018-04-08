@@ -17,6 +17,7 @@
 //
 
 using System;
+using System.Windows.Forms;
 
 namespace ExifOrganizer.UI
 {
@@ -88,5 +89,24 @@ namespace ExifOrganizer.UI
         {
             return $"{version.Major}.{version.Minor}.{version.Build} build {version.Revision}";
         }
+
+        #region WinForms
+
+        public static void Invoke(this Control control, Action action, params object[] args)
+        {
+            control.Invoke((Delegate)action, args);
+        }
+
+        public static object Invoke(this Control control, Func<object> func, params object[] args)
+        {
+            return control.Invoke((Delegate)func, args);
+        }
+
+        public static IAsyncResult BeginInvoke(this Control control, Action action, params object[] args)
+        {
+            return control.BeginInvoke((Delegate)action, args);
+        }
+
+        #endregion WinForms
     }
 }

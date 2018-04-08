@@ -129,10 +129,9 @@ namespace ExifOrganizer.UI
 
         private void ReportProgress(MediaOrganizer organizer, double value, string message)
         {
-            if (InvokeRequired)
+            if (this.InvokeRequired)
             {
-                Action<MediaOrganizer, double, string> action = new Action<MediaOrganizer, double, string>(ReportProgress);
-                BeginInvoke(action, organizer, value, message);
+                this.BeginInvoke(() => ReportProgress(organizer, value, message));
                 return;
             }
 
@@ -147,10 +146,9 @@ namespace ExifOrganizer.UI
 
         private void ProgressStarted()
         {
-            if (InvokeRequired)
+            if (this.InvokeRequired)
             {
-                Action action = new Action(ProgressStarted);
-                BeginInvoke(action);
+                this.BeginInvoke(() => ProgressStarted());
                 return;
             }
 
@@ -161,10 +159,9 @@ namespace ExifOrganizer.UI
 
         private void ProgressEnded()
         {
-            if (InvokeRequired)
+            if (this.InvokeRequired)
             {
-                Action action = new Action(ProgressEnded);
-                BeginInvoke(action);
+                this.BeginInvoke(() => ProgressEnded());
                 return;
             }
 
@@ -176,10 +173,9 @@ namespace ExifOrganizer.UI
 
         private async void ParseComplete(MediaOrganizer organizer, OrganizeSummary summary)
         {
-            if (InvokeRequired)
+            if (this.InvokeRequired)
             {
-                Action<MediaOrganizer, OrganizeSummary> action = new Action<MediaOrganizer, OrganizeSummary>(ParseComplete);
-                BeginInvoke(action, organizer, summary);
+                this.BeginInvoke(() => ParseComplete(organizer, summary));
                 return;
             }
 
@@ -202,10 +198,9 @@ namespace ExifOrganizer.UI
 
         private void ParseException(Exception ex)
         {
-            if (InvokeRequired)
+            if (this.InvokeRequired)
             {
-                Action<Exception> action = new Action<Exception>(ParseException);
-                BeginInvoke(action, ex);
+                this.BeginInvoke(() => ParseException(ex));
                 return;
             }
 
@@ -220,10 +215,9 @@ namespace ExifOrganizer.UI
 
         private void OrganizeComplete(MediaOrganizer organizer)
         {
-            if (InvokeRequired)
+            if (this.InvokeRequired)
             {
-                Action<MediaOrganizer> action = new Action<MediaOrganizer>(OrganizeComplete);
-                BeginInvoke(action, organizer);
+                this.BeginInvoke(() => OrganizeComplete(organizer));
                 return;
             }
 
@@ -233,10 +227,9 @@ namespace ExifOrganizer.UI
 
         private void OrganizeException(Exception ex)
         {
-            if (InvokeRequired)
+            if (this.InvokeRequired)
             {
-                Action<Exception> action = new Action<Exception>(OrganizeException);
-                BeginInvoke(action, ex);
+                this.BeginInvoke(() => OrganizeException(ex));
                 return;
             }
 
