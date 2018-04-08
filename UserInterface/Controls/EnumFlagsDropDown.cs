@@ -55,9 +55,13 @@ namespace ExifOrganizer.UI.Controls
                 if (!value.HasAttributesFlags())
                     throw new ArgumentException($"Enum type must have attribute flags: {value}");
 
+                if (value == enumType)
+                    return;
+
                 enumType = value;
                 enumValue = null;
 
+                Clear();
                 foreach (Enum item in Enum.GetValues(value))
                 {
                     if (!item.OneBitSet())
