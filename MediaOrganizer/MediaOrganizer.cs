@@ -320,7 +320,8 @@ namespace ExifOrganizer.Organizer
                 {
                     case CopyMode.OverwriteExisting:
                         overwrite = true;
-                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Force overwrite file: {destinationPath}");
+                        if (fileExists)
+                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] Force overwrite file: {destinationPath}");
                         break;
 
                     case CopyMode.KeepExisting:
@@ -357,7 +358,8 @@ namespace ExifOrganizer.Organizer
                             destinationPath = destinationInfo.SuffixFileName(index++);
                             fileExists = File.Exists(destinationPath);
                         }
-                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] New filename to prevent conflict: {destinationPath}");
+                        if (index > 1)
+                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] New filename to prevent conflict: {destinationPath}");
                         break;
 
                     default:
