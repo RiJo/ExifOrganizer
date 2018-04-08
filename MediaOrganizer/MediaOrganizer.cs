@@ -282,7 +282,6 @@ namespace ExifOrganizer.Organizer
         {
             PrepareDestinationPath();
 
-            // Copy items to destination path
             int itemCount = copyItems.items.Count;
             for (int i = 0; i < itemCount; i++)
             {
@@ -293,96 +292,98 @@ namespace ExifOrganizer.Organizer
                 if ((int)(progress * 10) % 2 == 0)
                     OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1 + (progress * (1.0 - PARSE_PROGRESS_FACTOR - 0.1)), $"Organizing {i + 1} of {itemCount}");
 
-                CopyItem item = copyItems.items[i];
+                CopySourceToDestination(copyItems.items[i]);
+            }
+        }
 
-                if (!Directory.Exists(Path.GetDirectoryName(item.destinationPath)))
-                {
-                    string destinationDirectory = Path.GetDirectoryName(item.destinationPath);
-                    try
-                    {
-                        Directory.CreateDirectory(destinationDirectory);
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ExceptionHandling == ExceptionHandling.Throw)
-                            throw new MediaOrganizerException($"Failed to create directory: {destinationDirectory}", ex);
-
-                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Ignored exception: {ex.Message}");
-                        continue;
-                    }
-                }
-
-                bool overwrite = false;
-                string destinationPath = item.destinationPath;
-                bool fileExists = File.Exists(destinationPath);
-
-                switch (CopyMode)
-                {
-                    case CopyMode.OverwriteExisting:
-                        overwrite = true;
-                        if (fileExists)
-                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] Force overwrite file: {destinationPath}");
-                        break;
-
-                    case CopyMode.KeepExisting:
-                        if (fileExists)
-                        {
-                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] Keep existing file: {destinationPath}");
-                            continue;
-                        }
-                        break;
-
-                    case CopyMode.KeepUnique:
-                        FileInfo sourceInfo = item.sourceInfo;
-                        FileInfo destinationInfo = new FileInfo(destinationPath);
-                        if (fileExists)
-                        {
-                            // Potentially slow, therefore previous optimizations
-                            if (sourceInfo.AreFilesIdentical(destinationInfo, FileComparator))
-                            {
-                                Trace.WriteLine($"[{nameof(MediaOrganizer)}] Duplicate file ignored: {item.sourcePath} (duplicate of {item.destinationPath})");
-                                continue;
-                            }
-                        }
-
-                        if (sourceInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator))
-                        {
-                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] Duplicate file ignored: {item.sourcePath} (exists in {destinationInfo.Directory})");
-                            continue; // Source file already exists in target directory
-                        }
-
-                        // Find next unused filename
-                        int index = 1;
-                        while (fileExists)
-                        {
-                            destinationPath = destinationInfo.SuffixFileName(index++);
-                            fileExists = File.Exists(destinationPath);
-                        }
-                        if (index > 1)
-                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] New filename to prevent conflict: {destinationPath}");
-                        break;
-
-                    default:
-                        throw new NotImplementedException($"CopyMode: {CopyMode}");
-                }
-
+        private void CopySourceToDestination(CopyItem item)
+        {
+            string destinationDirectory = Path.GetDirectoryName(item.destinationPath);
+            if (!Directory.Exists(destinationDirectory))
+            {
                 try
                 {
-                    File.Copy(item.sourcePath, destinationPath, overwrite);
-                    if (VerifyFiles)
-                    {
-                        if (!item.sourceInfo.AreFilesIdentical(new FileInfo(destinationPath), Organizer.FileComparator.Checksum))
-                            throw new MediaOrganizerException("File verification failed. Source: {0}. Destination: {1}", item.sourcePath, destinationPath);
-                    }
+                    Directory.CreateDirectory(destinationDirectory);
                 }
                 catch (Exception ex)
                 {
                     if (ExceptionHandling == ExceptionHandling.Throw)
-                        throw new MediaOrganizerException($"Failed to copy file. Mode: {CopyMode}. Overwrite: {overwrite}. Source: {item.sourcePath}. Destination: {item.destinationPath}", ex);
+                        throw new MediaOrganizerException($"Failed to create directory: {destinationDirectory}", ex);
 
                     Trace.WriteLine($"[{nameof(MediaOrganizer)}] Ignored exception: {ex.Message}");
-                    continue;
+                    return;
                 }
+            }
+
+            bool overwrite = false;
+            string destinationPath = item.destinationPath;
+            bool fileExists = File.Exists(destinationPath);
+
+            switch (CopyMode)
+            {
+                case CopyMode.OverwriteExisting:
+                    overwrite = true;
+                    if (fileExists)
+                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Force overwrite file: {destinationPath}");
+                    break;
+
+                case CopyMode.KeepExisting:
+                    if (fileExists)
+                    {
+                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Keep existing file: {destinationPath}");
+                        return;
+                    }
+                    break;
+
+                case CopyMode.KeepUnique:
+                    FileInfo sourceInfo = item.sourceInfo;
+                    FileInfo destinationInfo = new FileInfo(destinationPath);
+                    if (fileExists)
+                    {
+                        // Potentially slow, therefore previous optimizations
+                        if (sourceInfo.AreFilesIdentical(destinationInfo, FileComparator))
+                        {
+                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] Duplicate file ignored: {item.sourcePath} (duplicate of {destinationPath})");
+                            return;
+                        }
+                    }
+
+                    if (sourceInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator))
+                    {
+                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Duplicate file ignored: {item.sourcePath} (exists in {destinationInfo.Directory})");
+                        return; // Source file already exists in target directory
+                    }
+
+                    // Find next unused filename
+                    int index = 1;
+                    while (fileExists)
+                    {
+                        destinationPath = destinationInfo.SuffixFileName(index++);
+                        fileExists = File.Exists(destinationPath);
+                    }
+                    if (index > 1)
+                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] New filename to prevent conflict: {destinationPath}");
+                    break;
+
+                default:
+                    throw new NotImplementedException($"CopyMode: {CopyMode}");
+            }
+
+            try
+            {
+                File.Copy(item.sourcePath, destinationPath, overwrite);
+                if (VerifyFiles)
+                {
+                    if (!item.sourceInfo.AreFilesIdentical(new FileInfo(destinationPath), Organizer.FileComparator.Checksum))
+                        throw new MediaOrganizerException("File verification failed. Source: {0}. Destination: {1}", item.sourcePath, destinationPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (ExceptionHandling == ExceptionHandling.Throw)
+                    throw new MediaOrganizerException($"Failed to copy file. Mode: {CopyMode}. Overwrite: {overwrite}. Source: {item.sourcePath}. Destination: {destinationPath}", ex);
+
+                Trace.WriteLine($"[{nameof(MediaOrganizer)}] Ignored exception: {ex.Message}");
             }
         }
 
