@@ -19,6 +19,7 @@
 using ExifOrganizer.Meta;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -305,8 +306,9 @@ namespace ExifOrganizer.Organizer
                     {
                         if (ExceptionHandling == ExceptionHandling.Throw)
                             throw new MediaOrganizerException($"Failed to create directory: {destinationDirectory}", ex);
-                        else
-                            continue;
+
+                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Ignored exception: {ex.Message}");
+                        continue;
                     }
                 }
 
@@ -318,11 +320,15 @@ namespace ExifOrganizer.Organizer
                 {
                     case CopyMode.OverwriteExisting:
                         overwrite = true;
+                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Force overwrite file: {destinationPath}");
                         break;
 
                     case CopyMode.KeepExisting:
                         if (fileExists)
+                        {
+                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] Keep existing file: {destinationPath}");
                             continue;
+                        }
                         break;
 
                     case CopyMode.KeepUnique:
@@ -332,11 +338,17 @@ namespace ExifOrganizer.Organizer
                         {
                             // Potentially slow, therefore previous optimizations
                             if (sourceInfo.AreFilesIdentical(destinationInfo, FileComparator))
+                            {
+                                Trace.WriteLine($"[{nameof(MediaOrganizer)}] Duplicate file ignored: {item.sourcePath} (duplicate of {item.destinationPath})");
                                 continue;
+                            }
                         }
 
                         if (sourceInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator))
+                        {
+                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] Duplicate file ignored: {item.sourcePath} (exists in {destinationInfo.Directory})");
                             continue; // Source file already exists in target directory
+                        }
 
                         // Find next unused filename
                         int index = 1;
@@ -345,6 +357,7 @@ namespace ExifOrganizer.Organizer
                             destinationPath = destinationInfo.SuffixFileName(index++);
                             fileExists = File.Exists(destinationPath);
                         }
+                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] New filename to prevent conflict: {destinationPath}");
                         break;
 
                     default:
@@ -364,8 +377,9 @@ namespace ExifOrganizer.Organizer
                 {
                     if (ExceptionHandling == ExceptionHandling.Throw)
                         throw new MediaOrganizerException($"Failed to copy file. Mode: {CopyMode}. Overwrite: {overwrite}. Source: {item.sourcePath}. Destination: {item.destinationPath}", ex);
-                    else
-                        continue;
+
+                    Trace.WriteLine($"[{nameof(MediaOrganizer)}] Ignored exception: {ex.Message}");
+                    continue;
                 }
             }
         }
