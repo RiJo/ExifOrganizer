@@ -533,7 +533,7 @@ namespace ExifOrganizer.Meta.Parsers
                 foreach (PropertyItem item in items)
                 {
                     if (!Enum.IsDefined(typeof(ExifId), item.Id))
-                        Trace.Write($"Exif ID not defined: {item.Id:X}");
+                        Trace.WriteLine($"[{nameof(ExifParser)}] Exif ID not defined: {item.Id:X}");
 
                     ExifId id = (ExifId)item.Id;
                     ExifDataType type = (ExifDataType)item.Type;
