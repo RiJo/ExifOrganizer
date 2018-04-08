@@ -102,7 +102,7 @@ namespace ExifOrganizer.Organizer
                 lines.Add(line);
             }
 
-            File.WriteAllLines(filename, lines.ToArray());
+            File.WriteAllLines(filename, lines);
         }
     }
 }

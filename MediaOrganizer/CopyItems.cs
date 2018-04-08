@@ -29,13 +29,7 @@ namespace ExifOrganizer.Organizer
 
         public override string ToString()
         {
-            List<string> itemStrings = new List<string>();
-            if (items != null)
-            {
-                foreach (CopyItem item in items)
-                    itemStrings.Add(item.ToString());
-            }
-            return $"Copy: [{sourcePath}] ---> [{destinationPath}]{Environment.NewLine}Items:{Environment.NewLine}{String.Join(Environment.NewLine, itemStrings.ToArray())}";
+            return $"Copy: [{sourcePath}] ---> [{destinationPath}]{Environment.NewLine}Items:{Environment.NewLine}{String.Join(Environment.NewLine, items)}";
         }
     }
 }

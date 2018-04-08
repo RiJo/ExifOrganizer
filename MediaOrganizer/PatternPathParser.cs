@@ -94,7 +94,7 @@ namespace ExifOrganizer.Organizer
                     if (temp != null && temp.Length > 0)
                     {
                         // Store tag name
-                        string tagString = String.Join(TagSeparator, temp.Select(x => x.Trim()).ToArray());
+                        string tagString = String.Join(TagSeparator, temp.Select(x => x.Trim()));
                         tags[index] = tagString;
 
                         // Store tag timestamp
