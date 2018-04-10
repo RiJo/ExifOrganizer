@@ -20,6 +20,7 @@ using ExifOrganizer.Meta;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -107,6 +108,10 @@ namespace ExifOrganizer.Organizer
     {
         private const double PARSE_PROGRESS_FACTOR = 0.1;
 
+        public event Action<MediaOrganizer, ParseSummary> OnParseDone = delegate { };
+
+        public event Action<MediaOrganizer, OrganizeSummary> OnOrganizeDone = delegate { };
+
         public event Action<MediaOrganizer, double, string> OnProgress = delegate { };
 
         public string sourcePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
@@ -123,7 +128,6 @@ namespace ExifOrganizer.Organizer
         public bool VerifyFiles = true;
         public string[] IgnorePaths = null; // TODO: implement
 
-        private CopyItems copyItems;
         private bool workerRunning;
         private bool workerAborted;
 
@@ -217,14 +221,38 @@ namespace ExifOrganizer.Organizer
             OnProgress(this, 1.0, "Aborted");
         }
 
-        public ParseSummary Parse()
+        public void Organize()
         {
-            Task<ParseSummary> task = ParseAsync();
+            Task task = OrganizeAsync();
             task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
+            task.Wait();
         }
 
-        public async Task<ParseSummary> ParseAsync()
+        public async Task OrganizeAsync()
+        {
+            if (workerRunning)
+                throw new InvalidOperationException("Cannot start parsing: worker currently running");
+            workerRunning = true;
+            workerAborted = false;
+
+            try
+            {
+                dynamic temp = await ParseAsync();
+                OnParseDone(this, temp.Summary);
+
+                if (workerAborted)
+                    return;
+
+                OrganizeSummary organizeSummary = await OrganizeAsync(temp.Items);
+                OnOrganizeDone(this, organizeSummary);
+            }
+            finally
+            {
+                workerRunning = false;
+            }
+        }
+
+        private async Task<object> ParseAsync()
         {
             if (sourcePath.DirectoryAreSame(destinationPath))
             {
@@ -232,23 +260,21 @@ namespace ExifOrganizer.Organizer
                 throw new NotSupportedException("TODO");
             }
 
-            if (workerRunning)
-                throw new InvalidOperationException("Cannot start parsing: worker currently running");
-            workerRunning = true;
-            workerAborted = false;
-
             OnProgress(this, 0.0, "Parsing source");
 
             try
             {
                 ParseSummary summary = new ParseSummary();
 
-                copyItems = new CopyItems();
-                copyItems.sourcePath = sourcePath;
-                copyItems.destinationPath = destinationPath;
-                copyItems.items = await ParseItemsAsync(sourcePath, destinationPath, summary);
+                CopyItems items = new CopyItems();
+                items.sourcePath = sourcePath;
+                items.destinationPath = destinationPath;
+                items.items = await ParseItemsAsync(sourcePath, destinationPath, summary);
 
-                return summary;
+                dynamic result = new ExpandoObject();
+                result.Summary = summary;
+                result.Items = items;
+                return result;
             }
             catch (Exception)
             {
@@ -260,29 +286,14 @@ namespace ExifOrganizer.Organizer
             }
             finally
             {
-                workerRunning = false;
-
                 OnProgress(this, PARSE_PROGRESS_FACTOR, "Parsing complete");
             }
         }
 
-        public OrganizeSummary Organize()
+        private async Task<OrganizeSummary> OrganizeAsync(CopyItems items)
         {
-            Task<OrganizeSummary> task = OrganizeAsync();
-            task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
-        }
-
-        public async Task<OrganizeSummary> OrganizeAsync()
-        {
-            // TODO: solve in nicer manner
-            if (copyItems == null)
-                throw new InvalidOperationException("Parse() must be executed prior to Organize()");
-
-            if (workerRunning)
-                throw new InvalidOperationException("Cannot start parsing: worker currently running");
-            workerRunning = true;
-            workerAborted = false;
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
 
             OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1, "Prepare destination");
 
@@ -290,7 +301,7 @@ namespace ExifOrganizer.Organizer
             {
                 OrganizeSummary summary = new OrganizeSummary();
 
-                await Task.Run(() => OrganizationThread(summary));
+                await Task.Run(() => OrganizationThread(items, summary));
 
                 return summary;
             }
@@ -304,16 +315,15 @@ namespace ExifOrganizer.Organizer
             }
             finally
             {
-                workerRunning = false;
                 OnProgress(this, 1.0, "Organization complete");
             }
         }
 
-        private void OrganizationThread(OrganizeSummary summary)
+        private void OrganizationThread(CopyItems items, OrganizeSummary summary)
         {
-            PrepareDestinationPath();
+            PrepareDestinationPath(items);
 
-            int itemCount = copyItems.items.Count;
+            int itemCount = items.items.Count;
             for (int i = 0; i < itemCount; i++)
             {
                 if (workerAborted)
@@ -323,7 +333,7 @@ namespace ExifOrganizer.Organizer
                 if ((int)(progress * 10) % 2 == 0)
                     OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1 + (progress * (1.0 - PARSE_PROGRESS_FACTOR - 0.1)), $"Organizing {i + 1} of {itemCount}");
 
-                CopySourceToDestination(copyItems.items[i], summary);
+                CopySourceToDestination(items.items[i], summary);
             }
         }
 
@@ -432,12 +442,12 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        private void PrepareDestinationPath()
+        private void PrepareDestinationPath(CopyItems items)
         {
             // Setup destination path
-            if (!Directory.Exists(copyItems.destinationPath))
+            if (!Directory.Exists(items.destinationPath))
             {
-                Directory.CreateDirectory(copyItems.destinationPath);
+                Directory.CreateDirectory(items.destinationPath);
                 return;
             }
 
@@ -447,17 +457,17 @@ namespace ExifOrganizer.Organizer
                     break;
 
                 case CopyPrecondition.RequireEmpty:
-                    if (Directory.Exists(copyItems.destinationPath))
+                    if (Directory.Exists(items.destinationPath))
                     {
-                        if (Directory.GetFiles(copyItems.destinationPath).Length > 0)
-                            throw new MediaOrganizerException("Path contains files but is required to be empty: {0}", copyItems.destinationPath);
-                        if (Directory.GetDirectories(copyItems.destinationPath).Length > 0)
-                            throw new MediaOrganizerException("Path contains directories but is required to be empty: {0}", copyItems.destinationPath);
+                        if (Directory.GetFiles(items.destinationPath).Length > 0)
+                            throw new MediaOrganizerException("Path contains files but is required to be empty: {0}", items.destinationPath);
+                        if (Directory.GetDirectories(items.destinationPath).Length > 0)
+                            throw new MediaOrganizerException("Path contains directories but is required to be empty: {0}", items.destinationPath);
                     }
                     break;
 
                 case CopyPrecondition.WipeBefore:
-                    if (copyItems.sourcePath.DirectoryAreSame(copyItems.destinationPath))
+                    if (items.sourcePath.DirectoryAreSame(items.destinationPath))
                     {
                         // TODO: handle exceptions
                         // Move source/destination path to temporary place before copying
@@ -465,35 +475,35 @@ namespace ExifOrganizer.Organizer
                         try
                         {
                             File.Delete(tempSourcePath);
-                            Directory.Move(copyItems.sourcePath, tempSourcePath);
+                            Directory.Move(items.sourcePath, tempSourcePath);
                         }
                         catch (Exception ex)
                         {
                             throw new MediaOrganizerException($"Failed to generate temporary directory: {tempSourcePath}", ex);
                         }
-                        copyItems.sourcePath = tempSourcePath; // TODO: delete this path after organization
+                        items.sourcePath = tempSourcePath; // TODO: delete this path after organization
                     }
                     else
                     {
                         try
                         {
-                            Directory.Delete(copyItems.destinationPath, true);
+                            Directory.Delete(items.destinationPath, true);
                         }
                         catch (Exception ex)
                         {
-                            throw new MediaOrganizerException($"Failed to wipe destination path: {copyItems.destinationPath}", ex);
+                            throw new MediaOrganizerException($"Failed to wipe destination path: {items.destinationPath}", ex);
                         }
                     }
 
-                    if (!Directory.Exists(copyItems.destinationPath))
+                    if (!Directory.Exists(items.destinationPath))
                     {
                         try
                         {
-                            Directory.CreateDirectory(copyItems.destinationPath);
+                            Directory.CreateDirectory(items.destinationPath);
                         }
                         catch (Exception ex)
                         {
-                            throw new MediaOrganizerException($"Failed to create destination path: {copyItems.destinationPath}", ex);
+                            throw new MediaOrganizerException($"Failed to create destination path: {items.destinationPath}", ex);
                         }
                     }
                     break;
