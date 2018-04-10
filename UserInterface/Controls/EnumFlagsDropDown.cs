@@ -38,6 +38,12 @@ namespace ExifOrganizer.UI.Controls
             InitializeComponent();
         }
 
+        public Func<Enum, string> EnumText
+        {
+            get;
+            set;
+        }
+
         public Type EnumType
         {
             get { return enumType; }
@@ -51,9 +57,9 @@ namespace ExifOrganizer.UI.Controls
                 }
 
                 if (!value.IsEnum)
-                    throw new ArgumentException($"Type must be Enum: {value}");
+                    throw new ArgumentException($"Type must be Enum: {value}", nameof(value));
                 if (!value.HasAttributesFlags())
-                    throw new ArgumentException($"Enum type must have attribute flags: {value}");
+                    throw new ArgumentException($"Enum type must have attribute flags: {value}", nameof(value));
 
                 if (value == enumType)
                     return;
@@ -66,7 +72,7 @@ namespace ExifOrganizer.UI.Controls
                 {
                     if (!item.OneBitSet())
                         continue;
-                    Add(new CheckBoxItem() { Value = item.GetInt64(), Text = item.ToString() });
+                    Add(new CheckBoxItem() { Value = item.GetInt64(), Text = (EnumText != null) ? EnumText(item) : item.ToString() });
                 }
             }
         }
@@ -79,9 +85,9 @@ namespace ExifOrganizer.UI.Controls
                 if (value == null)
                     return;
                 if (enumType == null)
-                    throw new ArgumentException("Enum type not yet defined");
+                    throw new ArgumentException("Enum type not yet defined", nameof(enumType));
                 if (value.GetType() != enumType)
-                    throw new ArgumentException($"Value must be of predefined Enum type: {enumType}");
+                    throw new ArgumentException($"Value must be of predefined Enum type: {enumType}", nameof(value));
 
                 if (value == enumValue)
                     return;
@@ -101,7 +107,7 @@ namespace ExifOrganizer.UI.Controls
                     }
 
                     bool active = item.GetInt64() > 0 && enumValue.HasFlag(item);
-                    Update(new CheckBoxItem() { Value = item.GetInt64(), Text = item.ToString(), Checked = active });
+                    Update(new CheckBoxItem() { Value = item.GetInt64(), Text = (EnumText != null) ? EnumText(item) : item.ToString(), Checked = active });
                 }
             }
         }

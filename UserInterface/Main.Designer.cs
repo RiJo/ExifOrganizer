@@ -43,7 +43,7 @@ namespace ExifOrganizer.UI
             this.verifyFiles = new System.Windows.Forms.CheckBox();
             this.fileComparator = new ExifOrganizer.UI.Controls.EnumFlagsDropDown();
             this.infoCopyPrecondition = new System.Windows.Forms.Label();
-            this.copyPrecondition = new System.Windows.Forms.ComboBox();
+            this.copyPrecondition = new Controls.EnumDropDown();
             this.infoDestinationDirectory = new System.Windows.Forms.Label();
             this.infoCopyMode = new System.Windows.Forms.Label();
             this.infoLocalization = new System.Windows.Forms.Label();
@@ -54,7 +54,7 @@ namespace ExifOrganizer.UI
             this.patternVideo = new System.Windows.Forms.TextBox();
             this.patternImage = new System.Windows.Forms.TextBox();
             this.localization = new System.Windows.Forms.ComboBox();
-            this.copyMode = new System.Windows.Forms.ComboBox();
+            this.copyMode = new Controls.EnumDropDown();
             this.destinationPath = new ExifOrganizer.UI.Controls.FileBrowseControl();
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.infoVersion = new System.Windows.Forms.ToolStripStatusLabel();
@@ -225,7 +225,6 @@ namespace ExifOrganizer.UI
             // 
             this.copyPrecondition.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.copyPrecondition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.copyPrecondition.FormattingEnabled = true;
             this.copyPrecondition.Location = new System.Drawing.Point(103, 48);
             this.copyPrecondition.Name = "copyPrecondition";
@@ -328,7 +327,6 @@ namespace ExifOrganizer.UI
             // 
             this.copyMode.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.copyMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.copyMode.FormattingEnabled = true;
             this.copyMode.Location = new System.Drawing.Point(103, 75);
             this.copyMode.Name = "copyMode";
@@ -412,7 +410,7 @@ namespace ExifOrganizer.UI
         private System.Windows.Forms.GroupBox source;
         private System.Windows.Forms.GroupBox destination;
         private System.Windows.Forms.CheckBox recursive;
-        private System.Windows.Forms.ComboBox copyMode;
+        private Controls.EnumDropDown copyMode;
         private System.Windows.Forms.ComboBox localization;
         private System.Windows.Forms.TextBox patternAudio;
         private System.Windows.Forms.TextBox patternVideo;
@@ -428,7 +426,7 @@ namespace ExifOrganizer.UI
         private System.Windows.Forms.Label infoFileComparator;
         private Controls.ProgressBarText progress;
         private System.Windows.Forms.Label infoCopyPrecondition;
-        private System.Windows.Forms.ComboBox copyPrecondition;
+        private Controls.EnumDropDown copyPrecondition;
         private Controls.EnumFlagsDropDown fileComparator;
         private System.Windows.Forms.StatusStrip statusBar;
         private System.Windows.Forms.ToolStripStatusLabel infoVersion;

@@ -46,18 +46,46 @@ namespace ExifOrganizer.UI
             recursive.Checked = organizer.Recursive;
 
             // FileComparator enum
+            fileComparator.EnumText = value =>
+            {
+                switch ((FileComparator)value)
+                {
+                    case FileComparator.FileSize: return "File size";
+                    case FileComparator.ChecksumMD5: return "MD5";
+                    case FileComparator.ChecksumSHA1: return "SHA1";
+                    case FileComparator.ChecksumSHA256: return "SHA256";
+                    default: return value.ToString();
+                }
+            };
             fileComparator.EnumType = typeof(FileComparator);
             fileComparator.EnumValue = organizer.FileComparator;
 
             // CopyPrecondition enum
-            foreach (CopyPrecondition precondition in Enum.GetValues(typeof(CopyPrecondition)))
-                copyPrecondition.Items.Add(precondition);
-            copyPrecondition.SelectedItem = organizer.CopyPrecondition;
+            copyPrecondition.EnumText = value =>
+            {
+                switch ((CopyPrecondition)value)
+                {
+                    case CopyPrecondition.RequireEmpty: return "Require empty";
+                    case CopyPrecondition.WipeBefore: return "Wipe before";
+                    default: return value.ToString();
+                }
+            };
+            copyPrecondition.EnumType = typeof(CopyPrecondition);
+            copyPrecondition.EnumValue = organizer.CopyPrecondition;
 
             // CopyMode enum
-            foreach (CopyMode mode in Enum.GetValues(typeof(CopyMode)))
-                copyMode.Items.Add(mode);
-            copyMode.SelectedItem = organizer.CopyMode;
+            copyMode.EnumText = value =>
+            {
+                switch ((CopyMode)value)
+                {
+                    case CopyMode.KeepExisting: return "Keep existing";
+                    case CopyMode.KeepUnique: return "Keep unique";
+                    case CopyMode.OverwriteExisting: return "Overwrite existing";
+                    default: return value.ToString();
+                }
+            };
+            copyMode.EnumType = typeof(CopyMode);
+            copyMode.EnumValue = organizer.CopyMode;
 
             verifyFiles.Checked = organizer.VerifyFiles;
 

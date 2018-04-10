@@ -50,6 +50,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CLI.cs" />
+    <Compile Include="Controls\EnumDropDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\EnumDropDown.Designer.cs">
+      <DependentUpon>EnumDropDown.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\CheckBoxDropDown.cs" />
     <Compile Include="Controls\CheckBoxDropDown.Designer.cs">
       <DependentUpon>CheckBoxDropDown.cs</DependentUpon>
@@ -82,6 +88,9 @@
     <Compile Include="ParseArgs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Controls\EnumDropDown.resx">
+      <DependentUpon>EnumDropDown.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\CheckBoxDropDown.resx">
       <DependentUpon>CheckBoxDropDown.cs</DependentUpon>
     </EmbeddedResource>

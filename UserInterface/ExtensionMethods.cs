@@ -16,6 +16,7 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
+using ExifOrganizer.Organizer;
 using System;
 using System.Windows.Forms;
 
@@ -23,6 +24,8 @@ namespace ExifOrganizer.UI
 {
     public static class ExtensionMethods
     {
+        #region Generic
+
         public static int GetInt32(this Enum value)
         {
             if (value == null)
@@ -49,7 +52,7 @@ namespace ExifOrganizer.UI
         public static bool HasAttributesFlags(this Type type)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             object[] attributes = type.GetCustomAttributes(true);
             foreach (object attribute in attributes)
@@ -90,6 +93,8 @@ namespace ExifOrganizer.UI
             return $"{version.Major}.{version.Minor}.{version.Build} build {version.Revision}";
         }
 
+        #endregion Generic
+
         #region WinForms
 
         public static void Invoke(this Control control, Action action, params object[] args)
@@ -108,5 +113,19 @@ namespace ExifOrganizer.UI
         }
 
         #endregion WinForms
+
+        #region MediaOrganizer
+
+        //        public static string ToJSON(this OrganizeSummary)
+        //        {
+        //            return String.Format("Summary {{ Parsed: {0} (Ignored: {1}), Total files: {2}, Total directories: {3} }}",
+        //    parsed != null ? parsed.Length : 0,
+        //    ignored != null ? ignored.Length : 0,
+        //    totalFiles != null ? totalFiles.Length : 0,
+        //    totalDirectories != null ? totalDirectories.Length : 0
+        //);
+        //        }
+
+        #endregion MediaOrganizer
     }
 }
