@@ -32,6 +32,8 @@ namespace ExifOrganizer.UI
             InitializeComponent();
 
             organizer.LoadConfig();
+            organizer.OnParseDone += ParseComplete;
+            organizer.OnOrganizeDone += OrganizeComplete;
             organizer.OnProgress += ReportProgress;
         }
 
@@ -139,12 +141,11 @@ namespace ExifOrganizer.UI
 
             try
             {
-                ParseSummary summary = await organizer.ParseAsync();
-                ParseComplete(organizer, summary);
+                await organizer.OrganizeAsync();
             }
             catch (Exception ex)
             {
-                ParseException(ex);
+                OrganizeException(organizer, ex);
             }
         }
 
@@ -197,49 +198,20 @@ namespace ExifOrganizer.UI
             progress.Visible = false;
         }
 
-        #region Parse
-
-        private async void ParseComplete(MediaOrganizer organizer, ParseSummary parseSummary)
+        private void ParseComplete(MediaOrganizer organizer, ParseSummary summary)
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(() => ParseComplete(organizer, parseSummary));
+                this.BeginInvoke(() => ParseComplete(organizer, summary));
                 return;
             }
 
-            if (MessageBox.Show(parseSummary.ToString(), "Continue organization?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (MessageBox.Show(summary.ToString(), "Continue organization?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
             {
+                organizer.Abort();
                 ProgressEnded();
-                return;
-            }
-
-            try
-            {
-                OrganizeSummary organizeSummary = await organizer.OrganizeAsync();
-                OrganizeComplete(organizer, organizeSummary);
-            }
-            catch (Exception ex)
-            {
-                OrganizeException(ex);
             }
         }
-
-        private void ParseException(Exception ex)
-        {
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke(() => ParseException(ex));
-                return;
-            }
-
-            Exception innerException = ex.GetInnerMost();
-            MessageBox.Show(innerException.Message, "Media parse failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            ProgressEnded();
-        }
-
-        #endregion Parse
-
-        #region Organize
 
         private void OrganizeComplete(MediaOrganizer organizer, OrganizeSummary summary)
         {
@@ -253,19 +225,17 @@ namespace ExifOrganizer.UI
             ProgressEnded();
         }
 
-        private void OrganizeException(Exception ex)
+        private void OrganizeException(MediaOrganizer organizer, Exception exception)
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(() => OrganizeException(ex));
+                this.BeginInvoke(() => OrganizeException(organizer, exception));
                 return;
             }
 
-            Exception innerException = ex.GetInnerMost();
+            Exception innerException = exception.GetInnerMost();
             MessageBox.Show(innerException.Message, "Media organization failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             ProgressEnded();
         }
-
-        #endregion Organize
     }
 }
