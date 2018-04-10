@@ -315,7 +315,7 @@ namespace ExifOrganizer.UI.Controls
         private void ItemsAltered()
         {
             IEnumerable<CheckBoxItem> items = GetCheckBoxItems();
-            bool all = items.Count() > 0;
+            bool all = items.Any();
             bool none = true;
             foreach (CheckBoxItem item in items)
             {
