@@ -1,5 +1,5 @@
 ﻿//
-// CheckBoxDropDown.cs: User control to render checkboxes in a drop-down list.
+// EnumDropDown.cs: User control to render enum values in a drop-down list.
 //
 // Copyright (C) 2014 Rikard Johansson
 //
