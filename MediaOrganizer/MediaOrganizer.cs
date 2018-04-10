@@ -48,9 +48,11 @@ namespace ExifOrganizer.Organizer
     {
         None = 0x00,
         FileSize = 0x01,
-        Checksum = 0x02,
-        Created = 0x04,
-        Modified = 0x08,
+        Created = 0x02,
+        Modified = 0x04,
+        ChecksumMD5 = 0x08,
+        ChecksumSHA1 = 0x10,
+        ChecksumSHA256 = 0x20,
         All = 0xFF
     }
 
@@ -92,7 +94,7 @@ namespace ExifOrganizer.Organizer
         public string DestinationPatternVideo = @"%y/%m %M/Video/%t/%n.%e";
         public string DestinationPatternAudio = @"%y/%m %M/Audio/%t/%n.%e";
         public CopyPrecondition CopyPrecondition = CopyPrecondition.None;
-        public FileComparator FileComparator = FileComparator.FileSize | FileComparator.Checksum;
+        public FileComparator FileComparator = FileComparator.FileSize | FileComparator.ChecksumMD5;
         public CopyMode CopyMode = CopyMode.KeepUnique;
         public ExceptionHandling ExceptionHandling = ExceptionHandling.Throw;
         public bool VerifyFiles = true;
@@ -374,7 +376,7 @@ namespace ExifOrganizer.Organizer
                 File.Copy(item.sourcePath, destinationPath, overwrite);
                 if (VerifyFiles)
                 {
-                    if (!item.sourceInfo.AreFilesIdentical(new FileInfo(destinationPath), Organizer.FileComparator.Checksum))
+                    if (!item.sourceInfo.AreFilesIdentical(new FileInfo(destinationPath), Organizer.FileComparator.ChecksumMD5))
                         throw new MediaOrganizerException("File verification failed. Source: {0}. Destination: {1}", item.sourcePath, destinationPath);
                 }
             }

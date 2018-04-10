@@ -30,19 +30,31 @@ namespace ExifOrganizer.Organizer
         public FileInfo sourceInfo;
         public Dictionary<MetaKey, object> meta;
 
-        private string checksum;
+        private Dictionary<string, string> checksums = new Dictionary<string, string>();
 
         public CopyItem()
         {
         }
 
-        public string GetChecksum()
+        public string GetChecksumMD5()
         {
-            if (!String.IsNullOrEmpty(checksum))
-                return checksum;
+            if (!checksums.ContainsKey("md5"))
+                checksums["md5"] = sourceInfo.GetMD5Sum();
+            return checksums["md5"];
+        }
 
-            checksum = sourceInfo.GetMD5Sum();
-            return checksum;
+        public string GetChecksumSHA1()
+        {
+            if (!checksums.ContainsKey("sha1"))
+                checksums["sha1"] = sourceInfo.GetSHA1Sum();
+            return checksums["sha1"];
+        }
+
+        public string GetChecksumSHA256()
+        {
+            if (!checksums.ContainsKey("sha256"))
+                checksums["sha256"] = sourceInfo.GetSHA256Sum();
+            return checksums["sha256"];
         }
 
         public override string ToString()

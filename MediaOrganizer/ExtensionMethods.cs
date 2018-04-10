@@ -37,9 +37,9 @@ namespace ExifOrganizer.Organizer
         public static bool AreFilesIdentical(this FileInfo fileInfo, FileInfo otherFile, FileComparator comparator)
         {
             if (fileInfo == null)
-                throw new ArgumentNullException("fileInfo");
+                throw new ArgumentNullException(nameof(fileInfo));
             if (otherFile == null)
-                throw new ArgumentNullException("otherFile");
+                throw new ArgumentNullException(nameof(otherFile));
             if (!fileInfo.Exists)
                 return false;
             if (!otherFile.Exists)
@@ -48,8 +48,12 @@ namespace ExifOrganizer.Organizer
             bool identical = true;
             if (identical && comparator.HasFlag(FileComparator.FileSize))
                 identical &= (fileInfo.Length == otherFile.Length);
-            if (identical && comparator.HasFlag(FileComparator.Checksum))
+            if (identical && comparator.HasFlag(FileComparator.ChecksumMD5))
                 identical &= fileInfo.GetMD5Sum() == otherFile.GetMD5Sum();
+            if (identical && comparator.HasFlag(FileComparator.ChecksumSHA1))
+                identical &= fileInfo.GetSHA1Sum() == otherFile.GetSHA1Sum();
+            if (identical && comparator.HasFlag(FileComparator.ChecksumSHA256))
+                identical &= fileInfo.GetSHA256Sum() == otherFile.GetSHA256Sum();
             if (identical && comparator.HasFlag(FileComparator.Created))
                 identical &= (fileInfo.CreationTimeUtc == otherFile.CreationTimeUtc);
             if (identical && comparator.HasFlag(FileComparator.Modified))
@@ -60,9 +64,9 @@ namespace ExifOrganizer.Organizer
         public static string SuffixFileName(this FileInfo fileInfo, int index)
         {
             if (fileInfo == null)
-                throw new ArgumentNullException("fileInfo");
+                throw new ArgumentNullException(nameof(fileInfo));
             if (index < 0)
-                throw new ArgumentException("index");
+                throw new ArgumentException(nameof(index));
 
             string path = fileInfo.DirectoryName;
             string fileName = Path.GetFileNameWithoutExtension(fileInfo.FullName);
@@ -73,18 +77,34 @@ namespace ExifOrganizer.Organizer
 
         public static string GetMD5Sum(this FileInfo fileInfo)
         {
+            using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
+                return fileInfo.CalculateChecksum(md5);
+        }
+
+        public static string GetSHA1Sum(this FileInfo fileInfo)
+        {
+            using (SHA256Managed sha1 = new SHA256Managed())
+                return fileInfo.CalculateChecksum(sha1);
+        }
+
+        public static string GetSHA256Sum(this FileInfo fileInfo)
+        {
+            using (SHA1Managed sha1 = new SHA1Managed())
+                return fileInfo.CalculateChecksum(sha1);
+        }
+
+        private static string CalculateChecksum(this FileInfo fileInfo, HashAlgorithm algorithm)
+        {
             if (fileInfo == null)
-                throw new ArgumentNullException("fileInfo");
+                throw new ArgumentNullException(nameof(fileInfo));
             if (!fileInfo.Exists)
                 throw new FileNotFoundException(fileInfo.FullName);
 
-            string filename = fileInfo.FullName;
-            using (FileStream stream = File.OpenRead(filename))
+            using (FileStream stream = File.OpenRead(fileInfo.FullName))
             {
-                using (var bufferedStream = new BufferedStream(stream, 1024 * 32))
+                using (BufferedStream bufferedStream = new BufferedStream(stream))
                 {
-                    var sha = new MD5CryptoServiceProvider();
-                    byte[] checksum = sha.ComputeHash(bufferedStream);
+                    byte[] checksum = algorithm.ComputeHash(bufferedStream);
                     return BitConverter.ToString(checksum).Replace("-", String.Empty);
                 }
             }
