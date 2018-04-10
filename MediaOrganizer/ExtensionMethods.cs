@@ -83,14 +83,14 @@ namespace ExifOrganizer.Organizer
 
         public static string GetSHA1Sum(this FileInfo fileInfo)
         {
-            using (SHA256Managed sha1 = new SHA256Managed())
+            using (SHA1Managed sha1 = new SHA1Managed())
                 return fileInfo.CalculateChecksum(sha1);
         }
 
         public static string GetSHA256Sum(this FileInfo fileInfo)
         {
-            using (SHA1Managed sha1 = new SHA1Managed())
-                return fileInfo.CalculateChecksum(sha1);
+            using (SHA256Managed sha256 = new SHA256Managed())
+                return fileInfo.CalculateChecksum(sha256);
         }
 
         private static string CalculateChecksum(this FileInfo fileInfo, HashAlgorithm algorithm)
