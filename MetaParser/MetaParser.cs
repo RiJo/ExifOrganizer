@@ -44,7 +44,7 @@ namespace ExifOrganizer.Meta
         public static async Task<IEnumerable<MetaData>> ParseAsync(string path, MetaParserConfig config)
         {
             if (path == null)
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
 
             if (Directory.Exists(path))
                 return await ParseDirectoryAsync(path, config);
@@ -64,7 +64,7 @@ namespace ExifOrganizer.Meta
         public static Task<MetaData> ParseFileAsync(string path, MetaParserConfig config)
         {
             if (String.IsNullOrEmpty(path))
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
             if (!File.Exists(path))
                 throw new MetaParseException("File not found: {0}", path);
 
@@ -123,7 +123,7 @@ namespace ExifOrganizer.Meta
         public static async Task<IEnumerable<MetaData>> ParseDirectoryAsync(string path, MetaParserConfig config)
         {
             if (String.IsNullOrEmpty(path))
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
             if (!Directory.Exists(path))
                 throw new MetaParseException("Directory not found: {0}", path);
 
