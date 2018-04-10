@@ -1,5 +1,5 @@
 ﻿//
-// MediaOrganizer.cs: Static class to organize media files.
+// MediaOrganizer.cs: Helper class to organize media files.
 //
 // Copyright (C) 2014 Rikard Johansson
 //
@@ -62,7 +62,7 @@ namespace ExifOrganizer.Organizer
         Ignore,
     }
 
-    public class OrganizeSummary
+    public class ParseSummary
     {
         public string[] parsed;
         public string[] ignored;
@@ -76,6 +76,29 @@ namespace ExifOrganizer.Organizer
                 ignored != null ? ignored.Length : 0,
                 totalFiles != null ? totalFiles.Length : 0,
                 totalDirectories != null ? totalDirectories.Length : 0
+            );
+        }
+    }
+
+    public class OrganizeSummary
+    {
+        public HashSet<string> sources = new HashSet<string>();
+        public HashSet<string> destinations = new HashSet<string>();
+        public HashSet<string> modified = new HashSet<string>();
+        public Dictionary<string, string> overwritten = new Dictionary<string, string>();
+        public Dictionary<string, string> skipped = new Dictionary<string, string>();
+        public Dictionary<string, string> duplicates = new Dictionary<string, string>();
+        public Dictionary<string, string> renamed = new Dictionary<string, string>();
+
+        public override string ToString()
+        {
+            return String.Format("Summary {{ Total files: {0}, Modified: {1}, Overwritten: {2}, Skipped: {3}, Duplicates: {4}, Renamed: {5} }}",
+                sources.Count,
+                modified.Count,
+                overwritten.Count,
+                skipped.Count,
+                duplicates.Count,
+                renamed.Count
             );
         }
     }
@@ -194,14 +217,14 @@ namespace ExifOrganizer.Organizer
             OnProgress(this, 1.0, "Aborted");
         }
 
-        public OrganizeSummary Parse()
+        public ParseSummary Parse()
         {
-            Task<OrganizeSummary> task = ParseAsync();
+            Task<ParseSummary> task = ParseAsync();
             task.ConfigureAwait(false); // Prevent deadlock of caller
             return task.Result;
         }
 
-        public async Task<OrganizeSummary> ParseAsync()
+        public async Task<ParseSummary> ParseAsync()
         {
             if (sourcePath.DirectoryAreSame(destinationPath))
             {
@@ -218,7 +241,7 @@ namespace ExifOrganizer.Organizer
 
             try
             {
-                OrganizeSummary summary = new OrganizeSummary();
+                ParseSummary summary = new ParseSummary();
 
                 copyItems = new CopyItems();
                 copyItems.sourcePath = sourcePath;
@@ -243,14 +266,14 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        public void Organize()
+        public OrganizeSummary Organize()
         {
-            Task task = OrganizeAsync();
+            Task<OrganizeSummary> task = OrganizeAsync();
             task.ConfigureAwait(false); // Prevent deadlock of caller
-            task.Wait();
+            return task.Result;
         }
 
-        public async Task OrganizeAsync()
+        public async Task<OrganizeSummary> OrganizeAsync()
         {
             // TODO: solve in nicer manner
             if (copyItems == null)
@@ -265,12 +288,18 @@ namespace ExifOrganizer.Organizer
 
             try
             {
-                await Task.Run(() => OrganizationThread());
+                OrganizeSummary summary = new OrganizeSummary();
+
+                await Task.Run(() => OrganizationThread(summary));
+
+                return summary;
             }
             catch (Exception)
             {
 #if DEBUG
                 throw;
+#else
+                return null;
 #endif
             }
             finally
@@ -280,7 +309,7 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        private void OrganizationThread()
+        private void OrganizationThread(OrganizeSummary summary)
         {
             PrepareDestinationPath();
 
@@ -294,11 +323,11 @@ namespace ExifOrganizer.Organizer
                 if ((int)(progress * 10) % 2 == 0)
                     OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1 + (progress * (1.0 - PARSE_PROGRESS_FACTOR - 0.1)), $"Organizing {i + 1} of {itemCount}");
 
-                CopySourceToDestination(copyItems.items[i]);
+                CopySourceToDestination(copyItems.items[i], summary);
             }
         }
 
-        private void CopySourceToDestination(CopyItem item)
+        private void CopySourceToDestination(CopyItem item, OrganizeSummary summary)
         {
             string destinationDirectory = Path.GetDirectoryName(item.destinationPath);
             if (!Directory.Exists(destinationDirectory))
@@ -317,54 +346,67 @@ namespace ExifOrganizer.Organizer
                 }
             }
 
+            summary.sources.Add(item.sourcePath);
+            summary.destinations.Add(item.destinationPath);
+
             bool overwrite = false;
-            string destinationPath = item.destinationPath;
-            bool fileExists = File.Exists(destinationPath);
+            string targetDestinationPath = item.destinationPath; // Note: path may be altered later on to resolve conflicts
+            bool fileExists = File.Exists(targetDestinationPath);
 
             switch (CopyMode)
             {
                 case CopyMode.OverwriteExisting:
                     overwrite = true;
                     if (fileExists)
-                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Force overwrite file: {destinationPath}");
+                    {
+                        summary.overwritten[item.sourcePath] = targetDestinationPath;
+                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Force overwrite file: {targetDestinationPath}");
+                    }
                     break;
 
                 case CopyMode.KeepExisting:
                     if (fileExists)
                     {
-                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Keep existing file: {destinationPath}");
+                        summary.skipped[item.sourcePath] = targetDestinationPath;
+                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Keep existing file: {targetDestinationPath}");
                         return;
                     }
                     break;
 
                 case CopyMode.KeepUnique:
                     FileInfo sourceInfo = item.sourceInfo;
-                    FileInfo destinationInfo = new FileInfo(destinationPath);
+                    FileInfo destinationInfo = new FileInfo(targetDestinationPath);
                     if (fileExists)
                     {
                         // Potentially slow, therefore previous optimizations
                         if (sourceInfo.AreFilesIdentical(destinationInfo, FileComparator))
                         {
-                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] Duplicate file ignored: {item.sourcePath} (duplicate of {destinationPath})");
+                            summary.duplicates[item.sourcePath] = targetDestinationPath;
+                            Trace.WriteLine($"[{nameof(MediaOrganizer)}] Duplicate file ignored: {item.sourcePath} (duplicate of {targetDestinationPath})");
                             return;
                         }
                     }
 
                     if (sourceInfo.FileExistsInDirectory(destinationInfo.Directory, FileComparator))
                     {
+                        summary.duplicates[item.sourcePath] = destinationInfo.Directory.FullName;
                         Trace.WriteLine($"[{nameof(MediaOrganizer)}] Duplicate file ignored: {item.sourcePath} (exists in {destinationInfo.Directory})");
                         return; // Source file already exists in target directory
                     }
 
                     // Find next unused filename
+                    string originalDestinationPath = targetDestinationPath;
                     int index = 1;
                     while (fileExists)
                     {
-                        destinationPath = destinationInfo.SuffixFileName(index++);
-                        fileExists = File.Exists(destinationPath);
+                        targetDestinationPath = destinationInfo.SuffixFileName(index++);
+                        fileExists = File.Exists(targetDestinationPath);
                     }
-                    if (index > 1)
-                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] New filename to prevent conflict: {destinationPath}");
+                    if (targetDestinationPath != originalDestinationPath)
+                    {
+                        summary.renamed[originalDestinationPath] = targetDestinationPath;
+                        Trace.WriteLine($"[{nameof(MediaOrganizer)}] Renamed to prevent conflict: {targetDestinationPath} (original: {originalDestinationPath})");
+                    }
                     break;
 
                 default:
@@ -373,17 +415,18 @@ namespace ExifOrganizer.Organizer
 
             try
             {
-                File.Copy(item.sourcePath, destinationPath, overwrite);
+                File.Copy(item.sourcePath, targetDestinationPath, overwrite);
+                summary.modified.Add(targetDestinationPath);
                 if (VerifyFiles)
                 {
-                    if (!item.sourceInfo.AreFilesIdentical(new FileInfo(destinationPath), Organizer.FileComparator.ChecksumMD5))
-                        throw new MediaOrganizerException("File verification failed. Source: {0}. Destination: {1}", item.sourcePath, destinationPath);
+                    if (!item.sourceInfo.AreFilesIdentical(new FileInfo(targetDestinationPath), Organizer.FileComparator.ChecksumMD5))
+                        throw new MediaOrganizerException("File verification failed. Source: {0}. Destination: {1}", item.sourcePath, targetDestinationPath);
                 }
             }
             catch (Exception ex)
             {
                 if (ExceptionHandling == ExceptionHandling.Throw)
-                    throw new MediaOrganizerException($"Failed to copy file. Mode: {CopyMode}. Overwrite: {overwrite}. Source: {item.sourcePath}. Destination: {destinationPath}", ex);
+                    throw new MediaOrganizerException($"Failed to copy file. Mode: {CopyMode}. Overwrite: {overwrite}. Source: {item.sourcePath}. Destination: {targetDestinationPath}", ex);
 
                 Trace.WriteLine($"[{nameof(MediaOrganizer)}] Ignored exception: {ex.Message}");
             }
@@ -460,7 +503,7 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        private async Task<List<CopyItem>> ParseItemsAsync(string sourcePath, string destinationPath, OrganizeSummary summary)
+        private async Task<List<CopyItem>> ParseItemsAsync(string sourcePath, string destinationPath, ParseSummary summary)
         {
             List<string> ignore = new List<string>();
             if (IgnorePaths != null)
