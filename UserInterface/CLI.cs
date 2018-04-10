@@ -107,13 +107,12 @@ namespace ExifOrganizer.UI
             organizer.Locale = Thread.CurrentThread.CurrentUICulture;
 
             if (String.IsNullOrEmpty(source))
-                throw new ArgumentException("No source path given (-s)");
+                throw new ArgumentException("No source path given (-s)", nameof(source));
             if (String.IsNullOrEmpty(destination))
-                throw new ArgumentException("No destination path given (-d)");
+                throw new ArgumentException("No destination path given (-d)", nameof(destination));
 
             try
             {
-                organizer.Parse();
                 organizer.Organize();
                 Console.WriteLine("Media organization completed successfully");
                 return 0;
