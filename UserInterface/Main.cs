@@ -126,8 +126,8 @@ namespace ExifOrganizer.UI
             organizer.destinationPath = destinationPath.SelectedPath;
             organizer.Recursive = recursive.Checked;
             organizer.FileComparator = (FileComparator)fileComparator.EnumValue;
-            organizer.CopyPrecondition = (CopyPrecondition)copyPrecondition.SelectedItem;
-            organizer.CopyMode = (CopyMode)copyMode.SelectedItem;
+            organizer.CopyPrecondition = (CopyPrecondition)copyPrecondition.EnumValue;
+            organizer.CopyMode = (CopyMode)copyMode.EnumValue;
             organizer.VerifyFiles = verifyFiles.Checked;
             organizer.DestinationPatternImage = patternImage.Text;
             organizer.DestinationPatternVideo = patternVideo.Text;
@@ -139,7 +139,7 @@ namespace ExifOrganizer.UI
 
             try
             {
-                OrganizeSummary summary = await organizer.ParseAsync();
+                ParseSummary summary = await organizer.ParseAsync();
                 ParseComplete(organizer, summary);
             }
             catch (Exception ex)
@@ -199,15 +199,15 @@ namespace ExifOrganizer.UI
 
         #region Parse
 
-        private async void ParseComplete(MediaOrganizer organizer, OrganizeSummary summary)
+        private async void ParseComplete(MediaOrganizer organizer, ParseSummary parseSummary)
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(() => ParseComplete(organizer, summary));
+                this.BeginInvoke(() => ParseComplete(organizer, parseSummary));
                 return;
             }
 
-            if (MessageBox.Show(summary.ToString(), "Continue organization?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (MessageBox.Show(parseSummary.ToString(), "Continue organization?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
             {
                 ProgressEnded();
                 return;
@@ -215,8 +215,8 @@ namespace ExifOrganizer.UI
 
             try
             {
-                await organizer.OrganizeAsync();
-                OrganizeComplete(organizer);
+                OrganizeSummary organizeSummary = await organizer.OrganizeAsync();
+                OrganizeComplete(organizer, organizeSummary);
             }
             catch (Exception ex)
             {
@@ -241,15 +241,15 @@ namespace ExifOrganizer.UI
 
         #region Organize
 
-        private void OrganizeComplete(MediaOrganizer organizer)
+        private void OrganizeComplete(MediaOrganizer organizer, OrganizeSummary summary)
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke(() => OrganizeComplete(organizer));
+                this.BeginInvoke(() => OrganizeComplete(organizer, summary));
                 return;
             }
 
-            MessageBox.Show("Media organization completed successfully", "Media organization done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(summary.ToString(), "Media organization done", MessageBoxButtons.OK, MessageBoxIcon.Information);
             ProgressEnded();
         }
 
