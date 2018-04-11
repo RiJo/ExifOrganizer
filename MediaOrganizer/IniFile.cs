@@ -54,7 +54,7 @@ namespace ExifOrganizer.Organizer
         public void Load(string filename)
         {
             if (String.IsNullOrEmpty(filename))
-                throw new ArgumentNullException("filename");
+                throw new ArgumentNullException(nameof(filename));
             if (!File.Exists(filename))
                 throw new FileNotFoundException(filename);
 
@@ -93,7 +93,7 @@ namespace ExifOrganizer.Organizer
         public void Save(string filename)
         {
             if (String.IsNullOrEmpty(filename))
-                throw new ArgumentNullException("filename");
+                throw new ArgumentNullException(nameof(filename));
 
             List<string> lines = new List<string>();
             foreach (KeyValuePair<string, string> kvp in this)
