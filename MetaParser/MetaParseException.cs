@@ -16,16 +16,17 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
+using ExifOrganizer.Common;
 using System;
 using System.Runtime.Serialization;
 
 namespace ExifOrganizer.Meta
 {
     [Serializable]
-    public class MetaParseException : Exception
+    public class MetaParseException : CommonException
     {
         public MetaParseException(string message, params object[] args)
-            : base(String.Format(message, args))
+            : base(message, args)
         {
         }
 

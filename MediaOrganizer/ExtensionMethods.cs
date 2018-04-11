@@ -16,6 +16,7 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
+using ExifOrganizer.Common;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -59,90 +60,6 @@ namespace ExifOrganizer.Organizer
             if (identical && comparator.HasFlag(FileComparator.Modified))
                 identical &= (fileInfo.LastWriteTimeUtc == otherFile.LastWriteTimeUtc);
             return identical;
-        }
-
-        public static string SuffixFileName(this FileInfo fileInfo, int index)
-        {
-            if (fileInfo == null)
-                throw new ArgumentNullException(nameof(fileInfo));
-            if (index < 0)
-                throw new ArgumentException(nameof(index));
-
-            string path = fileInfo.DirectoryName;
-            string fileName = Path.GetFileNameWithoutExtension(fileInfo.FullName);
-            string extension = Path.GetExtension(fileInfo.FullName);
-
-            return $"{path}\\{fileName}({index}){extension}";
-        }
-
-        public static string GetMD5Sum(this FileInfo fileInfo)
-        {
-            using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
-                return fileInfo.CalculateChecksum(md5);
-        }
-
-        public static string GetSHA1Sum(this FileInfo fileInfo)
-        {
-            using (SHA1Managed sha1 = new SHA1Managed())
-                return fileInfo.CalculateChecksum(sha1);
-        }
-
-        public static string GetSHA256Sum(this FileInfo fileInfo)
-        {
-            using (SHA256Managed sha256 = new SHA256Managed())
-                return fileInfo.CalculateChecksum(sha256);
-        }
-
-        private static string CalculateChecksum(this FileInfo fileInfo, HashAlgorithm algorithm)
-        {
-            if (fileInfo == null)
-                throw new ArgumentNullException(nameof(fileInfo));
-            if (!fileInfo.Exists)
-                throw new FileNotFoundException(fileInfo.FullName);
-
-            using (FileStream stream = File.OpenRead(fileInfo.FullName))
-            {
-                using (BufferedStream bufferedStream = new BufferedStream(stream))
-                {
-                    byte[] checksum = algorithm.ComputeHash(bufferedStream);
-                    return BitConverter.ToString(checksum).Replace("-", String.Empty);
-                }
-            }
-        }
-
-        public static string ReplaceInvalidPathChars(this string path, char replacement = '_')
-        {
-            foreach (char invalidChar in Path.GetInvalidPathChars())
-                path = path.Replace(invalidChar, replacement);
-            return path;
-        }
-
-        public static bool ToBool(this object value)
-        {
-            if (value == null)
-                throw new ArgumentNullException("value");
-
-            string s = value.ToString().ToLower();
-            return !(s == "0" || s == "false");
-        }
-
-        public static T ToEnum<T>(this object value) where T : struct
-        {
-            if (value == null)
-                throw new ArgumentNullException("value");
-
-            string s = value.ToString();
-            long i;
-            if (long.TryParse(s, out i))
-            {
-                // Interpret as numeric enum value
-                return (T)(object)i;
-            }
-            else
-            {
-                // Interpret as string enum name
-                return (T)Enum.Parse(typeof(T), s);
-            }
         }
     }
 }

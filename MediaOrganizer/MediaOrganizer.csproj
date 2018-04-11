@@ -51,6 +51,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{06a0bc9e-9100-4877-89a6-f5798bd3c7a3}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MetaParser\MetaParser.csproj">
       <Project>{19204b12-e95e-405f-9604-52de1411c8b1}</Project>
       <Name>MetaParser</Name>

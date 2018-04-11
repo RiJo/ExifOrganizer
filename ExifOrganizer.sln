@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2015
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserInterface", "UserInterface\UserInterface.csproj", "{8F6FD0D9-E15F-4701-961E-3075BFB1CDA5}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaOrganizer", "MediaOrganizer\MediaOrganizer.csproj", "{626F29DA-4334-4E7E-8D9A-B2353BB37FC1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaQuerier", "MediaQuerier\MediaQuerier.csproj", "{7070940A-C83F-4D3D-BDE4-55AEE58A9385}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{06A0BC9E-9100-4877-89A6-F5798BD3C7A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,8 +35,15 @@ Global
 		{7070940A-C83F-4D3D-BDE4-55AEE58A9385}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7070940A-C83F-4D3D-BDE4-55AEE58A9385}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7070940A-C83F-4D3D-BDE4-55AEE58A9385}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06A0BC9E-9100-4877-89A6-F5798BD3C7A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06A0BC9E-9100-4877-89A6-F5798BD3C7A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06A0BC9E-9100-4877-89A6-F5798BD3C7A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06A0BC9E-9100-4877-89A6-F5798BD3C7A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {53403212-6FFE-46A1-A7D6-262A8003B79E}
 	EndGlobalSection
 EndGlobal

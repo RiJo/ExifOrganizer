@@ -1,7 +1,7 @@
 ﻿//
-// MediaQuerierException.cs: Custom exception class.
+// CommonException.cs: Custom exception class.
 //
-// Copyright (C) 2016 Rikard Johansson
+// Copyright (C) 2018 Rikard Johansson
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by the Free
@@ -16,26 +16,25 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
-using ExifOrganizer.Common;
 using System;
 using System.Runtime.Serialization;
 
-namespace ExifOrganizer.Querier
+namespace ExifOrganizer.Common
 {
     [Serializable]
-    public class MediaQuerierException : CommonException
+    public class CommonException : Exception
     {
-        public MediaQuerierException(string message, params object[] args)
-            : base(message, args)
+        public CommonException(string message, params object[] args)
+            : base(String.Format(message, args))
         {
         }
 
-        public MediaQuerierException(string message, Exception innerException)
+        public CommonException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        protected MediaQuerierException(SerializationInfo info, StreamingContext context)
+        protected CommonException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

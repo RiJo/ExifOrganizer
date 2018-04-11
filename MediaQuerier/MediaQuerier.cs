@@ -16,6 +16,7 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
+using ExifOrganizer.Common;
 using ExifOrganizer.Meta;
 using System;
 using System.Collections.Generic;
@@ -99,14 +100,16 @@ namespace ExifOrganizer.Querier
                         string md5item;
                         if (!md5sums.TryGetValue(item.Path, out md5item))
                         {
-                            md5item = GetMD5(item.Path);
+                            using (FileStream fileStream = File.OpenRead(item.Path))
+                                md5item = fileStream.GetMD5Sum();
                             md5sums[item.Path] = md5item;
                         }
 
                         string md5other;
                         if (!md5sums.TryGetValue(other.Path, out md5other))
                         {
-                            md5other = GetMD5(other.Path);
+                            using (FileStream fileStream = File.OpenRead(other.Path))
+                                md5other = fileStream.GetMD5Sum();
                             md5sums[other.Path] = md5other;
                         }
 
@@ -122,14 +125,16 @@ namespace ExifOrganizer.Querier
                         string sha1item;
                         if (!sha1sums.TryGetValue(item.Path, out sha1item))
                         {
-                            sha1item = GetSHA1(item.Path);
+                            using (FileStream fileStream = File.OpenRead(item.Path))
+                                sha1item = fileStream.GetSHA1Sum();
                             sha1sums[item.Path] = sha1item;
                         }
 
                         string sha1other;
                         if (!sha1sums.TryGetValue(other.Path, out sha1other))
                         {
-                            sha1other = GetSHA1(other.Path);
+                            using (FileStream fileStream = File.OpenRead(other.Path))
+                                sha1other = fileStream.GetSHA1Sum();
                             sha1sums[other.Path] = sha1other;
                         }
 
@@ -145,14 +150,16 @@ namespace ExifOrganizer.Querier
                         string sha256item;
                         if (!sha256sums.TryGetValue(item.Path, out sha256item))
                         {
-                            sha256item = GetSHA256(item.Path);
+                            using (FileStream fileStream = File.OpenRead(item.Path))
+                                sha256item = fileStream.GetSHA256Sum();
                             sha256sums[item.Path] = sha256item;
                         }
 
                         string sha256other;
                         if (!sha256sums.TryGetValue(other.Path, out sha256other))
                         {
-                            sha256other = GetSHA256(other.Path);
+                            using (FileStream fileStream = File.OpenRead(other.Path))
+                                sha256other = fileStream.GetSHA256Sum();
                             sha256sums[other.Path] = sha256other;
                         }
 
@@ -191,39 +198,6 @@ namespace ExifOrganizer.Querier
             QuerySummary result = new QuerySummary();
             result.duplicates = duplicates;
             return result;
-        }
-
-        private static string GetMD5(string path)
-        {
-            using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
-                return CalculateChecksum(path, md5);
-        }
-
-        private static string GetSHA1(string path)
-        {
-            using (SHA1Managed sha1 = new SHA1Managed())
-                return CalculateChecksum(path, sha1);
-        }
-
-        private static string GetSHA256(string path)
-        {
-            using (SHA256Managed sha256 = new SHA256Managed())
-                return CalculateChecksum(path, sha256);
-        }
-
-        private static string CalculateChecksum(string path, HashAlgorithm algorithm)
-        {
-            if (path == null)
-                throw new ArgumentNullException(nameof(path));
-
-            using (FileStream stream = File.OpenRead(path))
-            {
-                using (BufferedStream bufferedStream = new BufferedStream(stream))
-                {
-                    byte[] checksum = algorithm.ComputeHash(bufferedStream);
-                    return BitConverter.ToString(checksum).Replace("-", String.Empty);
-                }
-            }
         }
 
         public async Task<IEnumerable<MetaData>> GetMetaData(string sourcePath, bool recursive, params MetaType[] types)

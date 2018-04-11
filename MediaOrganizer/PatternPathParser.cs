@@ -16,6 +16,7 @@
 // this program. If not, see http://www.gnu.org/licenses/.
 //
 
+using ExifOrganizer.Common;
 using ExifOrganizer.Meta;
 using System;
 using System.Collections.Generic;
