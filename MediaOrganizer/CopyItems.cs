@@ -21,15 +21,14 @@ using System.Collections.Generic;
 
 namespace ExifOrganizer.Organizer
 {
-    public class CopyItems
+    public class CopyItems : List<CopyItem>
     {
         public string sourcePath;
         public string destinationPath;
-        public List<CopyItem> items;
 
         public override string ToString()
         {
-            return $"Copy: [{sourcePath}] ---> [{destinationPath}]{Environment.NewLine}Items:{Environment.NewLine}{String.Join(Environment.NewLine, items)}";
+            return $"Copy: [{sourcePath}] ---> [{destinationPath}]{Environment.NewLine}Items:{Environment.NewLine}{String.Join(Environment.NewLine, this)}";
         }
     }
 }

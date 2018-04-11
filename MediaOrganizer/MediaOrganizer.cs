@@ -265,11 +265,7 @@ namespace ExifOrganizer.Organizer
             try
             {
                 ParseSummary summary = new ParseSummary();
-
-                CopyItems items = new CopyItems();
-                items.sourcePath = sourcePath;
-                items.destinationPath = destinationPath;
-                items.items = await ParseItemsAsync(sourcePath, destinationPath, summary);
+                CopyItems items = await ParseItemsAsync(sourcePath, destinationPath, summary);
 
                 dynamic result = new ExpandoObject();
                 result.Summary = summary;
@@ -323,7 +319,7 @@ namespace ExifOrganizer.Organizer
         {
             PrepareDestinationPath(items);
 
-            int itemCount = items.items.Count;
+            int itemCount = items.Count;
             for (int i = 0; i < itemCount; i++)
             {
                 if (workerAborted)
@@ -333,7 +329,7 @@ namespace ExifOrganizer.Organizer
                 if ((int)(progress * 10) % 2 == 0)
                     OnProgress(this, PARSE_PROGRESS_FACTOR + 0.1 + (progress * (1.0 - PARSE_PROGRESS_FACTOR - 0.1)), $"Organizing {i + 1} of {itemCount}");
 
-                CopySourceToDestination(items.items[i], summary);
+                CopySourceToDestination(items[i], summary);
             }
         }
 
@@ -513,7 +509,7 @@ namespace ExifOrganizer.Organizer
             }
         }
 
-        private async Task<List<CopyItem>> ParseItemsAsync(string sourcePath, string destinationPath, ParseSummary summary)
+        private async Task<CopyItems> ParseItemsAsync(string sourcePath, string destinationPath, ParseSummary summary)
         {
             List<string> ignore = new List<string>();
             if (IgnorePaths != null)
@@ -539,7 +535,11 @@ namespace ExifOrganizer.Organizer
             HashSet<string> directories = new HashSet<string>();
             HashSet<string> valid = new HashSet<string>();
             HashSet<string> ignored = new HashSet<string>();
-            List<CopyItem> items = new List<CopyItem>();
+
+            CopyItems items = new CopyItems();
+            items.sourcePath = sourcePath;
+            items.destinationPath = destinationPath;
+
             foreach (MetaData meta in data)
             {
                 if (workerAborted)
