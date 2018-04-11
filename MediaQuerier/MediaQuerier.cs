@@ -36,8 +36,10 @@ namespace ExifOrganizer.Querier
         EqualFileNameDifferentChecksumMD5 = 0x08,
         EqualChecksumSHA1 = 0x10,
         EqualFileNameDifferentChecksumSHA1 = 0x20,
-        LowResolution = 0x40,
-        EqualFileNameDifferentResolution = 0x80,
+        EqualChecksumSHA256 = 0x40,
+        EqualFileNameDifferentChecksumSHA256 = 0x80,
+        LowResolution = 0x100,
+        EqualFileNameDifferentResolution = 0x200,
         All = 0xFF
     }
 
@@ -73,6 +75,7 @@ namespace ExifOrganizer.Querier
             Dictionary<string, IEnumerable<Tuple<string, QueryType>>> duplicates = new Dictionary<string, IEnumerable<Tuple<string, QueryType>>>();
             Dictionary<string, string> md5sums = new Dictionary<string, string>();
             Dictionary<string, string> sha1sums = new Dictionary<string, string>();
+            Dictionary<string, string> sha256sums = new Dictionary<string, string>();
             IEnumerable<MetaData> data = await GetMetaData(sourcePath, recursive, types);
             foreach (MetaData item in data.Where(x => x.Type != MetaType.Directory && x.Type != MetaType.File))
             {
@@ -137,6 +140,29 @@ namespace ExifOrganizer.Querier
                             match |= QueryType.EqualFileNameDifferentChecksumSHA1;
                     }
 
+                    if (queries.HasFlag(QueryType.EqualChecksumSHA256) || queries.HasFlag(QueryType.EqualFileNameDifferentChecksumSHA256))
+                    {
+                        string sha256item;
+                        if (!sha256sums.TryGetValue(item.Path, out sha256item))
+                        {
+                            sha256item = GetSHA256(item.Path);
+                            sha256sums[item.Path] = sha256item;
+                        }
+
+                        string sha256other;
+                        if (!sha256sums.TryGetValue(other.Path, out sha256other))
+                        {
+                            sha256other = GetSHA256(other.Path);
+                            sha256sums[other.Path] = sha256other;
+                        }
+
+                        bool sha256match = sha256item.Equals(sha256other, StringComparison.Ordinal);
+                        if (queries.HasFlag(QueryType.EqualChecksumSHA256) && sha256match)
+                            match |= QueryType.EqualChecksumSHA256;
+                        if (queries.HasFlag(QueryType.EqualFileNameDifferentChecksumSHA256) && equalFilename && !sha256match)
+                            match |= QueryType.EqualFileNameDifferentChecksumSHA256;
+                    }
+
                     if ((queries.HasFlag(QueryType.LowResolution) || queries.HasFlag(QueryType.EqualFileNameDifferentResolution)) && item.Data.ContainsKey(MetaKey.Resolution))
                     {
                         //const int limit = 960 * 1280;
@@ -167,32 +193,35 @@ namespace ExifOrganizer.Querier
             return result;
         }
 
-        private static string GetMD5(string filename)
+        private static string GetMD5(string path)
         {
-            using (FileStream stream = File.OpenRead(filename))
-            {
-                using (var bufferedStream = new BufferedStream(stream, 1024 * 32))
-                {
-                    using (MD5 md5 = MD5.Create())
-                    {
-                        byte[] checksum = md5.ComputeHash(bufferedStream);
-                        return BitConverter.ToString(checksum).Replace("-", String.Empty);
-                    }
-                }
-            }
+            using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
+                return CalculateChecksum(path, md5);
         }
 
-        private static string GetSHA1(string filename)
+        private static string GetSHA1(string path)
         {
-            using (FileStream stream = File.OpenRead(filename))
+            using (SHA1Managed sha1 = new SHA1Managed())
+                return CalculateChecksum(path, sha1);
+        }
+
+        private static string GetSHA256(string path)
+        {
+            using (SHA256Managed sha256 = new SHA256Managed())
+                return CalculateChecksum(path, sha256);
+        }
+
+        private static string CalculateChecksum(string path, HashAlgorithm algorithm)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
+            using (FileStream stream = File.OpenRead(path))
             {
-                using (var bufferedStream = new BufferedStream(stream, 1024 * 32))
+                using (BufferedStream bufferedStream = new BufferedStream(stream))
                 {
-                    using (SHA1 sha1 = SHA1.Create())
-                    {
-                        byte[] checksum = sha1.ComputeHash(bufferedStream);
-                        return BitConverter.ToString(checksum).Replace("-", String.Empty);
-                    }
+                    byte[] checksum = algorithm.ComputeHash(bufferedStream);
+                    return BitConverter.ToString(checksum).Replace("-", String.Empty);
                 }
             }
         }
