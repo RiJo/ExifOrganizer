@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ExifOrganizer.Meta</RootNamespace>
-    <AssemblyName>MetaParser</AssemblyName>
+    <AssemblyName>ExifOrganizer.Meta</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

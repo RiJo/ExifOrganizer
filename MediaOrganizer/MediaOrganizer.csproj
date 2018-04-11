@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ExifOrganizer.Organizer</RootNamespace>
-    <AssemblyName>MediaOrganizer</AssemblyName>
+    <AssemblyName>ExifOrganizer.Organizer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
