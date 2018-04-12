@@ -126,7 +126,7 @@ namespace ExifOrganizer.Organizer
         public FileComparator FileComparator = FileComparator.FileSize | FileComparator.ChecksumMD5;
         public CopyMode CopyMode = CopyMode.KeepUnique;
         public ExceptionHandling ExceptionHandling = ExceptionHandling.Throw;
-        public bool VerifyFiles = true;
+        public FileComparator FileVerification = FileComparator.ChecksumMD5;
         public string[] IgnorePaths = null; // TODO: implement
 
         private bool workerRunning;
@@ -178,8 +178,8 @@ namespace ExifOrganizer.Organizer
                 CopyMode = iniFile["copyMode"].ToEnum<CopyMode>();
             if (iniFile.ContainsKey("exceptionHandling"))
                 ExceptionHandling = iniFile["exceptionHandling"].ToEnum<ExceptionHandling>();
-            if (iniFile.ContainsKey("verifyFiles"))
-                VerifyFiles = iniFile["verifyFiles"].ToBool();
+            if (iniFile.ContainsKey("fileVerification"))
+                FileVerification = iniFile["fileVerification"].ToEnum<FileComparator>();
         }
 
         public void SaveConfig()
@@ -196,7 +196,7 @@ namespace ExifOrganizer.Organizer
             iniFile["comparator"] = FileComparator.ToString();
             iniFile["copyMode"] = CopyMode.ToString();
             iniFile["exceptionHandling"] = ExceptionHandling.ToString();
-            iniFile["verifyFiles"] = VerifyFiles ? "1" : "0";
+            iniFile["fileVerification"] = FileVerification.ToString();
 
             string iniFilePath = IniConfigFileName;
             iniFile.TrySave(iniFilePath);
@@ -424,9 +424,9 @@ namespace ExifOrganizer.Organizer
             {
                 File.Copy(item.sourcePath, targetDestinationPath, overwrite);
                 summary.modified.Add(targetDestinationPath);
-                if (VerifyFiles)
+                if (FileVerification != FileComparator.None)
                 {
-                    if (!item.sourceInfo.AreFilesIdentical(new FileInfo(targetDestinationPath), Organizer.FileComparator.ChecksumMD5))
+                    if (!item.sourceInfo.AreFilesIdentical(new FileInfo(targetDestinationPath), FileVerification))
                         throw new MediaOrganizerException("File verification failed. Source: {0}. Destination: {1}", item.sourcePath, targetDestinationPath);
                 }
             }
