@@ -108,6 +108,12 @@ namespace ExifOrganizer.UI
             patternImage.Text = organizer.DestinationPatternImage;
             patternAudio.Text = organizer.DestinationPatternAudio;
             patternVideo.Text = organizer.DestinationPatternVideo;
+
+            ToolTip patternToolTip = new ToolTip() { IsBalloon = true, InitialDelay = 100, ReshowDelay = 500 };
+            string patternUsage = PatternPathParser.GetUsageText();
+            patternToolTip.SetToolTip(patternImage, patternUsage);
+            patternToolTip.SetToolTip(patternAudio, patternUsage);
+            patternToolTip.SetToolTip(patternVideo, patternUsage);
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
