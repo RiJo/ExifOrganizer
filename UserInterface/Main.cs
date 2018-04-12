@@ -47,21 +47,6 @@ namespace ExifOrganizer.UI
             destinationPath.Text = organizer.destinationPath;
             recursive.Checked = organizer.Recursive;
 
-            // FileComparator enum
-            fileComparator.EnumText = value =>
-            {
-                switch ((FileComparator)value)
-                {
-                    case FileComparator.FileSize: return "File size";
-                    case FileComparator.ChecksumMD5: return "MD5";
-                    case FileComparator.ChecksumSHA1: return "SHA1";
-                    case FileComparator.ChecksumSHA256: return "SHA256";
-                    default: return value.ToString();
-                }
-            };
-            fileComparator.EnumType = typeof(FileComparator);
-            fileComparator.EnumValue = organizer.FileComparator;
-
             // CopyPrecondition enum
             copyPrecondition.EnumText = value =>
             {
@@ -89,7 +74,27 @@ namespace ExifOrganizer.UI
             copyMode.EnumType = typeof(CopyMode);
             copyMode.EnumValue = organizer.CopyMode;
 
-            verifyFiles.Checked = organizer.VerifyFiles;
+            Func<Enum, string> fileComparatorText = value =>
+            {
+                switch ((FileComparator)value)
+                {
+                    case FileComparator.FileSize: return "File size";
+                    case FileComparator.ChecksumMD5: return "MD5";
+                    case FileComparator.ChecksumSHA1: return "SHA1";
+                    case FileComparator.ChecksumSHA256: return "SHA256";
+                    default: return value.ToString();
+                }
+            };
+
+            // FileComparator enum
+            fileComparator.EnumText = fileComparatorText;
+            fileComparator.EnumType = typeof(FileComparator);
+            fileComparator.EnumValue = organizer.FileComparator;
+
+            // FileComparator enum
+            fileVerification.EnumText = fileComparatorText;
+            fileVerification.EnumType = typeof(FileComparator);
+            fileVerification.EnumValue = organizer.FileVerification;
 
             // CultureInfo localization
             foreach (CultureInfo culture in CultureInfo.GetCultures(CultureTypes.AllCultures))
@@ -130,7 +135,7 @@ namespace ExifOrganizer.UI
             organizer.FileComparator = (FileComparator)fileComparator.EnumValue;
             organizer.CopyPrecondition = (CopyPrecondition)copyPrecondition.EnumValue;
             organizer.CopyMode = (CopyMode)copyMode.EnumValue;
-            organizer.VerifyFiles = verifyFiles.Checked;
+            organizer.FileVerification = (FileComparator)fileVerification.EnumValue;
             organizer.DestinationPatternImage = patternImage.Text;
             organizer.DestinationPatternVideo = patternVideo.Text;
             organizer.DestinationPatternAudio = patternAudio.Text;

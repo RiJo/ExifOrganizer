@@ -39,11 +39,10 @@ namespace ExifOrganizer.UI
             this.sourcePath = new ExifOrganizer.UI.Controls.FileBrowseControl();
             this.infoFileComparator = new System.Windows.Forms.Label();
             this.destination = new System.Windows.Forms.GroupBox();
-            this.infoVerifyFiles = new System.Windows.Forms.Label();
-            this.verifyFiles = new System.Windows.Forms.CheckBox();
+            this.infoFileVerification = new System.Windows.Forms.Label();
             this.fileComparator = new ExifOrganizer.UI.Controls.EnumFlagsDropDown();
             this.infoCopyPrecondition = new System.Windows.Forms.Label();
-            this.copyPrecondition = new Controls.EnumDropDown();
+            this.copyPrecondition = new ExifOrganizer.UI.Controls.EnumDropDown();
             this.infoDestinationDirectory = new System.Windows.Forms.Label();
             this.infoCopyMode = new System.Windows.Forms.Label();
             this.infoLocalization = new System.Windows.Forms.Label();
@@ -54,11 +53,12 @@ namespace ExifOrganizer.UI
             this.patternVideo = new System.Windows.Forms.TextBox();
             this.patternImage = new System.Windows.Forms.TextBox();
             this.localization = new System.Windows.Forms.ComboBox();
-            this.copyMode = new Controls.EnumDropDown();
+            this.copyMode = new ExifOrganizer.UI.Controls.EnumDropDown();
             this.destinationPath = new ExifOrganizer.UI.Controls.FileBrowseControl();
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.infoVersion = new System.Windows.Forms.ToolStripStatusLabel();
             this.progress = new ExifOrganizer.UI.Controls.ProgressBarText();
+            this.fileVerification = new ExifOrganizer.UI.Controls.EnumFlagsDropDown();
             this.source.SuspendLayout();
             this.destination.SuspendLayout();
             this.statusBar.SuspendLayout();
@@ -67,7 +67,7 @@ namespace ExifOrganizer.UI
             // organize
             // 
             this.organize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.organize.Location = new System.Drawing.Point(272, 359);
+            this.organize.Location = new System.Drawing.Point(302, 363);
             this.organize.Name = "organize";
             this.organize.Size = new System.Drawing.Size(75, 23);
             this.organize.TabIndex = 13;
@@ -85,7 +85,7 @@ namespace ExifOrganizer.UI
             this.source.Controls.Add(this.sourcePath);
             this.source.Location = new System.Drawing.Point(12, 12);
             this.source.Name = "source";
-            this.source.Size = new System.Drawing.Size(335, 74);
+            this.source.Size = new System.Drawing.Size(365, 74);
             this.source.TabIndex = 0;
             this.source.TabStop = false;
             this.source.Text = "Source";
@@ -127,7 +127,7 @@ namespace ExifOrganizer.UI
             this.sourcePath.Name = "sourcePath";
             this.sourcePath.ReadOnly = false;
             this.sourcePath.SelectedPath = "";
-            this.sourcePath.Size = new System.Drawing.Size(226, 23);
+            this.sourcePath.Size = new System.Drawing.Size(256, 23);
             this.sourcePath.TabIndex = 1;
             // 
             // infoFileComparator
@@ -144,8 +144,8 @@ namespace ExifOrganizer.UI
             this.destination.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.destination.Controls.Add(this.infoVerifyFiles);
-            this.destination.Controls.Add(this.verifyFiles);
+            this.destination.Controls.Add(this.fileVerification);
+            this.destination.Controls.Add(this.infoFileVerification);
             this.destination.Controls.Add(this.infoFileComparator);
             this.destination.Controls.Add(this.fileComparator);
             this.destination.Controls.Add(this.infoCopyPrecondition);
@@ -164,28 +164,19 @@ namespace ExifOrganizer.UI
             this.destination.Controls.Add(this.destinationPath);
             this.destination.Location = new System.Drawing.Point(12, 92);
             this.destination.Name = "destination";
-            this.destination.Size = new System.Drawing.Size(335, 261);
+            this.destination.Size = new System.Drawing.Size(365, 265);
             this.destination.TabIndex = 3;
             this.destination.TabStop = false;
             this.destination.Text = "Destination";
             // 
-            // infoVerifyFiles
+            // infoFileVerification
             // 
-            this.infoVerifyFiles.AutoSize = true;
-            this.infoVerifyFiles.Location = new System.Drawing.Point(6, 130);
-            this.infoVerifyFiles.Name = "infoVerifyFiles";
-            this.infoVerifyFiles.Size = new System.Drawing.Size(54, 13);
-            this.infoVerifyFiles.TabIndex = 12;
-            this.infoVerifyFiles.Text = "Verify files";
-            // 
-            // verifyFiles
-            // 
-            this.verifyFiles.AutoSize = true;
-            this.verifyFiles.Location = new System.Drawing.Point(103, 129);
-            this.verifyFiles.Name = "verifyFiles";
-            this.verifyFiles.Size = new System.Drawing.Size(15, 14);
-            this.verifyFiles.TabIndex = 11;
-            this.verifyFiles.UseVisualStyleBackColor = true;
+            this.infoFileVerification.AutoSize = true;
+            this.infoFileVerification.Location = new System.Drawing.Point(6, 132);
+            this.infoFileVerification.Name = "infoFileVerification";
+            this.infoFileVerification.Size = new System.Drawing.Size(77, 13);
+            this.infoFileVerification.TabIndex = 12;
+            this.infoFileVerification.Text = "File verification";
             // 
             // fileComparator
             // 
@@ -194,6 +185,7 @@ namespace ExifOrganizer.UI
             this.fileComparator.CheckBoxAll = true;
             this.fileComparator.CheckBoxNone = true;
             this.fileComparator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.fileComparator.EnumText = null;
             this.fileComparator.EnumType = null;
             this.fileComparator.EnumValue = null;
             this.fileComparator.FormattingEnabled = true;
@@ -206,10 +198,11 @@ namespace ExifOrganizer.UI
             "<None>",
             "<None>",
             "<None>",
+            "<None>",
             "All"});
             this.fileComparator.Location = new System.Drawing.Point(103, 102);
             this.fileComparator.Name = "fileComparator";
-            this.fileComparator.Size = new System.Drawing.Size(151, 21);
+            this.fileComparator.Size = new System.Drawing.Size(181, 21);
             this.fileComparator.TabIndex = 7;
             // 
             // infoCopyPrecondition
@@ -225,10 +218,14 @@ namespace ExifOrganizer.UI
             // 
             this.copyPrecondition.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.copyPrecondition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.copyPrecondition.EnumText = null;
+            this.copyPrecondition.EnumType = null;
+            this.copyPrecondition.EnumValue = null;
             this.copyPrecondition.FormattingEnabled = true;
             this.copyPrecondition.Location = new System.Drawing.Point(103, 48);
             this.copyPrecondition.Name = "copyPrecondition";
-            this.copyPrecondition.Size = new System.Drawing.Size(151, 21);
+            this.copyPrecondition.Size = new System.Drawing.Size(181, 21);
             this.copyPrecondition.TabIndex = 5;
             // 
             // infoDestinationDirectory
@@ -252,7 +249,7 @@ namespace ExifOrganizer.UI
             // infoLocalization
             // 
             this.infoLocalization.AutoSize = true;
-            this.infoLocalization.Location = new System.Drawing.Point(6, 152);
+            this.infoLocalization.Location = new System.Drawing.Point(6, 159);
             this.infoLocalization.Name = "infoLocalization";
             this.infoLocalization.Size = new System.Drawing.Size(63, 13);
             this.infoLocalization.TabIndex = 6;
@@ -261,7 +258,7 @@ namespace ExifOrganizer.UI
             // infoPatternImage
             // 
             this.infoPatternImage.AutoSize = true;
-            this.infoPatternImage.Location = new System.Drawing.Point(6, 179);
+            this.infoPatternImage.Location = new System.Drawing.Point(6, 186);
             this.infoPatternImage.Name = "infoPatternImage";
             this.infoPatternImage.Size = new System.Drawing.Size(72, 13);
             this.infoPatternImage.TabIndex = 7;
@@ -270,7 +267,7 @@ namespace ExifOrganizer.UI
             // infoPatternVideo
             // 
             this.infoPatternVideo.AutoSize = true;
-            this.infoPatternVideo.Location = new System.Drawing.Point(6, 205);
+            this.infoPatternVideo.Location = new System.Drawing.Point(6, 212);
             this.infoPatternVideo.Name = "infoPatternVideo";
             this.infoPatternVideo.Size = new System.Drawing.Size(70, 13);
             this.infoPatternVideo.TabIndex = 8;
@@ -279,7 +276,7 @@ namespace ExifOrganizer.UI
             // infoPatternAudio
             // 
             this.infoPatternAudio.AutoSize = true;
-            this.infoPatternAudio.Location = new System.Drawing.Point(6, 231);
+            this.infoPatternAudio.Location = new System.Drawing.Point(6, 238);
             this.infoPatternAudio.Name = "infoPatternAudio";
             this.infoPatternAudio.Size = new System.Drawing.Size(70, 13);
             this.infoPatternAudio.TabIndex = 9;
@@ -289,27 +286,27 @@ namespace ExifOrganizer.UI
             // 
             this.patternAudio.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.patternAudio.Location = new System.Drawing.Point(103, 228);
+            this.patternAudio.Location = new System.Drawing.Point(103, 235);
             this.patternAudio.Name = "patternAudio";
-            this.patternAudio.Size = new System.Drawing.Size(226, 20);
+            this.patternAudio.Size = new System.Drawing.Size(256, 20);
             this.patternAudio.TabIndex = 11;
             // 
             // patternVideo
             // 
             this.patternVideo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.patternVideo.Location = new System.Drawing.Point(103, 202);
+            this.patternVideo.Location = new System.Drawing.Point(103, 209);
             this.patternVideo.Name = "patternVideo";
-            this.patternVideo.Size = new System.Drawing.Size(226, 20);
+            this.patternVideo.Size = new System.Drawing.Size(256, 20);
             this.patternVideo.TabIndex = 10;
             // 
             // patternImage
             // 
             this.patternImage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.patternImage.Location = new System.Drawing.Point(103, 176);
+            this.patternImage.Location = new System.Drawing.Point(103, 183);
             this.patternImage.Name = "patternImage";
-            this.patternImage.Size = new System.Drawing.Size(226, 20);
+            this.patternImage.Size = new System.Drawing.Size(256, 20);
             this.patternImage.TabIndex = 9;
             // 
             // localization
@@ -318,19 +315,23 @@ namespace ExifOrganizer.UI
             | System.Windows.Forms.AnchorStyles.Right)));
             this.localization.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.localization.FormattingEnabled = true;
-            this.localization.Location = new System.Drawing.Point(103, 149);
+            this.localization.Location = new System.Drawing.Point(103, 156);
             this.localization.Name = "localization";
-            this.localization.Size = new System.Drawing.Size(151, 21);
+            this.localization.Size = new System.Drawing.Size(181, 21);
             this.localization.TabIndex = 8;
             // 
             // copyMode
             // 
             this.copyMode.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.copyMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.copyMode.EnumText = null;
+            this.copyMode.EnumType = null;
+            this.copyMode.EnumValue = null;
             this.copyMode.FormattingEnabled = true;
             this.copyMode.Location = new System.Drawing.Point(103, 75);
             this.copyMode.Name = "copyMode";
-            this.copyMode.Size = new System.Drawing.Size(151, 21);
+            this.copyMode.Size = new System.Drawing.Size(181, 21);
             this.copyMode.TabIndex = 6;
             // 
             // destinationPath
@@ -343,23 +344,23 @@ namespace ExifOrganizer.UI
             this.destinationPath.Name = "destinationPath";
             this.destinationPath.ReadOnly = false;
             this.destinationPath.SelectedPath = "";
-            this.destinationPath.Size = new System.Drawing.Size(226, 23);
+            this.destinationPath.Size = new System.Drawing.Size(256, 23);
             this.destinationPath.TabIndex = 4;
             // 
             // statusBar
             // 
             this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.infoVersion});
-            this.statusBar.Location = new System.Drawing.Point(0, 395);
+            this.statusBar.Location = new System.Drawing.Point(0, 393);
             this.statusBar.Name = "statusBar";
-            this.statusBar.Size = new System.Drawing.Size(359, 22);
+            this.statusBar.Size = new System.Drawing.Size(389, 22);
             this.statusBar.TabIndex = 14;
             this.statusBar.Text = "statusStrip1";
             // 
             // infoVersion
             // 
             this.infoVersion.Name = "infoVersion";
-            this.infoVersion.Size = new System.Drawing.Size(74, 17);
+            this.infoVersion.Size = new System.Drawing.Size(73, 17);
             this.infoVersion.Text = "Version: x.y.z";
             // 
             // progress
@@ -369,18 +370,46 @@ namespace ExifOrganizer.UI
             this.progress.Brush = null;
             this.progress.CenterText = false;
             this.progress.Font = new System.Drawing.Font("Arial", 8.25F);
-            this.progress.Location = new System.Drawing.Point(12, 359);
+            this.progress.Location = new System.Drawing.Point(12, 363);
             this.progress.Name = "progress";
             this.progress.ProgressText = null;
-            this.progress.Size = new System.Drawing.Size(254, 23);
+            this.progress.Size = new System.Drawing.Size(284, 23);
             this.progress.TabIndex = 12;
             this.progress.Visible = false;
+            // 
+            // fileVerification
+            // 
+            this.fileVerification.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.fileVerification.CheckBoxAll = true;
+            this.fileVerification.CheckBoxNone = true;
+            this.fileVerification.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.fileVerification.EnumText = null;
+            this.fileVerification.EnumType = null;
+            this.fileVerification.EnumValue = null;
+            this.fileVerification.FormattingEnabled = true;
+            this.fileVerification.Items.AddRange(new object[] {
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "<None>",
+            "All"});
+            this.fileVerification.Location = new System.Drawing.Point(103, 129);
+            this.fileVerification.Name = "fileVerification";
+            this.fileVerification.Size = new System.Drawing.Size(181, 21);
+            this.fileVerification.TabIndex = 13;
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(359, 417);
+            this.ClientSize = new System.Drawing.Size(389, 415);
             this.Controls.Add(this.statusBar);
             this.Controls.Add(this.progress);
             this.Controls.Add(this.destination);
@@ -430,8 +459,8 @@ namespace ExifOrganizer.UI
         private Controls.EnumFlagsDropDown fileComparator;
         private System.Windows.Forms.StatusStrip statusBar;
         private System.Windows.Forms.ToolStripStatusLabel infoVersion;
-        private System.Windows.Forms.Label infoVerifyFiles;
-        private System.Windows.Forms.CheckBox verifyFiles;
+        private System.Windows.Forms.Label infoFileVerification;
+        private EnumFlagsDropDown fileVerification;
     }
 }
 
