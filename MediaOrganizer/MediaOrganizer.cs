@@ -131,6 +131,7 @@ namespace ExifOrganizer.Organizer
 
         private bool workerRunning;
         private bool workerAborted;
+        private HashSet<string> temporaryPaths = new HashSet<string>();
 
         public MediaOrganizer()
         {
@@ -249,6 +250,8 @@ namespace ExifOrganizer.Organizer
             }
             finally
             {
+                Cleanup();
+
                 workerRunning = false;
             }
         }
@@ -469,6 +472,7 @@ namespace ExifOrganizer.Organizer
                         // TODO: handle exceptions
                         // Move source/destination path to temporary place before copying
                         string tempSourcePath = Path.GetTempFileName();
+                        temporaryPaths.Add(tempSourcePath);
                         try
                         {
                             File.Delete(tempSourcePath);
@@ -478,7 +482,7 @@ namespace ExifOrganizer.Organizer
                         {
                             throw new MediaOrganizerException($"Failed to generate temporary directory: {tempSourcePath}", ex);
                         }
-                        items.sourcePath = tempSourcePath; // TODO: delete this path after organization
+                        items.sourcePath = tempSourcePath;
                     }
                     else
                     {
@@ -508,6 +512,20 @@ namespace ExifOrganizer.Organizer
                 default:
                     throw new NotImplementedException($"CopyPrecondition: {CopyPrecondition}");
             }
+        }
+
+        private void Cleanup()
+        {
+            foreach (string tempPath in temporaryPaths)
+            {
+                if (File.Exists(tempPath))
+                    File.Delete(tempPath);
+                else if (Directory.Exists(tempPath))
+                    Directory.Delete(tempPath);
+                else
+                    Trace.WriteLine($"[{nameof(MediaOrganizer)}] Temporary path not found: {tempPath}");
+            }
+            temporaryPaths.Clear();
         }
 
         private async Task<CopyItems> ParseItemsAsync(string sourcePath, string destinationPath, ParseSummary summary)
