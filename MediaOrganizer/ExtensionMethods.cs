@@ -61,5 +61,20 @@ namespace ExifOrganizer.Organizer
                 identical &= (fileInfo.LastWriteTimeUtc == otherFile.LastWriteTimeUtc);
             return identical;
         }
+
+        public static string GetGroupTypeText(this GroupType groupType)
+        {
+            switch (groupType)
+            {
+                case GroupType.MonthName: return "Name of month";
+                case GroupType.MonthNumber: return "Month";
+                case GroupType.DayName: return "Name of day";
+                case GroupType.DayNumber: return "Day";
+                case GroupType.OriginalName: return "Original file name";
+                case GroupType.FileName: return "File name";
+                case GroupType.FileExtension: return "File extension";
+                default: return groupType.ToString();
+            }
+        }
     }
 }

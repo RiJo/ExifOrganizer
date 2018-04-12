@@ -36,7 +36,7 @@ namespace ExifOrganizer.Organizer
         DayName,
         DayNumber,
         OriginalName,
-        FileName,
+        FileName, // TODO: add filename w/o extension
         FileExtension,
         Tags,
         Camera
@@ -46,7 +46,7 @@ namespace ExifOrganizer.Organizer
     {
         private const string TagSeparator = ", ";
 
-        private readonly Dictionary<string, GroupType> organizeGroups = new Dictionary<string, GroupType>()
+        private static readonly Dictionary<string, GroupType> organizeGroups = new Dictionary<string, GroupType>()
         {
             { "%i", GroupType.Index },
             { "%y", GroupType.Year },
@@ -281,6 +281,11 @@ namespace ExifOrganizer.Organizer
                 default:
                     throw new NotImplementedException($"GroupType: {groupType}");
             }
+        }
+
+        public static string GetUsageText()
+        {
+            return String.Join(Environment.NewLine, organizeGroups.Select(x => $"{x.Key} : {x.Value.GetGroupTypeText()}").OrderBy(x => x));
         }
     }
 }
