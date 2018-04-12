@@ -41,6 +41,9 @@ namespace ExifOrganizer.UI
 
         private void Main_Load(object sender, EventArgs e)
         {
+#if DEBUG
+            this.Text += " (DEBUG)";
+#endif
             infoVersion.Text = $"Version: {new Version(Application.ProductVersion).Get()}";
 
             sourcePath.Text = organizer.sourcePath;
