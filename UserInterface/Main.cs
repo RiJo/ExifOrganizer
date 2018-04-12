@@ -47,7 +47,7 @@ namespace ExifOrganizer.UI
             destinationPath.Text = organizer.destinationPath;
             recursive.Checked = organizer.Recursive;
 
-            // CopyPrecondition enum
+            // Copy precondition
             copyPrecondition.EnumText = value =>
             {
                 switch ((CopyPrecondition)value)
@@ -60,7 +60,7 @@ namespace ExifOrganizer.UI
             copyPrecondition.EnumType = typeof(CopyPrecondition);
             copyPrecondition.EnumValue = organizer.CopyPrecondition;
 
-            // CopyMode enum
+            // Copy mode
             copyMode.EnumText = value =>
             {
                 switch ((CopyMode)value)
@@ -86,12 +86,12 @@ namespace ExifOrganizer.UI
                 }
             };
 
-            // FileComparator enum
+            // File comparator
             fileComparator.EnumText = fileComparatorText;
             fileComparator.EnumType = typeof(FileComparator);
             fileComparator.EnumValue = organizer.FileComparator;
 
-            // FileComparator enum
+            // File verification
             fileVerification.EnumText = fileComparatorText;
             fileVerification.EnumType = typeof(FileComparator);
             fileVerification.EnumValue = organizer.FileVerification;
@@ -101,7 +101,7 @@ namespace ExifOrganizer.UI
                 localization.Items.Add(culture);
             localization.SelectedItem = organizer.Locale;
 
-            // Patterns
+            // Media patterns
             patternImage.Text = organizer.DestinationPatternImage;
             patternAudio.Text = organizer.DestinationPatternAudio;
             patternVideo.Text = organizer.DestinationPatternVideo;
