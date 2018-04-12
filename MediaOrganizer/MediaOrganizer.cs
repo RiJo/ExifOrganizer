@@ -66,18 +66,18 @@ namespace ExifOrganizer.Organizer
 
     public class ParseSummary
     {
-        public string[] parsed;
-        public string[] ignored;
-        public string[] totalFiles;
-        public string[] totalDirectories;
+        public HashSet<string> parsed = new HashSet<string>();
+        public HashSet<string> ignored = new HashSet<string>();
+        public HashSet<string> totalFiles = new HashSet<string>();
+        public HashSet<string> totalDirectories = new HashSet<string>();
 
         public override string ToString()
         {
             return String.Format("Summary {{ Parsed: {0} (Ignored: {1}), Total files: {2}, Total directories: {3} }}",
-                parsed != null ? parsed.Length : 0,
-                ignored != null ? ignored.Length : 0,
-                totalFiles != null ? totalFiles.Length : 0,
-                totalDirectories != null ? totalDirectories.Length : 0
+                parsed != null ? parsed.Count : 0,
+                ignored != null ? ignored.Count : 0,
+                totalFiles != null ? totalFiles.Count : 0,
+                totalDirectories != null ? totalDirectories.Count : 0
             );
         }
     }
@@ -532,11 +532,6 @@ namespace ExifOrganizer.Organizer
             PatternPathParser parser = new PatternPathParser(Locale);
             parser.Preload(data);
 
-            HashSet<string> files = new HashSet<string>();
-            HashSet<string> directories = new HashSet<string>();
-            HashSet<string> valid = new HashSet<string>();
-            HashSet<string> ignored = new HashSet<string>();
-
             CopyItems items = new CopyItems();
             items.sourcePath = sourcePath;
             items.destinationPath = destinationPath;
@@ -551,26 +546,21 @@ namespace ExifOrganizer.Organizer
                 switch (meta.Type)
                 {
                     case MetaType.Directory:
-                        directories.Add(path);
+                        summary.totalDirectories.Add(path);
                         continue;
                     case MetaType.File:
-                        files.Add(path);
-                        ignored.Add(path);
+                        summary.totalFiles.Add(path);
+                        summary.ignored.Add(path);
                         continue;
                     default:
-                        files.Add(path);
+                        summary.totalFiles.Add(path);
                         break;
                 }
 
                 CopyItem item = ParseItem(parser, destinationPath, meta);
                 items.Add(item);
-                valid.Add(path);
+                summary.parsed.Add(path);
             }
-
-            summary.totalDirectories = directories.ToArray();
-            summary.totalFiles = files.ToArray();
-            summary.parsed = valid.ToArray();
-            summary.ignored = ignored.ToArray();
 
             return items;
         }
