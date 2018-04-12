@@ -32,7 +32,7 @@ namespace ExifOrganizer.UI.Controls
         protected class ComboboxItem
         {
             public string Text { get; set; }
-            public long Value { get; set; }
+            public Enum Value { get; set; }
 
             public override string ToString()
             {
@@ -46,6 +46,7 @@ namespace ExifOrganizer.UI.Controls
             InitializeComponent();
 
             DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            SelectedIndexChanged += (sender, e) => { enumValue = ((ComboboxItem)SelectedItem).Value; };
         }
 
         public Func<Enum, string> EnumText
@@ -77,7 +78,7 @@ namespace ExifOrganizer.UI.Controls
 
                 Items.Clear();
                 foreach (Enum item in Enum.GetValues(value))
-                    Items.Add(new ComboboxItem() { Value = item.GetInt64(), Text = (EnumText != null) ? EnumText(item) : item.ToString() });
+                    Items.Add(new ComboboxItem() { Value = item, Text = (EnumText != null) ? EnumText(item) : item.ToString() });
             }
         }
 
@@ -95,12 +96,11 @@ namespace ExifOrganizer.UI.Controls
 
                 if (value == enumValue)
                     return;
-                enumValue = value;
 
                 long numeric = value.GetInt64();
                 foreach (ComboboxItem item in Items)
                 {
-                    if (item.Value != numeric)
+                    if (item.Value.GetInt64() != numeric)
                         continue;
 
                     SelectedItem = item;
