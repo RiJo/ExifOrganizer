@@ -138,7 +138,6 @@ namespace ExifOrganizer.Meta
                 }
             }
 
-            // TODO: run sub directories in paralell with files
             LinkedList<Task<MetaData>> fileTasks = new LinkedList<Task<MetaData>>();
             fileTasks.AddLast(DirectoryParser.ParseAsync(path));
             foreach (string file in Directory.GetFiles(path))
