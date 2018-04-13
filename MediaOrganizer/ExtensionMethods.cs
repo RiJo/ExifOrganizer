@@ -66,13 +66,19 @@ namespace ExifOrganizer.Organizer
         {
             switch (groupType)
             {
+                case GroupType.Index: return "Unique index";
                 case GroupType.MonthName: return "Name of month";
-                case GroupType.MonthNumber: return "Month";
+                case GroupType.MonthNumber: return "Month numeric value";
                 case GroupType.DayName: return "Name of day";
-                case GroupType.DayNumber: return "Day";
+                case GroupType.DayNumber: return "Day numeric value";
                 case GroupType.OriginalName: return "Original file name";
                 case GroupType.FileName: return "File name";
                 case GroupType.FileExtension: return "File extension";
+                case GroupType.FileNameWithExtension: return "File name with extension";
+                case GroupType.WidthPx: return "Width in pixels";
+                case GroupType.HeightPx: return "Height in pixels";
+                //case GroupType.HorizontalDpi: return "Horizontal DPI";
+                //case GroupType.VerticalDpi: return "Vertical DPI";
                 default: return groupType.ToString();
             }
         }

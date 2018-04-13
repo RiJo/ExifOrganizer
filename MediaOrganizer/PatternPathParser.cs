@@ -36,10 +36,15 @@ namespace ExifOrganizer.Organizer
         DayName,
         DayNumber,
         OriginalName,
-        FileName, // TODO: add filename w/o extension
+        FileName,
         FileExtension,
+        FileNameWithExtension,
         Tags,
-        Camera
+        Camera,
+        WidthPx,
+        HeightPx,
+        //HorizontalDpi,
+        //VerticalDpi
     }
 
     public class PatternPathParser
@@ -54,11 +59,16 @@ namespace ExifOrganizer.Organizer
             { "%M", GroupType.MonthName },
             { "%d", GroupType.DayNumber },
             { "%D", GroupType.DayName },
+            { "%o", GroupType.OriginalName },
             { "%n", GroupType.FileName },
             { "%e", GroupType.FileExtension },
-            { "%N", GroupType.OriginalName },
+            { "%N", GroupType.FileNameWithExtension },
             { "%t", GroupType.Tags },
-            { "%c", GroupType.Camera }
+            { "%c", GroupType.Camera },
+            { "%w", GroupType.WidthPx },
+            { "%h", GroupType.HeightPx },
+            //{ "%W", GroupType.HorizontalDpi },
+            //{ "%H", GroupType.VerticalDpi },
         };
 
         private CultureInfo locale = null;
@@ -224,15 +234,6 @@ namespace ExifOrganizer.Organizer
                         return dateinfo.DayNames[datetime.Day - 1].UppercaseFirst();
                     }
 
-                case GroupType.FileName:
-                    {
-                        object temp;
-                        if (!meta.Data.TryGetValue(MetaKey.FileName, out temp))
-                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.FileName, groupType);
-
-                        return Path.GetFileNameWithoutExtension((string)temp);
-                    }
-
                 case GroupType.OriginalName:
                     {
                         object temp;
@@ -242,6 +243,15 @@ namespace ExifOrganizer.Organizer
                         return Path.GetFileName((string)temp);
                     }
 
+                case GroupType.FileName:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.FileName, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.FileName, groupType);
+
+                        return Path.GetFileNameWithoutExtension((string)temp);
+                    }
+
                 case GroupType.FileExtension:
                     {
                         object temp;
@@ -249,6 +259,15 @@ namespace ExifOrganizer.Organizer
                             throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.FileName, groupType);
 
                         return Path.GetExtension((string)temp).Substring(1);
+                    }
+
+                case GroupType.FileNameWithExtension:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.FileName, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.FileName, groupType);
+
+                        return Path.GetFileName((string)temp).Substring(1);
                     }
 
                 case GroupType.Tags:
@@ -276,6 +295,24 @@ namespace ExifOrganizer.Organizer
                             throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Camera, groupType);
 
                         return (string)temp;
+                    }
+
+                case GroupType.WidthPx:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Width, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Width, groupType);
+
+                        return $"{temp}";
+                    }
+
+                case GroupType.HeightPx:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Height, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Height, groupType);
+
+                        return $"{temp}";
                     }
 
                 default:
