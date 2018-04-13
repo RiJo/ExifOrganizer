@@ -85,7 +85,7 @@ namespace ExifOrganizer.Querier
                 {
                     QueryType match = QueryType.None;
 
-                    bool equalFilename = Path.GetFileName(item.Path).Equals(Path.GetFileName(other.Path), StringComparison.Ordinal /* TODO: which type? */);
+                    bool equalFilename = Path.GetFileName(item.Path).Equals(Path.GetFileName(other.Path), StringComparison.Ordinal);
                     if (queries.HasFlag(QueryType.EqualFileName) && equalFilename)
                         match |= QueryType.EqualFileName;
 
