@@ -74,10 +74,10 @@ namespace ExifOrganizer.Organizer
         public override string ToString()
         {
             return String.Format("Summary {{ Parsed: {0} (Ignored: {1}), Total files: {2}, Total directories: {3} }}",
-                parsed != null ? parsed.Count : 0,
-                ignored != null ? ignored.Count : 0,
-                totalFiles != null ? totalFiles.Count : 0,
-                totalDirectories != null ? totalDirectories.Count : 0
+                parsed.Count,
+                ignored.Count,
+                totalFiles.Count,
+                totalDirectories.Count
             );
         }
     }
