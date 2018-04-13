@@ -127,7 +127,7 @@ namespace ExifOrganizer.Organizer
         public CopyMode CopyMode = CopyMode.KeepUnique;
         public ExceptionHandling ExceptionHandling = ExceptionHandling.Throw;
         public FileComparator FileVerification = FileComparator.ChecksumMD5;
-        public string[] IgnorePaths = null; // TODO: implement
+        public string[] IgnorePaths = null;
 
         private bool workerRunning;
         private bool workerAborted;
