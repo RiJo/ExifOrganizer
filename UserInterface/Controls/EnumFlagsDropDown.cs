@@ -117,10 +117,7 @@ namespace ExifOrganizer.UI.Controls
             base.CheckedChanged(item);
 
             Enum previous = enumValue;
-            if (previous == null)
-                return;
-
-            long value = previous.GetInt64();
+            long value = (previous != null) ? previous.GetInt64() : 0;
 
             if (item.Checked)
                 value |= item.Value;
