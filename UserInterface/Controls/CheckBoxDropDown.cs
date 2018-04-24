@@ -60,12 +60,7 @@ namespace ExifOrganizer.UI.Controls
                 : base(new CheckBox())
             {
                 item = source;
-
-                this.Width = 100;
-
                 checkbox = Control as CheckBox;
-                //checkbox.AutoSize = true;
-                //checkbox.Width = 100;
                 checkbox.Checked = item.Checked;
                 checkbox.Text = item.Text;
                 checkbox.AutoCheck = false;
@@ -89,6 +84,13 @@ namespace ExifOrganizer.UI.Controls
                     if (CheckStateChanged != null)
                         CheckStateChanged(this, e);
                 };
+            }
+
+            public void SetWidth(int width)
+            {
+                Width = width;
+                checkbox.Width = Width;
+                checkbox.MinimumSize = new Size(width - 35, checkbox.MinimumSize.Height);
             }
 
             public void SetText(string text)
@@ -177,6 +179,14 @@ namespace ExifOrganizer.UI.Controls
 
                 ItemsAltered();
             }
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+
+            foreach (ToolStripCheckboxItem tsi in GetToolStripCheckboxItems())
+                tsi.SetWidth(ClientSize.Width);
         }
 
         protected override void OnDropDown(EventArgs e)
