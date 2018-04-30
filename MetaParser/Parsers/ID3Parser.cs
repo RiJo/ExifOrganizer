@@ -251,7 +251,7 @@ namespace ExifOrganizer.Meta.Parsers
             if (!File.Exists(filename))
                 throw new MetaParseException("File not found: {0}", filename);
 
-            Dictionary<ID3Tag, object> exif = ParseID3(filename);
+            Dictionary<ID3Tag, object> id3 = ParseID3(filename);
 
             MetaData meta = new MetaData();
             meta.Type = MetaType.Music;
@@ -263,7 +263,24 @@ namespace ExifOrganizer.Meta.Parsers
             meta.Data[MetaKey.DateCreated] = File.GetCreationTime(filename);
             meta.Data[MetaKey.DateModified] = File.GetLastWriteTime(filename);
             meta.Data[MetaKey.Timestamp] = meta.Data[MetaKey.DateModified];
-            meta.Data[MetaKey.Tags] = new string[0];
+
+            if (id3.ContainsKey(ID3Tag.Version))
+                meta.Data[MetaKey.MetaType] = id3[ID3Tag.Version];
+            if (id3.ContainsKey(ID3Tag.Title))
+                meta.Data[MetaKey.Title] = id3[ID3Tag.Title];
+            if (id3.ContainsKey(ID3Tag.Artist))
+                meta.Data[MetaKey.Artist] = id3[ID3Tag.Artist];
+            if (id3.ContainsKey(ID3Tag.Album))
+                meta.Data[MetaKey.Album] = id3[ID3Tag.Album];
+            if (id3.ContainsKey(ID3Tag.Year))
+                meta.Data[MetaKey.Year] = id3[ID3Tag.Year];
+            if (id3.ContainsKey(ID3Tag.Comment))
+                meta.Data[MetaKey.Comment] = id3[ID3Tag.Comment];
+            if (id3.ContainsKey(ID3Tag.Genre) && ((ID3v1Genre)id3[ID3Tag.Genre]) != ID3v1Genre.Undefined)
+                meta.Data[MetaKey.Genre] = id3[ID3Tag.Genre].ToString(); // TODO: add custom ToString() method
+            if (id3.ContainsKey(ID3Tag.Track))
+                meta.Data[MetaKey.Track] = id3[ID3Tag.Track];
+
             return meta;
         }
 
@@ -309,7 +326,7 @@ namespace ExifOrganizer.Meta.Parsers
             if (comment.Last() != '\0' && comment.Skip(28).First() == '\0')
             {
                 tags[ID3Tag.Version] = "ID3v1.1";
-                tags[ID3Tag.Track] = comment.Last();
+                tags[ID3Tag.Track] = (int)comment.Last();
             }
             tags[ID3Tag.Genre] = (ID3v1Genre)tail.Skip(3 + 30 + 30 + 30 + 4 + 30).First();
             return tags;
@@ -318,6 +335,16 @@ namespace ExifOrganizer.Meta.Parsers
         private static Dictionary<ID3Tag, object> ParseID3v2(byte[] data)
         {
             Dictionary<ID3Tag, object> tags = new Dictionary<ID3Tag, object>();
+
+            //tags[ID3Tag.Version] = "ID3v2";
+            //tags[ID3Tag.Title] = "TODO-title";
+            //tags[ID3Tag.Artist] = "TODO-artist";
+            //tags[ID3Tag.Album] = "TODO-album";
+            //tags[ID3Tag.Year] = "TODO-year";
+            //tags[ID3Tag.Comment] = "TODO-comment";
+            //tags[ID3Tag.Track] = -1; // TODO
+            //tags[ID3Tag.Genre] = ID3v1Genre.Undefined;
+
             return tags;
         }
     }

@@ -454,6 +454,7 @@ namespace ExifOrganizer.Meta.Parsers
             meta.Type = MetaType.Image;
             meta.Path = filename;
             meta.Data = new Dictionary<MetaKey, object>();
+            meta.Data[MetaKey.MetaType] = "Exif"; // TODO: add version information?
             meta.Data[MetaKey.Size] = GetFileSize(filename);
             meta.Data[MetaKey.DateCreated] = File.GetCreationTime(filename);
             meta.Data[MetaKey.DateModified] = File.GetLastWriteTime(filename);
@@ -515,6 +516,9 @@ namespace ExifOrganizer.Meta.Parsers
                 meta.Data[MetaKey.Tags] = exif[ExifId.ImageXPKeywords];
             else
                 meta.Data[MetaKey.Tags] = new string[0];
+
+            if (exif.ContainsKey(ExifId.ImageXPComment))
+                meta.Data[MetaKey.Comment] = exif[ExifId.ImageXPComment];
 #if DEBUG
             meta.Origin = exif;
 #endif

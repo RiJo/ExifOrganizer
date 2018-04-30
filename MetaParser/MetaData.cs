@@ -32,17 +32,40 @@ namespace ExifOrganizer.Meta
 
     public enum MetaKey
     {
+        // Common
+        MetaType,
+
         OriginalName,
         FileName,
         Size,
         Timestamp,
         DateCreated,
         DateModified,
+        Comment,
+
+        // Image
         Resolution,
+
         Width,
         Height,
         Camera,
-        Tags
+        Tags,
+
+        // Music
+        Title,
+
+        Artist,
+        Album,
+        Year,
+        Track,
+        Genre
+    }
+
+    public enum MetaMediaType
+    {
+        Image,
+        Audio,
+        Video
     }
 
     public class MetaData
@@ -53,5 +76,48 @@ namespace ExifOrganizer.Meta
 #if DEBUG
         public object Origin;
 #endif
+    }
+
+    public static class MetaDataExtensions
+    {
+        public static IEnumerable<MetaKey> GetByMedia(this MetaMediaType media)
+        {
+            HashSet<MetaKey> keys = new HashSet<MetaKey>();
+            keys.Add(MetaKey.MetaType);
+            keys.Add(MetaKey.OriginalName);
+            keys.Add(MetaKey.FileName);
+            keys.Add(MetaKey.Size);
+            keys.Add(MetaKey.Timestamp);
+            keys.Add(MetaKey.DateCreated);
+            keys.Add(MetaKey.DateModified);
+            keys.Add(MetaKey.Comment);
+
+            switch (media)
+            {
+                case MetaMediaType.Image:
+                    keys.Add(MetaKey.Resolution);
+                    keys.Add(MetaKey.Width);
+                    keys.Add(MetaKey.Height);
+                    keys.Add(MetaKey.Camera);
+                    keys.Add(MetaKey.Tags);
+                    break;
+
+                case MetaMediaType.Audio:
+                    keys.Add(MetaKey.Title);
+                    keys.Add(MetaKey.Artist);
+                    keys.Add(MetaKey.Album);
+                    keys.Add(MetaKey.Year);
+                    keys.Add(MetaKey.Track);
+                    keys.Add(MetaKey.Genre);
+                    break;
+
+                case MetaMediaType.Video:
+                    break;
+
+                default:
+                    break;
+            }
+            return keys;
+        }
     }
 }
