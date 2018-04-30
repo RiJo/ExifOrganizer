@@ -89,8 +89,13 @@ namespace ExifOrganizer.Meta
                         return Task.FromResult<MetaData>(null);
                     return GenericFileParser.ParseAsync(path, MetaType.Image);
 
+                // Music (ID3)
+                case ".mp3":
+                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Music))
+                        return Task.FromResult<MetaData>(null);
+                    return ID3Parser.ParseAsync(path);
+
                 // Music (generic)
-                case ".mp3": // TODO: id3
                 case ".wav": // TODO: exif
                 case ".flac":
                 case ".aac":
