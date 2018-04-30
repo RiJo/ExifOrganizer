@@ -110,10 +110,9 @@ namespace ExifOrganizer.UI
             patternVideo.Text = organizer.DestinationPatternVideo;
 
             ToolTip patternToolTip = new ToolTip() { IsBalloon = true, InitialDelay = 100, ReshowDelay = 500 };
-            string patternUsage = PatternPathParser.GetUsageText();
-            patternToolTip.SetToolTip(patternImage, patternUsage);
-            patternToolTip.SetToolTip(patternAudio, patternUsage);
-            patternToolTip.SetToolTip(patternVideo, patternUsage);
+            patternToolTip.SetToolTip(patternImage, PatternPathParser.GetUsageText(Meta.MetaMediaType.Image));
+            patternToolTip.SetToolTip(patternAudio, PatternPathParser.GetUsageText(Meta.MetaMediaType.Audio));
+            patternToolTip.SetToolTip(patternVideo, PatternPathParser.GetUsageText(Meta.MetaMediaType.Video));
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
