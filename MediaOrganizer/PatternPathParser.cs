@@ -43,8 +43,14 @@ namespace ExifOrganizer.Organizer
         Camera,
         WidthPx,
         HeightPx,
+
         //HorizontalDpi,
-        //VerticalDpi
+        //VerticalDpi,
+        Title,
+
+        Artist,
+        Album,
+        Track,
     }
 
     public class PatternPathParser
@@ -69,6 +75,10 @@ namespace ExifOrganizer.Organizer
             { "%h", GroupType.HeightPx },
             //{ "%W", GroupType.HorizontalDpi },
             //{ "%H", GroupType.VerticalDpi },
+            { "%T", GroupType.Title },
+            { "%A", GroupType.Artist },
+            { "%a", GroupType.Album },
+            { "%k", GroupType.Track },
         };
 
         private CultureInfo locale = null;
@@ -315,14 +325,115 @@ namespace ExifOrganizer.Organizer
                         return $"{temp}";
                     }
 
+                case GroupType.Title:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Title, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Title, groupType);
+
+                        return $"{temp}";
+                    }
+
+                case GroupType.Artist:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Artist, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Artist, groupType);
+
+                        return $"{temp}";
+                    }
+
+                case GroupType.Album:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Album, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Album, groupType);
+
+                        return $"{temp}";
+                    }
+
+                case GroupType.Track:
+                    {
+                        object temp;
+                        if (!meta.Data.TryGetValue(MetaKey.Track, out temp))
+                            throw new MediaOrganizerException("Failed to retrieve key '{0}' from meta data to parse group type '{1}'", MetaKey.Track, groupType);
+
+                        return ((int)temp).ToString("D2");
+                    }
+
                 default:
                     throw new NotImplementedException($"GroupType: {groupType}");
             }
         }
 
-        public static string GetUsageText()
+        public static string GetUsageText(MetaMediaType? mediaType = null)
         {
-            return String.Join(Environment.NewLine, organizeGroups.Select(x => $"{x.Key} : {x.Value.GetGroupTypeText()}").OrderBy(x => x));
+            IEnumerable<GroupType> groups = mediaType.HasValue ? GetMediaGroupTypes(mediaType.Value) : Enum.GetValues(typeof(GroupType)).Cast<GroupType>();
+            return String.Join(Environment.NewLine, organizeGroups.Where(x => groups.Contains(x.Value)).Select(x => $"{x.Key} : {x.Value.GetGroupTypeText()}").OrderBy(x => x));
+        }
+
+        private static IEnumerable<GroupType> GetMediaGroupTypes(MetaMediaType type)
+        {
+            HashSet<GroupType> types = new HashSet<GroupType>();
+            types.Add(GroupType.Index);
+
+            foreach (MetaKey key in type.GetByMedia())
+            {
+                switch (key)
+                {
+                    case MetaKey.Timestamp:
+                        types.Add(GroupType.Year);
+                        types.Add(GroupType.MonthName);
+                        types.Add(GroupType.MonthNumber);
+                        types.Add(GroupType.DayName);
+                        types.Add(GroupType.DayNumber);
+                        break;
+
+                    case MetaKey.OriginalName:
+                        types.Add(GroupType.OriginalName);
+                        break;
+
+                    case MetaKey.FileName:
+                        types.Add(GroupType.FileName);
+                        types.Add(GroupType.FileExtension);
+                        types.Add(GroupType.FileNameWithExtension);
+                        break;
+
+                    case MetaKey.Tags:
+                        types.Add(GroupType.Tags);
+                        break;
+
+                    case MetaKey.Camera:
+                        types.Add(GroupType.Camera);
+                        break;
+
+                    case MetaKey.Width:
+                        types.Add(GroupType.WidthPx);
+                        break;
+
+                    case MetaKey.Height:
+                        types.Add(GroupType.HeightPx);
+                        break;
+
+                    case MetaKey.Title:
+                        types.Add(GroupType.Title);
+                        break;
+
+                    case MetaKey.Artist:
+                        types.Add(GroupType.Artist);
+                        break;
+
+                    case MetaKey.Album:
+                        types.Add(GroupType.Album);
+                        break;
+
+                    case MetaKey.Track:
+                        types.Add(GroupType.Track);
+                        break;
+                }
+            }
+
+            return types;
         }
     }
 }
