@@ -234,6 +234,25 @@ namespace ExifOrganizer.Meta.Parsers
             Undefined = 255
         }
 
+        [Flags]
+        private enum ID3v2HeaderFlags : byte
+        {
+            ExperimentalIndicator = 1 << 5,
+            ExtendedHeader = 1 << 6,
+            Unsynchronisation = 1 << 7
+        }
+
+        [Flags]
+        private enum ID3v2FrameFlags : ushort
+        {
+            GroupingIdentity = 1 << 5,
+            Encryption = 1 << 6,
+            Compression = 1 << 7,
+            ReadOnly = 1 << 13,
+            FileAlterPreservation = 1 << 14,
+            TagAlterPreservation = 1 << 15
+        }
+
         public static MetaData Parse(string filename)
         {
             Task<MetaData> task = ParseAsync(filename);
@@ -290,7 +309,14 @@ namespace ExifOrganizer.Meta.Parsers
             Dictionary<ID3Tag, object> id3v1 = ParseID3v1(data);
             Dictionary<ID3Tag, object> id3v2 = ParseID3v2(data);
 
+            if (!id3v2.Any())
+                return id3v1; // ID3v1 only or none
+            if (id3v2.Any() && !id3v1.Any())
+                return id3v2; // ID3v2 only
+
             // Merge ID3v1 into ID3v2
+            id3v2[ID3Tag.Version] = $"{id3v1[ID3Tag.Version]} + {id3v2[ID3Tag.Version]}";
+            id3v1.Remove(ID3Tag.Version);
             foreach (var tag in id3v1)
             {
                 Trace.WriteLine($"[{nameof(ID3Parser)}] * {tag.Key} = \"{tag.Value}\"");
@@ -334,18 +360,95 @@ namespace ExifOrganizer.Meta.Parsers
 
         private static Dictionary<ID3Tag, object> ParseID3v2(byte[] data)
         {
-            Dictionary<ID3Tag, object> tags = new Dictionary<ID3Tag, object>();
+            // TODO: add support for ID3v2.2.0 shorter frame IDs
+            // TODO: add support for ID3v2.4.0 UTF-16 encoding
 
-            //tags[ID3Tag.Version] = "ID3v2";
-            //tags[ID3Tag.Title] = "TODO-title";
-            //tags[ID3Tag.Artist] = "TODO-artist";
-            //tags[ID3Tag.Album] = "TODO-album";
-            //tags[ID3Tag.Year] = "TODO-year";
-            //tags[ID3Tag.Comment] = "TODO-comment";
-            //tags[ID3Tag.Track] = -1; // TODO
-            //tags[ID3Tag.Genre] = ID3v1Genre.Undefined;
+            Dictionary<ID3Tag, object> tags = new Dictionary<ID3Tag, object>();
+            if (data.Length < 21) // there must be at least one header (10 bytes) containing one frame (at least 10 byte header + 1 byte)
+                return tags;
+
+            using (MemoryStream stream = new MemoryStream(data))
+            {
+                byte[] header = new byte[10];
+                if (stream.Read(header, 0, header.Length) != header.Length)
+                    throw new InvalidDataException("Unable to read full ID3v2 tag header");
+                if (header[0] != 'I' || header[1] != 'D' || header[2] != '3')
+                    return tags;
+
+                byte versionMajor = header[3];
+                byte versionMinor = header[4];
+                tags[ID3Tag.Version] = $"ID3v2.{versionMajor}.{versionMinor}";
+
+                ID3v2HeaderFlags flags = (ID3v2HeaderFlags)header[5];
+                int size = BitConverter.ToInt32(header.Skip(6).Take(4).Reverse().ToArray(), 0);
+
+                if (flags.HasFlag(ID3v2HeaderFlags.ExtendedHeader))
+                {
+                    // TODO: implement
+                    throw new NotImplementedException("Extended header support isn't implemented");
+                }
+
+                while (stream.Position < size - 10)
+                {
+                    byte[] frameHeader = new byte[10];
+                    if (stream.Read(frameHeader, 0, frameHeader.Length) != frameHeader.Length)
+                        throw new InvalidDataException("Unable to read full ID3v2 frame header");
+                    string frameID = Encoding.ASCII.GetString(frameHeader, 0, 4);
+                    if (frameID == "\0\0\0\0")
+                        break; // TODO: done?
+                    int frameSize = BitConverter.ToInt32(frameHeader.Skip(4).Take(4).Reverse().ToArray(), 0);
+                    ID3v2FrameFlags frameFlags = (ID3v2FrameFlags)((frameHeader[8] << 8) | frameHeader[9]);
+
+                    switch (frameID)
+                    {
+                        case "TALB":
+                            tags[ID3Tag.Album] = ParseTextInformationFrame(stream, frameSize);
+                            break;
+
+                        case "TIT2":
+                            tags[ID3Tag.Title] = ParseTextInformationFrame(stream, frameSize);
+                            break;
+
+                        case "TPE2":
+                            tags[ID3Tag.Artist] = ParseTextInformationFrame(stream, frameSize);
+                            break;
+
+                        case "TYER":
+                            tags[ID3Tag.Year] = Int32.Parse(ParseTextInformationFrame(stream, frameSize));
+                            break;
+
+                        case "TRCK":
+                            string track = ParseTextInformationFrame(stream, frameSize);
+                            if (track.Contains('/'))
+                                tags[ID3Tag.Track] = Int32.Parse(track.Split('/')[0]); // "<current>/<total>"
+                            else
+                                tags[ID3Tag.Track] = Int32.Parse(track);
+                            break;
+
+                        default:
+                            Trace.WriteLine($"[{tags[ID3Tag.Version]}] Ignoring frame ID: \"{frameID}\"");
+                            stream.Position += frameSize;
+                            break;
+                    }
+                }
+            }
 
             return tags;
+        }
+
+        private static string ParseTextInformationFrame(MemoryStream stream, int length)
+        {
+            if (length == 0)
+                return String.Empty;
+
+            byte[] buffer = new byte[length];
+            if (stream.Read(buffer, 0, buffer.Length) != buffer.Length)
+                throw new InvalidDataException("Unable to read full ID3v2 frame content");
+
+            int offset = (buffer[0] == '\0') ? 1 : 0; // TODO: why is the content (somtimes?) prefixed with '\0'?
+
+            // TODO: handle Unicode vs ISO-8859-1
+            return iso_8859_1.GetString(buffer.Skip(offset).TakeWhile(c => c != '\0').ToArray());
         }
     }
 }
