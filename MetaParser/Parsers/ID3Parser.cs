@@ -253,6 +253,14 @@ namespace ExifOrganizer.Meta.Parsers
             TagAlterPreservation = 1 << 15
         }
 
+        private enum ID3v2TextualEncoding
+        {
+            ISO88591 = 0,
+            UCS2 = 1,
+            UTF16BE = 2,
+            UTF8 = 3
+        }
+
         public static MetaData Parse(string filename)
         {
             Task<MetaData> task = ParseAsync(filename);
@@ -361,7 +369,6 @@ namespace ExifOrganizer.Meta.Parsers
         private static Dictionary<ID3Tag, object> ParseID3v2(byte[] data)
         {
             // TODO: add support for ID3v2.2.0 shorter frame IDs
-            // TODO: add support for ID3v2.4.0 UTF-16 encoding
 
             Dictionary<ID3Tag, object> tags = new Dictionary<ID3Tag, object>();
             if (data.Length < 21) // there must be at least one header (10 bytes) containing one frame (at least 10 byte header + 1 byte)
@@ -402,23 +409,23 @@ namespace ExifOrganizer.Meta.Parsers
                     switch (frameID)
                     {
                         case "TALB":
-                            tags[ID3Tag.Album] = ParseTextInformationFrame(stream, frameSize);
+                            tags[ID3Tag.Album] = ParseTextualFrame(stream, frameSize);
                             break;
 
                         case "TIT2":
-                            tags[ID3Tag.Title] = ParseTextInformationFrame(stream, frameSize);
+                            tags[ID3Tag.Title] = ParseTextualFrame(stream, frameSize);
                             break;
 
                         case "TPE2":
-                            tags[ID3Tag.Artist] = ParseTextInformationFrame(stream, frameSize);
+                            tags[ID3Tag.Artist] = ParseTextualFrame(stream, frameSize);
                             break;
 
                         case "TYER":
-                            tags[ID3Tag.Year] = Int32.Parse(ParseTextInformationFrame(stream, frameSize));
+                            tags[ID3Tag.Year] = Int32.Parse(ParseTextualFrame(stream, frameSize));
                             break;
 
                         case "TRCK":
-                            string track = ParseTextInformationFrame(stream, frameSize);
+                            string track = ParseTextualFrame(stream, frameSize);
                             if (track.Contains('/'))
                                 tags[ID3Tag.Track] = Int32.Parse(track.Split('/')[0]); // "<current>/<total>"
                             else
@@ -436,19 +443,36 @@ namespace ExifOrganizer.Meta.Parsers
             return tags;
         }
 
-        private static string ParseTextInformationFrame(MemoryStream stream, int length)
+        private static string ParseTextualFrame(MemoryStream stream, int length)
         {
             if (length == 0)
                 return String.Empty;
 
-            byte[] buffer = new byte[length];
+            ID3v2TextualEncoding encoding = (ID3v2TextualEncoding)stream.ReadByte();
+
+            byte[] buffer = new byte[length - 1];
             if (stream.Read(buffer, 0, buffer.Length) != buffer.Length)
                 throw new InvalidDataException("Unable to read full ID3v2 frame content");
 
-            int offset = (buffer[0] == '\0') ? 1 : 0; // TODO: why is the content (somtimes?) prefixed with '\0'?
+            byte[] text = buffer.TakeWhile(c => c != '\0').ToArray();
 
-            // TODO: handle Unicode vs ISO-8859-1
-            return iso_8859_1.GetString(buffer.Skip(offset).TakeWhile(c => c != '\0').ToArray());
+            switch (encoding)
+            {
+                case ID3v2TextualEncoding.ISO88591:
+                    return iso_8859_1.GetString(text);
+
+                case ID3v2TextualEncoding.UCS2:
+                    throw new NotImplementedException("UCS-2 encoded Unicode with BOM not yet supported");
+
+                case ID3v2TextualEncoding.UTF16BE:
+                    return Encoding.BigEndianUnicode.GetString(text);
+
+                case ID3v2TextualEncoding.UTF8:
+                    return Encoding.UTF8.GetString(text);
+
+                default:
+                    throw new NotImplementedException($"Textual encoding: {encoding}");
+            }
         }
     }
 }
