@@ -243,6 +243,12 @@ namespace ExifOrganizer.Meta.Parsers
         }
 
         [Flags]
+        private enum ID3v2ExtendedFlags : ushort
+        {
+            CRCDataPresent = 1 << 15
+        }
+
+        [Flags]
         private enum ID3v2FrameFlags : ushort
         {
             GroupingIdentity = 1 << 5,
@@ -394,8 +400,16 @@ namespace ExifOrganizer.Meta.Parsers
 
                 if (flags.HasFlag(ID3v2HeaderFlags.ExtendedHeader))
                 {
-                    // TODO: implement
-                    throw new NotImplementedException("Extended header support isn't implemented");
+                    byte[] extendedHeader = new byte[10];
+                    if (stream.Read(extendedHeader, 0, extendedHeader.Length) != extendedHeader.Length)
+                        throw new InvalidDataException("Unable to read full ID3v2 extended header");
+
+                    int extendedSize = BitConverter.ToInt32(extendedHeader.Take(4).Reverse().ToArray(), 0);
+                    ID3v2ExtendedFlags extendedFlags = (ID3v2ExtendedFlags)((extendedHeader[4] << 8) | extendedHeader[5]);
+                    int sizeOfPadding = BitConverter.ToInt32(extendedHeader.Skip(6).Take(4).Reverse().ToArray(), 0);
+
+                    Trace.WriteLine($"[{tags[ID3Tag.Version]}] Ignoring extended header");
+                    stream.Position += extendedSize;
                 }
 
                 while (stream.Position < size - 10)
