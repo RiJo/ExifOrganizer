@@ -532,18 +532,20 @@ namespace ExifOrganizer.Meta.Parsers
             // Only read meta data
             using (FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
-                Image image = Image.FromStream(stream, false, false);
-                PropertyItem[] items = image.PropertyItems;
-
-                foreach (PropertyItem item in items)
+                using (Image image = Image.FromStream(stream, false, false))
                 {
-                    if (!Enum.IsDefined(typeof(ExifId), item.Id))
-                        Trace.WriteLine($"[{nameof(ExifParser)}] Exif ID not defined: {item.Id:X}");
+                    PropertyItem[] items = image.PropertyItems;
 
-                    ExifId id = (ExifId)item.Id;
-                    ExifDataType type = (ExifDataType)item.Type;
-                    object value = ParseValue(id, type, item.Value);
-                    data[id] = value;
+                    foreach (PropertyItem item in items)
+                    {
+                        if (!Enum.IsDefined(typeof(ExifId), item.Id))
+                            Trace.WriteLine($"[{nameof(ExifParser)}] Exif ID not defined: {item.Id:X}");
+
+                        ExifId id = (ExifId)item.Id;
+                        ExifDataType type = (ExifDataType)item.Type;
+                        object value = ParseValue(id, type, item.Value);
+                        data[id] = value;
+                    }
                 }
             }
 
