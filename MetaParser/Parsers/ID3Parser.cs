@@ -384,7 +384,10 @@ namespace ExifOrganizer.Meta.Parsers
 
                 byte versionMajor = header[3];
                 byte versionMinor = header[4];
-                tags[ID3Tag.Version] = $"ID3v2.{versionMajor}.{versionMinor}";
+                string version = $"ID3v2.{versionMajor}.{versionMinor}";
+                if (versionMajor != 3 && versionMajor != 4)
+                    throw new NotImplementedException($"Only ID3v2.3.0 and ID3v2.4.0 are supported. Detected version: {version}");
+                tags[ID3Tag.Version] = version;
 
                 ID3v2HeaderFlags flags = (ID3v2HeaderFlags)header[5];
                 int size = BitConverter.ToInt32(header.Skip(6).Take(4).Reverse().ToArray(), 0);
