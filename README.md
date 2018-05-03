@@ -6,9 +6,16 @@ Organize image collections based on Exif data with customizable destination path
 Currently in development of first beta version.
 
 ## Description
-The idea is to select a source path to be organized, where media files (mainly images, but also videos and music) is gathered from. Those files are then copied and structured into a destination path. How the media files are organized is configrable via a graphical user interface (GUI) or by command line interface (CLI) for scripting.
+The idea is to select a source path to be organized, where media files (mainly images, but also videos and audio) are gathered from. Those files are then copied and structured into a destination path. How the media files are organized is configurable via a graphical user interface (GUI) or by command line interface (CLI) for scripting.
 
-## Screenshot
+### Supported meta
+* Exif - .jpeg .jpg .tiff .tif
+* MP4 - .mp4 .m4a .mov .3gp .3g2
+* ID3 - .mp3
+
+Most other media files are parsed in a generic way and lacks the detailed meta data.
+
+### Screenshot
 ![ExifOrganizer GUI](screenshot.png)
 
 ## Environment
