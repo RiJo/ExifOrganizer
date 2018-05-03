@@ -40,6 +40,15 @@ namespace ExifOrganizer.Meta.Parsers
             Description
         }
 
+        private enum MP4DataType : byte
+        {
+            UInt8_a = 0,
+            Text = 1,
+            JPEG = 13,
+            PNG = 14,
+            UInt8_b = 21,
+        }
+
         public static MetaData Parse(string filename)
         {
             Task<MetaData> task = ParseAsync(filename);
@@ -178,7 +187,7 @@ namespace ExifOrganizer.Meta.Parsers
 
             byte[] childHeader = new byte[8];
             if (stream.Read(childHeader, 0, childHeader.Length) != childHeader.Length)
-                throw new InvalidDataException("Unable to read full MP4 box header");
+                throw new InvalidDataException($"Unable to read full MP4 \"ilst.{type}\" header");
 
             int childSize = BitConverter.ToInt32(childHeader.Take(4).Reverse().ToArray(), 0);
             if (childSize < 8)
@@ -188,79 +197,84 @@ namespace ExifOrganizer.Meta.Parsers
             if (childType != "data")
                 throw new InvalidOperationException($"MP4 \"ilst.{type}\" must have a child of type \"data\", actual: \"{childType}\"");
 
-            // TODO
-            stream.Position += 8; // TODO: parse 2x4 bytes in beginning
+            byte[] childFlags = new byte[4];
+            if (stream.Read(childFlags, 0, childFlags.Length) != childFlags.Length)
+                throw new InvalidDataException($"Unable to read full MP4 \"ilst.{type}.{childType}\" flags");
+
+            stream.Position += 4; // Ignore null bytes
             childSize -= 8;
-            // TODO:
+
+            MP4DataType dataType = (MP4DataType)childFlags[3];
+
             switch (type)
             {
                 case "©alb":
-                    tags[MP4Tag.Album] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Album] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "©art":
-                    tags[MP4Tag.Artist] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Artist] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "©cmt":
-                    tags[MP4Tag.Comment] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Comment] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "©day":
-                    tags[MP4Tag.Year] = GetBoxAsString(stream, childSize); // TODO: convert to integer
+                    tags[MP4Tag.Year] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "©nam":
-                    tags[MP4Tag.Title] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Title] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "©gen":
                 case "gnre":
-                    tags[MP4Tag.Genre] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Genre] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "trkn":
-                    tags[MP4Tag.TrackNumber] = GetBoxAsString(stream, childSize); // TODO: convert to integer
+                    tags[MP4Tag.TrackNumber] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "disk":
-                    tags[MP4Tag.DiscNumber] = GetBoxAsString(stream, childSize); // TODO: convert to integer
+                    tags[MP4Tag.DiscNumber] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "©wrt":
-                    tags[MP4Tag.Composer] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Composer] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "©too":
-                    tags[MP4Tag.Encoder] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Encoder] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "tmpo":
-                    tags[MP4Tag.BPM] = GetBoxAsString(stream, childSize); // TODO: convert to integer
+                    tags[MP4Tag.BPM] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "cprt":
-                    tags[MP4Tag.Copyright] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Copyright] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "cpil":
-                    tags[MP4Tag.Composer] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Composer] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "©grp":
-                    tags[MP4Tag.Grouping] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Grouping] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "catg":
-                    tags[MP4Tag.Category] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Category] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "keyw":
-                    tags[MP4Tag.Keyword] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Keyword] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 case "desc":
-                    tags[MP4Tag.Description] = GetBoxAsString(stream, childSize);
+                    tags[MP4Tag.Description] = GetBoxAsObject(stream, childSize, dataType);
                     break;
 
                 default:
@@ -274,16 +288,32 @@ namespace ExifOrganizer.Meta.Parsers
 
         private static string GetBoxAsString(Stream stream, int size)
         {
-            if (size == 0)
-                return String.Empty;
+            return (string)GetBoxAsObject(stream, size, MP4DataType.Text);
+        }
 
+        private static object GetBoxAsObject(Stream stream, int size, MP4DataType type)
+        {
             byte[] buffer = new byte[size];
             if (stream.Read(buffer, 0, buffer.Length) != buffer.Length)
                 throw new InvalidDataException("Unable to read full MP4 box content");
 
-            byte[] text = buffer.TakeWhile(c => c != '\0').ToArray();
+            switch (type)
+            {
+                case MP4DataType.UInt8_a:
+                case MP4DataType.UInt8_b:
+                    if (buffer.Length != 1)
+                        throw new InvalidDataException($"Box content type {type} require data to be a single byte. number of bytes: {buffer.Length}.");
+                    return (int)buffer[0];
 
-            return iso_8859_1.GetString(text);
+                case MP4DataType.Text:
+                    if (buffer.Length == 0)
+                        return String.Empty;
+                    byte[] text = buffer.TakeWhile(c => c != '\0').ToArray();
+                    return iso_8859_1.GetString(text);
+
+                default:
+                    throw new InvalidDataException($"Unsupported box content type: {type}");
+            }
         }
     }
 }
