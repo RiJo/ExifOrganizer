@@ -39,6 +39,7 @@ namespace ExifOrganizer.Meta.Parsers
             CompressionMethod,
             FilterMethod,
             InterlaceMethod,
+            LastModified,
             Comment
         }
 
@@ -72,6 +73,8 @@ namespace ExifOrganizer.Meta.Parsers
                 meta.Data[MetaKey.Width] = png[PNGTag.ImageWidth];
             if (png.ContainsKey(PNGTag.ImageHeight))
                 meta.Data[MetaKey.Height] = png[PNGTag.ImageHeight];
+            if (png.ContainsKey(PNGTag.LastModified))
+                meta.Data[MetaKey.DateModified] = png[PNGTag.LastModified];
             if (png.ContainsKey(PNGTag.Comment))
                 meta.Data[MetaKey.Comment] = png[PNGTag.Comment];
 
@@ -136,14 +139,13 @@ namespace ExifOrganizer.Meta.Parsers
 
             // TODO: parse "eXIf" - Exif meta data
             // TODO: parse "pHYs" - indended pixel size, ratio, etc.
-            // TODO: parse "tIME" - store time for last change
             // TODO: parse "zTXt" - compressed text
             switch (type)
             {
                 case "IHDR":
                     {
                         if (length != 13)
-                            throw new MetaParseException($"Invalid PNG \"IDHR\" chunk length: {length}");
+                            throw new MetaParseException($"Invalid PNG \"{type}\" chunk length: {length}");
                         byte[] chunkData = new byte[length];
                         if (stream.Read(chunkData, 0, chunkData.Length) != chunkData.Length)
                             throw new MetaParseException($"Unable to read full PNG chunk \"{type}\" data");
@@ -157,6 +159,27 @@ namespace ExifOrganizer.Meta.Parsers
                         tags[PNGTag.CompressionMethod] = (int)chunkData[10];
                         tags[PNGTag.FilterMethod] = (int)chunkData[11];
                         tags[PNGTag.InterlaceMethod] = (int)chunkData[12];
+                    }
+                    break;
+
+                case "tIME":
+                    {
+                        if (length != 7)
+                            throw new MetaParseException($"Invalid PNG \"{type}\" chunk length: {length}");
+                        byte[] chunkData = new byte[length];
+                        if (stream.Read(chunkData, 0, chunkData.Length) != chunkData.Length)
+                            throw new MetaParseException($"Unable to read full PNG chunk \"{type}\" data");
+
+                        stream.Position += 4; // TODO: verify CRC32
+
+                        int year = BitConverter.ToInt16(chunkData.Take(2).Reverse().ToArray(), 0);
+                        int month = chunkData[2];
+                        int day = chunkData[3];
+                        int hour = chunkData[4];
+                        int minute = chunkData[5];
+                        int second = chunkData[6];
+                        DateTime lastModification = new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc);
+                        tags[PNGTag.LastModified] = lastModification;
                     }
                     break;
 
