@@ -144,13 +144,9 @@ namespace ExifOrganizer.Meta.Parsers
             {
                 case "IHDR":
                     {
-                        if (length != 13)
+                        byte[] chunkData = ReadChunkData(stream, length, type);
+                        if (chunkData.Length != 13)
                             throw new MetaParseException($"Invalid PNG \"{type}\" chunk length: {length}");
-                        byte[] chunkData = new byte[length];
-                        if (stream.Read(chunkData, 0, chunkData.Length) != chunkData.Length)
-                            throw new MetaParseException($"Unable to read full PNG chunk \"{type}\" data");
-
-                        stream.Position += 4; // TODO: verify CRC32
 
                         tags[PNGTag.ImageWidth] = BitConverter.ToInt32(chunkData.Take(4).Reverse().ToArray(), 0);
                         tags[PNGTag.ImageHeight] = BitConverter.ToInt32(chunkData.Skip(4).Take(4).Reverse().ToArray(), 0);
@@ -164,13 +160,9 @@ namespace ExifOrganizer.Meta.Parsers
 
                 case "tIME":
                     {
-                        if (length != 7)
+                        byte[] chunkData = ReadChunkData(stream, length, type);
+                        if (chunkData.Length != 7)
                             throw new MetaParseException($"Invalid PNG \"{type}\" chunk length: {length}");
-                        byte[] chunkData = new byte[length];
-                        if (stream.Read(chunkData, 0, chunkData.Length) != chunkData.Length)
-                            throw new MetaParseException($"Unable to read full PNG chunk \"{type}\" data");
-
-                        stream.Position += 4; // TODO: verify CRC32
 
                         int year = BitConverter.ToInt16(chunkData.Take(2).Reverse().ToArray(), 0);
                         int month = chunkData[2];
@@ -186,16 +178,12 @@ namespace ExifOrganizer.Meta.Parsers
                 case "tEXt":
                 case "iTXt":
                     {
-                        byte[] chunkData = new byte[length];
-                        if (stream.Read(chunkData, 0, chunkData.Length) != chunkData.Length)
-                            throw new MetaParseException($"Unable to read full PNG chunk \"{type}\" data");
+                        byte[] chunkData = ReadChunkData(stream, length, type);
 
                         byte[] keyData = chunkData.TakeWhile(c => c != '\0').ToArray();
                         if (keyData.Length == length)
                             throw new MetaParseException($"Invalid PNG key-value data in chunk \"{type}\"");
                         byte[] valueData = chunkData.Skip(keyData.Length + 1).ToArray();
-
-                        stream.Position += 4; // TODO: verify CRC32
 
                         string key = Encoding.ASCII.GetString(keyData);
                         string value = (type == "iTXt") ? Encoding.UTF8.GetString(valueData) : iso_8859_1.GetString(valueData);
@@ -214,12 +202,69 @@ namespace ExifOrganizer.Meta.Parsers
 
                 default:
                     Trace.WriteLine($"[PNGParser] ignoring chunk type: \"{type}\"");
-                    stream.Position += length; // Skip data
-                    stream.Position += 4; // Skip CRC32
+                    stream.Position += length + 4; // Skip data + CRC32
                     break;
             }
 
             return tags;
+        }
+
+        private static byte[] ReadChunkData(Stream stream, int length, string type)
+        {
+            byte[] data = new byte[length];
+            if (stream.Read(data, 0, data.Length) != data.Length)
+                throw new MetaParseException($"Unable to read full PNG chunk \"{type}\" data");
+
+            byte[] crc32 = new byte[4];
+            if (stream.Read(crc32, 0, crc32.Length) != crc32.Length)
+                throw new MetaParseException($"Unable to read full PNG chunk \"{type}\" CRC32");
+
+            byte[] crcData = type.Select(c => (byte)c).Concat(data).ToArray();
+            uint calculated = CRC32.Calculate(crcData, 0, crcData.Length, 0);
+            uint given = BitConverter.ToUInt32(crc32.Reverse().ToArray(), 0);
+            if (calculated != given)
+                throw new MetaParseException($"Checksum verification failure of PNG chunk \"{type}\"");
+            return data;
+        }
+
+        // Reference: https://stackoverflow.com/questions/24082305/how-is-png-crc-calculated-exactly
+        private static class CRC32
+        {
+            static uint[] crcTable;
+
+            // Stores a running CRC (initialized with the CRC of "IDAT" string). When
+            // you write this to the PNG, write as a big-endian value
+            static uint idatCrc = Calculate(new byte[] { (byte)'I', (byte)'D', (byte)'A', (byte)'T' }, 0, 4, 0);
+
+            // Call this function with the compressed image bytes, 
+            // passing in idatCrc as the last parameter
+            public static uint Calculate(byte[] stream, int offset, int length, uint crc)
+            {
+                uint c;
+                if (crcTable == null)
+                {
+                    crcTable = new uint[256];
+                    for (uint n = 0; n <= 255; n++)
+                    {
+                        c = n;
+                        for (var k = 0; k <= 7; k++)
+                        {
+                            if ((c & 1) == 1)
+                                c = 0xEDB88320 ^ ((c >> 1) & 0x7FFFFFFF);
+                            else
+                                c = ((c >> 1) & 0x7FFFFFFF);
+                        }
+                        crcTable[n] = c;
+                    }
+                }
+                c = crc ^ 0xffffffff;
+                var endOffset = offset + length;
+                for (var i = offset; i < endOffset; i++)
+                {
+                    c = crcTable[(c ^ stream[i]) & 255] ^ ((c >> 8) & 0xFFFFFF);
+                }
+                return c ^ 0xffffffff;
+            }
         }
     }
 }
