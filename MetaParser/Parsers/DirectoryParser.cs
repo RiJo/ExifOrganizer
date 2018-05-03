@@ -44,12 +44,6 @@ namespace ExifOrganizer.Meta.Parsers
             MetaData meta = new MetaData();
             meta.Type = MetaType.Directory;
             meta.Path = path;
-            //meta.Data = new Dictionary<MetaKey, object>();
-            //meta.Data[MetaKey.FileName] = Path.GetFileName(path);
-            //meta.Data[MetaKey.OriginalName] = meta.Data[MetaKey.FileName];
-            //meta.Data[MetaKey.Size] = GetFileSize(path);
-            //meta.Data[MetaKey.Date] = File.GetCreationTime(path);
-            //meta.Data[MetaKey.Tags] = new string[0];
             return meta;
         }
     }

@@ -38,21 +38,7 @@ namespace ExifOrganizer.Meta.Parsers
 
         private static MetaData ParseThread(string filename, MetaType type)
         {
-            if (!File.Exists(filename))
-                throw new MetaParseException("File not found: {0}", filename);
-
-            MetaData meta = new MetaData();
-            meta.Type = type;
-            meta.Path = filename;
-            meta.Data = new Dictionary<MetaKey, object>();
-            meta.Data[MetaKey.FileName] = Path.GetFileName(filename);
-            meta.Data[MetaKey.OriginalName] = meta.Data[MetaKey.FileName];
-            meta.Data[MetaKey.Size] = GetFileSize(filename);
-            meta.Data[MetaKey.DateCreated] = File.GetCreationTime(filename);
-            meta.Data[MetaKey.DateModified] = File.GetLastWriteTime(filename);
-            meta.Data[MetaKey.Timestamp] = meta.Data[MetaKey.DateModified];
-            meta.Data[MetaKey.Tags] = new string[0];
-            return meta;
+            return GetBaseMetaFileData(filename, type);
         }
     }
 }

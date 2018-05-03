@@ -63,22 +63,10 @@ namespace ExifOrganizer.Meta.Parsers
 
         private static MetaData ParseThread(string filename)
         {
-            if (!File.Exists(filename))
-                throw new MetaParseException("File not found: {0}", filename);
+            MetaType type = GetMetaType(filename);
+            MetaData meta = GetBaseMetaFileData(filename, type);
 
             Dictionary<MP4Tag, object> mp4 = ParseMP4(filename);
-
-            MetaData meta = new MetaData();
-            meta.Type = Path.GetExtension(filename) == ".m4a" ? MetaType.Music : MetaType.Video; // TODO: properly define
-            meta.Path = filename;
-            meta.Data = new Dictionary<MetaKey, object>();
-            meta.Data[MetaKey.FileName] = Path.GetFileName(filename);
-            meta.Data[MetaKey.OriginalName] = meta.Data[MetaKey.FileName];
-            meta.Data[MetaKey.Size] = GetFileSize(filename);
-            meta.Data[MetaKey.DateCreated] = File.GetCreationTime(filename);
-            meta.Data[MetaKey.DateModified] = File.GetLastWriteTime(filename);
-            meta.Data[MetaKey.Timestamp] = meta.Data[MetaKey.DateModified];
-
             if (mp4.ContainsKey(MP4Tag.FileFormat))
                 meta.Data[MetaKey.MetaType] = $"MPEG-4 Part 14 ({mp4[MP4Tag.FileFormat]})";
             if (mp4.ContainsKey(MP4Tag.Album))
@@ -97,6 +85,11 @@ namespace ExifOrganizer.Meta.Parsers
                 meta.Data[MetaKey.Track] = mp4[MP4Tag.TrackNumber];
 
             return meta;
+        }
+
+        private static MetaType GetMetaType(string filename)
+        {
+            return Path.GetExtension(filename) == ".m4a" ? MetaType.Music : MetaType.Video; // TODO: properly define
         }
 
         private static Dictionary<MP4Tag, object> ParseMP4(string filename)

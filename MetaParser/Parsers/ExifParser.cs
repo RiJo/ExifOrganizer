@@ -445,20 +445,10 @@ namespace ExifOrganizer.Meta.Parsers
 
         private static MetaData ParseThread(string filename)
         {
-            if (!File.Exists(filename))
-                throw new MetaParseException("File not found: {0}", filename);
+            MetaData meta = GetBaseMetaFileData(filename, MetaType.Image);
+            meta.Data[MetaKey.MetaType] = "Exif"; // TODO: add version information?
 
             Dictionary<ExifId, object> exif = ParseImage(filename);
-
-            MetaData meta = new MetaData();
-            meta.Type = MetaType.Image;
-            meta.Path = filename;
-            meta.Data = new Dictionary<MetaKey, object>();
-            meta.Data[MetaKey.MetaType] = "Exif"; // TODO: add version information?
-            meta.Data[MetaKey.Size] = GetFileSize(filename);
-            meta.Data[MetaKey.DateCreated] = File.GetCreationTime(filename);
-            meta.Data[MetaKey.DateModified] = File.GetLastWriteTime(filename);
-
             if (exif.ContainsKey(ExifId.PhotoPixelXDimension))
             {
                 if (exif[ExifId.PhotoPixelXDimension] is int)
