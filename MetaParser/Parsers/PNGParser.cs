@@ -32,6 +32,7 @@ namespace ExifOrganizer.Meta.Parsers
 
         private enum PNGTag
         {
+            // IHDR
             ImageWidth,
             ImageHeight,
             BitDepth,
@@ -39,7 +40,18 @@ namespace ExifOrganizer.Meta.Parsers
             CompressionMethod,
             FilterMethod,
             InterlaceMethod,
+            // tIME
             LastModified,
+            // tEXt/iTXt
+            Title,
+            Author,
+            Description,
+            Copyright,
+            CreationTime,
+            Software,
+            Disclaimer,
+            Warning,
+            Source,
             Comment
         }
 
@@ -73,6 +85,8 @@ namespace ExifOrganizer.Meta.Parsers
                 meta.Data[MetaKey.Width] = png[PNGTag.ImageWidth];
             if (png.ContainsKey(PNGTag.ImageHeight))
                 meta.Data[MetaKey.Height] = png[PNGTag.ImageHeight];
+            if (meta.Data.ContainsKey(MetaKey.Width) && meta.Data.ContainsKey(MetaKey.Height))
+                meta.Data[MetaKey.Resolution] = $"{meta.Data[MetaKey.Width]}x{meta.Data[MetaKey.Height]}";
             if (png.ContainsKey(PNGTag.LastModified))
                 meta.Data[MetaKey.DateModified] = png[PNGTag.LastModified];
             if (png.ContainsKey(PNGTag.Comment))
@@ -189,6 +203,42 @@ namespace ExifOrganizer.Meta.Parsers
                         string value = (type == "iTXt") ? Encoding.UTF8.GetString(valueData) : iso_8859_1.GetString(valueData);
                         switch (key)
                         {
+                            case "Title":
+                                tags[PNGTag.Title] = value;
+                                break;
+
+                            case "Author":
+                                tags[PNGTag.Author] = value;
+                                break;
+
+                            case "Description":
+                                tags[PNGTag.Description] = value;
+                                break;
+
+                            case "Copyright":
+                                tags[PNGTag.Copyright] = value;
+                                break;
+
+                            case "Creation Time":
+                                tags[PNGTag.CreationTime] = value;
+                                break;
+
+                            case "Software":
+                                tags[PNGTag.Software] = value;
+                                break;
+
+                            case "Disclaimer":
+                                tags[PNGTag.Disclaimer] = value;
+                                break;
+
+                            case "Warning":
+                                tags[PNGTag.Warning] = value;
+                                break;
+
+                            case "Source":
+                                tags[PNGTag.Source] = value;
+                                break;
+
                             case "Comment":
                                 tags[PNGTag.Comment] = value;
                                 break;
