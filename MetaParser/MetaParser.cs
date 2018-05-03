@@ -81,8 +81,13 @@ namespace ExifOrganizer.Meta
                         return Task.FromResult<MetaData>(null);
                     return ExifParser.ParseAsync(path);
 
-                // Images (generic)
+                // Images (PNG)
                 case ".png":
+                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Image))
+                        return Task.FromResult<MetaData>(null);
+                    return PNGParser.ParseAsync(path);
+
+                // Images (generic)
                 case ".gif":
                 case ".bmp":
                     if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Image))

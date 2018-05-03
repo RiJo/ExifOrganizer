@@ -12,6 +12,7 @@ The idea is to select a source path to be organized, where media files (mainly i
 * Exif - .jpeg .jpg .tiff .tif
 * MP4 - .mp4 .m4a .mov .3gp .3g2
 * ID3 - .mp3
+* PNG - .png
 
 Most other media files are parsed in a generic way and lacks the detailed meta data.
 
