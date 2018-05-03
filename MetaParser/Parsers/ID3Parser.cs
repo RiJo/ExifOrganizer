@@ -333,7 +333,6 @@ namespace ExifOrganizer.Meta.Parsers
             id3v1.Remove(ID3Tag.Version);
             foreach (var tag in id3v1)
             {
-                Trace.WriteLine($"[{nameof(ID3Parser)}] * {tag.Key} = \"{tag.Value}\"");
                 if (id3v2.ContainsKey(tag.Key))
                 {
                     Trace.WriteLine($"[{nameof(ID3Parser)}] key found in both ID3v1 and ID3v2: {tag.Key}");
@@ -460,7 +459,7 @@ namespace ExifOrganizer.Meta.Parsers
             return tags;
         }
 
-        private static string ParseTextualFrame(MemoryStream stream, int length)
+        private static string ParseTextualFrame(Stream stream, int length)
         {
             if (length == 0)
                 return String.Empty;
