@@ -95,6 +95,12 @@ namespace ExifOrganizer.Meta
                         return Task.FromResult<MetaData>(null);
                     return ID3Parser.ParseAsync(path);
 
+                // Music (MP4)
+                case ".m4a":
+                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Music))
+                        return Task.FromResult<MetaData>(null);
+                    return MP4Parser.ParseAsync(path);
+
                 // Music (generic)
                 case ".wav": // TODO: exif
                 case ".flac":
@@ -103,11 +109,19 @@ namespace ExifOrganizer.Meta
                         return Task.FromResult<MetaData>(null);
                     return GenericFileParser.ParseAsync(path, MetaType.Music);
 
+                // Movies (MP4)
+                case ".mp4":
+                case ".mpg4":
+                case ".mov":
+                case ".3gp":
+                case ".3g2":
+                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Video))
+                        return Task.FromResult<MetaData>(null);
+                    return MP4Parser.ParseAsync(path);
+
                 // Movies (generic)
                 case ".mpg":
                 case ".mpeg":
-                case ".mov":
-                case ".mp4":
                     if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Video))
                         return Task.FromResult<MetaData>(null);
                     return GenericFileParser.ParseAsync(path, MetaType.Video);

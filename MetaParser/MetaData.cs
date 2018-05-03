@@ -34,7 +34,6 @@ namespace ExifOrganizer.Meta
     {
         // Common
         MetaType,
-
         OriginalName,
         FileName,
         Size,
@@ -45,7 +44,6 @@ namespace ExifOrganizer.Meta
 
         // Image
         Resolution,
-
         Width,
         Height,
         Camera,
@@ -53,7 +51,6 @@ namespace ExifOrganizer.Meta
 
         // Music
         Title,
-
         Artist,
         Album,
         Year,
