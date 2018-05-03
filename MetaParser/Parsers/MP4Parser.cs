@@ -110,7 +110,7 @@ namespace ExifOrganizer.Meta.Parsers
             {
                 byte[] header = new byte[8];
                 if (stream.Read(header, 0, header.Length) != header.Length)
-                    throw new InvalidDataException("Unable to read full MP4 box header");
+                    throw new MetaParseException("Unable to read full MP4 box header");
 
                 int size = BitConverter.ToInt32(header.Take(4).Reverse().ToArray(), 0);
                 if (size < 8)
@@ -180,7 +180,7 @@ namespace ExifOrganizer.Meta.Parsers
 
             byte[] childHeader = new byte[8];
             if (stream.Read(childHeader, 0, childHeader.Length) != childHeader.Length)
-                throw new InvalidDataException($"Unable to read full MP4 \"ilst.{type}\" header");
+                throw new MetaParseException($"Unable to read full MP4 \"ilst.{type}\" header");
 
             int childSize = BitConverter.ToInt32(childHeader.Take(4).Reverse().ToArray(), 0);
             if (childSize < 8)
@@ -188,11 +188,11 @@ namespace ExifOrganizer.Meta.Parsers
             childSize -= 8;
             string childType = iso_8859_1.GetString(childHeader, 4, 4);
             if (childType != "data")
-                throw new InvalidOperationException($"MP4 \"ilst.{type}\" must have a child of type \"data\", actual: \"{childType}\"");
+                throw new MetaParseException($"MP4 \"ilst.{type}\" must have a child of type \"data\", actual: \"{childType}\"");
 
             byte[] childFlags = new byte[4];
             if (stream.Read(childFlags, 0, childFlags.Length) != childFlags.Length)
-                throw new InvalidDataException($"Unable to read full MP4 \"ilst.{type}.{childType}\" flags");
+                throw new MetaParseException($"Unable to read full MP4 \"ilst.{type}.{childType}\" flags");
 
             stream.Position += 4; // Ignore null bytes
             childSize -= 8;
@@ -288,14 +288,14 @@ namespace ExifOrganizer.Meta.Parsers
         {
             byte[] buffer = new byte[size];
             if (stream.Read(buffer, 0, buffer.Length) != buffer.Length)
-                throw new InvalidDataException("Unable to read full MP4 box content");
+                throw new MetaParseException("Unable to read full MP4 box content");
 
             switch (type)
             {
                 case MP4DataType.UInt8_a:
                 case MP4DataType.UInt8_b:
                     if (buffer.Length != 1)
-                        throw new InvalidDataException($"Box content type {type} require data to be a single byte. number of bytes: {buffer.Length}.");
+                        throw new MetaParseException($"Box content type {type} require data to be a single byte. number of bytes: {buffer.Length}.");
                     return (int)buffer[0];
 
                 case MP4DataType.Text:
@@ -305,7 +305,7 @@ namespace ExifOrganizer.Meta.Parsers
                     return iso_8859_1.GetString(text);
 
                 default:
-                    throw new InvalidDataException($"Unsupported box content type: {type}");
+                    throw new NotImplementedException($"Unsupported box content type: {type}");
             }
         }
     }

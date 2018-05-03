@@ -370,7 +370,7 @@ namespace ExifOrganizer.Meta.Parsers
             {
                 byte[] header = new byte[10];
                 if (stream.Read(header, 0, header.Length) != header.Length)
-                    throw new InvalidDataException("Unable to read full ID3v2 tag header");
+                    throw new MetaParseException("Unable to read full ID3v2 tag header");
                 if (header[0] != 'I' || header[1] != 'D' || header[2] != '3')
                     return tags;
 
@@ -388,7 +388,7 @@ namespace ExifOrganizer.Meta.Parsers
                 {
                     byte[] extendedHeader = new byte[10];
                     if (stream.Read(extendedHeader, 0, extendedHeader.Length) != extendedHeader.Length)
-                        throw new InvalidDataException("Unable to read full ID3v2 extended header");
+                        throw new MetaParseException("Unable to read full ID3v2 extended header");
 
                     int extendedSize = BitConverter.ToInt32(extendedHeader.Take(4).Reverse().ToArray(), 0);
                     ID3v2ExtendedFlags extendedFlags = (ID3v2ExtendedFlags)((extendedHeader[4] << 8) | extendedHeader[5]);
@@ -402,7 +402,7 @@ namespace ExifOrganizer.Meta.Parsers
                 {
                     byte[] frameHeader = new byte[10];
                     if (stream.Read(frameHeader, 0, frameHeader.Length) != frameHeader.Length)
-                        throw new InvalidDataException("Unable to read full ID3v2 frame header");
+                        throw new MetaParseException("Unable to read full ID3v2 frame header");
                     string frameID = Encoding.ASCII.GetString(frameHeader, 0, 4);
                     if (frameID == "\0\0\0\0")
                         break; // TODO: done?
@@ -455,7 +455,7 @@ namespace ExifOrganizer.Meta.Parsers
 
             byte[] buffer = new byte[length - 1];
             if (stream.Read(buffer, 0, buffer.Length) != buffer.Length)
-                throw new InvalidDataException("Unable to read full ID3v2 frame content");
+                throw new MetaParseException("Unable to read full ID3v2 frame content");
 
             byte[] text = buffer.TakeWhile(c => c != '\0').ToArray();
 
