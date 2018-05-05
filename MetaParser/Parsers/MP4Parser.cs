@@ -101,7 +101,7 @@ namespace ExifOrganizer.Meta.Parsers
 
         private static MetaType GetMetaType(string filename)
         {
-            return Path.GetExtension(filename) == ".m4a" ? MetaType.Music : MetaType.Video; // TODO: properly define
+            return Path.GetExtension(filename) == ".m4a" ? MetaType.Audio : MetaType.Video; // TODO: properly define
         }
 
         private static Dictionary<MP4Tag, object> ParseMP4(string filename)

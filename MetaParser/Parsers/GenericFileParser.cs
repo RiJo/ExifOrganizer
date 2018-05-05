@@ -50,7 +50,7 @@ namespace ExifOrganizer.Meta.Parsers
                 case ".wav":
                 case ".flac":
                 case ".aac":
-                    return MetaType.Music;
+                    return MetaType.Audio;
                 case ".mpg":
                 case ".mpeg":
                     return MetaType.Video;

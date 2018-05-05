@@ -27,7 +27,7 @@ namespace ExifOrganizer.Meta
 
         Image,
         Video,
-        Music
+        Audio
     }
 
     public enum MetaKey

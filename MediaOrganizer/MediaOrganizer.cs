@@ -608,7 +608,7 @@ namespace ExifOrganizer.Organizer
                     destinationPattern = DestinationPatternVideo;
                     break;
 
-                case MetaType.Music:
+                case MetaType.Audio:
                     destinationPattern = DestinationPatternAudio;
                     break;
 

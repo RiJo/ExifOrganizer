@@ -297,7 +297,7 @@ namespace ExifOrganizer.Meta.Parsers
 
         protected override MetaData ParseFile(Stream stream, MetaData meta)
         {
-            meta.Type = MetaType.Music;
+            meta.Type = MetaType.Audio;
 
             Dictionary<ID3Tag, object> id3 = ParseID3(meta.Path);
             if (id3.ContainsKey(ID3Tag.Version))
