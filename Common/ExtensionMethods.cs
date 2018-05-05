@@ -77,12 +77,20 @@ namespace ExifOrganizer.Common
             }
         }
 
-        public static string ToString<T>(this IEnumerable<T> collection, string separator = ",")
+        public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
         {
-            if (collection == null)
+            foreach (T item in enumeration)
+            {
+                action(item);
+            }
+        }
+
+        public static string ToString<T>(this IEnumerable<T> enumeration, string separator = ",")
+        {
+            if (enumeration == null)
                 return "<null>";
 
-            return String.Join(separator, collection);
+            return String.Join(separator, enumeration);
         }
 
         public static string RemoveNullChars(this string s)
