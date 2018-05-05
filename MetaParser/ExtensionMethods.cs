@@ -30,8 +30,10 @@ namespace ExifOrganizer.Meta
         {
             if (meta.Path != other.Path)
                 throw new MetaParseException("Cannot merge meta data: path differ");
-            if (meta.Origin != other.Origin)
-                throw new MetaParseException("Cannot merge meta data: origin differ");
+//#if DEBUG
+//            if (meta.Origin != other.Origin)
+//                throw new MetaParseException("Cannot merge meta data: origin differ");
+//#endif
             if (meta.Type != other.Type)
                 throw new MetaParseException("Cannot merge meta data: type differ");
 
