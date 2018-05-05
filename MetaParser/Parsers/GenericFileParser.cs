@@ -22,23 +22,41 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta.Parsers
 {
-    internal class GenericFileParser : Parser
+    internal class GenericFileParser : FileParser
     {
-        public static MetaData Parse(string filename, MetaType type)
+        internal override IEnumerable<string> GetSupportedFileExtensions()
         {
-            Task<MetaData> task = ParseAsync(filename, type);
-            task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
+            return new string[] { ".gif", ".bmp", "wav", ".flac", ".aac", ".mpg", ".mpeg" };
         }
 
-        public static Task<MetaData> ParseAsync(string filename, MetaType type)
+        internal override bool ContainsMeta(Stream stream)
         {
-            return Task.Run(() => ParseThread(filename, type));
+            return true; // TODO: implement
         }
 
-        private static MetaData ParseThread(string filename, MetaType type)
+        protected override MetaData ParseFile(Stream stream, MetaData meta)
         {
-            return GetBaseMetaFileData(filename, type);
+            meta.Type = GetMetaTypeByFileExtension(Path.GetExtension(meta.Path));
+            return meta;
+        }
+
+        private MetaType GetMetaTypeByFileExtension(string extension)
+        {
+            switch (extension)
+            {
+                case ".gif":
+                case ".bmp":
+                    return MetaType.Image;
+                case ".wav":
+                case ".flac":
+                case ".aac":
+                    return MetaType.Music;
+                case ".mpg":
+                case ".mpeg":
+                    return MetaType.Video;
+                default:
+                    throw new MetaParseException($"Unhandled file extension: {extension}");
+            }
         }
     }
 }

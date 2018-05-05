@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta.Parsers
 {
-    internal class MP4Parser : Parser
+    internal class MP4Parser : FileParser
     {
         private static readonly Encoding iso_8859_1 = Encoding.GetEncoding("iso-8859-1");
 
@@ -64,24 +64,21 @@ namespace ExifOrganizer.Meta.Parsers
             UInt8_b = 21,
         }
 
-        public static MetaData Parse(string filename)
+        internal override IEnumerable<string> GetSupportedFileExtensions()
         {
-            Task<MetaData> task = ParseAsync(filename);
-            task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
+            return new string[] { ".mp4", ".m4a", ".mov", ".3gp", ".3g2" };
         }
 
-        public static Task<MetaData> ParseAsync(string filename)
+        internal override bool ContainsMeta(Stream stream)
         {
-            return Task.Run(() => ParseThread(filename));
+            return true; // TODO: implement
         }
 
-        private static MetaData ParseThread(string filename)
+        protected override MetaData ParseFile(Stream stream, MetaData meta)
         {
-            MetaType type = GetMetaType(filename);
-            MetaData meta = GetBaseMetaFileData(filename, type);
+            meta.Type = GetMetaType(meta.Path);
 
-            Dictionary<MP4Tag, object> mp4 = ParseMP4(filename);
+            Dictionary<MP4Tag, object> mp4 = ParseMP4(meta.Path);
             if (mp4.ContainsKey(MP4Tag.FileFormat))
                 meta.Data[MetaKey.MetaType] = $"MPEG-4 Part 14 ({mp4[MP4Tag.FileFormat]})";
             if (mp4.ContainsKey(MP4Tag.Album))

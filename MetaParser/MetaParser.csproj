@@ -49,6 +49,7 @@
     <Compile Include="Parsers\ExifParser.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="MetaData.cs" />
+    <Compile Include="Parsers\FileParser.cs" />
     <Compile Include="Parsers\GenericFileParser.cs" />
     <Compile Include="Parsers\PNGParser.cs" />
     <Compile Include="Parsers\ID3Parser.cs" />

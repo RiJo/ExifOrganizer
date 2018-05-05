@@ -35,6 +35,18 @@ namespace ExifOrganizer.Meta
 
     public static class MetaParser
     {
+        private static readonly IEnumerable<FileParser> _fileParsers;
+        private static readonly DirectoryParser _directoryParser;
+
+        static MetaParser()
+        {
+            _fileParsers = typeof(FileParser)
+                .Assembly.GetTypes()
+                .Where(t => t.IsSubclassOf(typeof(FileParser)) && !t.IsAbstract)
+                .Select(t => (FileParser)Activator.CreateInstance(t));
+            _directoryParser = new DirectoryParser();
+        }
+
         public static IEnumerable<MetaData> Parse(string path, MetaParserConfig config)
         {
             Task<IEnumerable<MetaData>> task = ParseAsync(path, config);
@@ -62,7 +74,7 @@ namespace ExifOrganizer.Meta
             return task.Result;
         }
 
-        public static Task<MetaData> ParseFileAsync(string path, MetaParserConfig config)
+        public async static Task<MetaData> ParseFileAsync(string path, MetaParserConfig config)
         {
             if (String.IsNullOrEmpty(path))
                 throw new ArgumentNullException(nameof(path));
@@ -70,72 +82,14 @@ namespace ExifOrganizer.Meta
                 throw new MetaParseException("File not found: {0}", path);
 
             string extension = Path.GetExtension(path).ToLower();
-            switch (extension)
-            {
-                // Images (Exif)
-                case ".jpg":
-                case ".jpeg":
-                case ".tif":
-                case ".tiff":
-                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Image))
-                        return Task.FromResult<MetaData>(null);
-                    return ExifParser.ParseAsync(path);
+            IEnumerable<Parser> parsers = _fileParsers.Where(parser => parser.GetSupportedFileExtensions().Contains(extension));
+            if (!parsers.Any())
+                return await Task.FromResult<MetaData>(null);
+            if (parsers.Count() > 1)
+                throw new NotImplementedException($"Support for multiple tag formats within same file not yet supported");
 
-                // Images (PNG)
-                case ".png":
-                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Image))
-                        return Task.FromResult<MetaData>(null);
-                    return PNGParser.ParseAsync(path);
-
-                // Images (generic)
-                case ".gif":
-                case ".bmp":
-                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Image))
-                        return Task.FromResult<MetaData>(null);
-                    return GenericFileParser.ParseAsync(path, MetaType.Image);
-
-                // Music (ID3)
-                case ".mp3":
-                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Music))
-                        return Task.FromResult<MetaData>(null);
-                    return ID3Parser.ParseAsync(path);
-
-                // Music (MP4)
-                case ".m4a":
-                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Music))
-                        return Task.FromResult<MetaData>(null);
-                    return MP4Parser.ParseAsync(path);
-
-                // Music (generic)
-                case ".wav": // TODO: exif
-                case ".flac":
-                case ".aac":
-                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Music))
-                        return Task.FromResult<MetaData>(null);
-                    return GenericFileParser.ParseAsync(path, MetaType.Music);
-
-                // Movies (MP4)
-                case ".mp4":
-                case ".mpg4":
-                case ".mov":
-                case ".3gp":
-                case ".3g2":
-                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Video))
-                        return Task.FromResult<MetaData>(null);
-                    return MP4Parser.ParseAsync(path);
-
-                // Movies (generic)
-                case ".mpg":
-                case ".mpeg":
-                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.Video))
-                        return Task.FromResult<MetaData>(null);
-                    return GenericFileParser.ParseAsync(path, MetaType.Video);
-
-                default:
-                    if (config.FilterTypes != null && !config.FilterTypes.Contains(MetaType.File))
-                        return Task.FromResult<MetaData>(null);
-                    return GenericFileParser.ParseAsync(path, MetaType.File);
-            }
+            IEnumerable<MetaData> meta = await Task.WhenAll(parsers.Select(parser => parser.ParseAsync(path)).ToArray());
+            return await Task.FromResult(meta.First());
         }
 
         public static IEnumerable<MetaData> ParseDirectory(string path, MetaParserConfig config)
@@ -163,7 +117,7 @@ namespace ExifOrganizer.Meta
             }
 
             LinkedList<Task<MetaData>> fileTasks = new LinkedList<Task<MetaData>>();
-            fileTasks.AddLast(DirectoryParser.ParseAsync(path));
+            fileTasks.AddLast(_directoryParser.ParseAsync(path));
             foreach (string file in Directory.GetFiles(path))
             {
                 fileTasks.AddLast(ParseFileAsync(file, config));

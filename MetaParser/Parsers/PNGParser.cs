@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta.Parsers
 {
-    internal class PNGParser : Parser
+    internal class PNGParser : FileParser
     {
         private static readonly Encoding iso_8859_1 = Encoding.GetEncoding("iso-8859-1");
 
@@ -64,23 +64,21 @@ namespace ExifOrganizer.Meta.Parsers
             TruecolorWithAlpha = 6
         }
 
-        public static MetaData Parse(string filename)
+        internal override IEnumerable<string> GetSupportedFileExtensions()
         {
-            Task<MetaData> task = ParseAsync(filename);
-            task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
+            return new string[] { ".png" };
         }
 
-        public static Task<MetaData> ParseAsync(string filename)
+        internal override bool ContainsMeta(Stream stream)
         {
-            return Task.Run(() => ParseThread(filename));
+            return true; // TODO: implement
         }
 
-        private static MetaData ParseThread(string filename)
+        protected override MetaData ParseFile(Stream stream, MetaData meta)
         {
-            MetaData meta = GetBaseMetaFileData(filename, MetaType.Image);
+            meta.Type = MetaType.Image;
 
-            Dictionary<PNGTag, object> png = ParsePNG(filename);
+            Dictionary<PNGTag, object> png = ParsePNG(meta.Path);
             if (png.ContainsKey(PNGTag.ImageWidth))
                 meta.Data[MetaKey.Width] = png[PNGTag.ImageWidth];
             if (png.ContainsKey(PNGTag.ImageHeight))

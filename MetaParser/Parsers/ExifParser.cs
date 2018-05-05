@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta.Parsers
 {
-    internal class ExifParser : Parser
+    internal class ExifParser : FileParser
     {
         private const char TagsSeparator = ';';
 
@@ -431,24 +431,22 @@ namespace ExifOrganizer.Meta.Parsers
             HalftoneShape = 0x500D,
         }
 
-        public static MetaData Parse(string filename)
+        internal override IEnumerable<string> GetSupportedFileExtensions()
         {
-            Task<MetaData> task = ParseAsync(filename);
-            task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
+            return new string[] { ".jpg", ".jpeg", ".tif", ".tiff" };
         }
 
-        public static Task<MetaData> ParseAsync(string filename)
+        internal override bool ContainsMeta(Stream stream)
         {
-            return Task.Run(() => ParseThread(filename));
+            return true; // TODO: implement
         }
 
-        private static MetaData ParseThread(string filename)
+        protected override MetaData ParseFile(Stream stream, MetaData meta)
         {
-            MetaData meta = GetBaseMetaFileData(filename, MetaType.Image);
+            meta.Type = MetaType.Image;
             meta.Data[MetaKey.MetaType] = "Exif"; // TODO: add version information?
 
-            Dictionary<ExifId, object> exif = ParseImage(filename);
+            Dictionary<ExifId, object> exif = ParseImage(meta.Path);
             if (exif.ContainsKey(ExifId.PhotoPixelXDimension))
             {
                 if (exif[ExifId.PhotoPixelXDimension] is int)
@@ -471,7 +469,7 @@ namespace ExifOrganizer.Meta.Parsers
             else
                 meta.Data[MetaKey.Timestamp] = meta.Data[MetaKey.DateModified];
 
-            meta.Data[MetaKey.FileName] = Path.GetFileName(filename);
+            meta.Data[MetaKey.FileName] = Path.GetFileName(meta.Path);
             if (exif.ContainsKey(ExifId.ImageOriginalRawFileName))
                 meta.Data[MetaKey.OriginalName] = exif[ExifId.ImageOriginalRawFileName];
             else

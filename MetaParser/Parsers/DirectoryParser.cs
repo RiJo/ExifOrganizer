@@ -23,20 +23,20 @@ namespace ExifOrganizer.Meta.Parsers
 {
     internal class DirectoryParser : Parser
     {
-        public static MetaData Parse(string path)
+        internal override MetaData Parse(string path)
         {
             Task<MetaData> task = ParseAsync(path);
             task.ConfigureAwait(false); // Prevent deadlock of caller
             return task.Result;
         }
 
-        public static Task<MetaData> ParseAsync(string path)
+        internal override Task<MetaData> ParseAsync(string path)
         {
             //return Task.Run(() => ParseThread(path));
             return Task.FromResult(ParseThread(path));
         }
 
-        private static MetaData ParseThread(string path)
+        private MetaData ParseThread(string path)
         {
             if (!Directory.Exists(path))
                 throw new MetaParseException("Directory not found: {0}", path);

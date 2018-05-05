@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace ExifOrganizer.Meta.Parsers
 {
-    internal class ID3Parser : Parser
+    internal class ID3Parser : FileParser
     {
         private static readonly Encoding iso_8859_1 = Encoding.GetEncoding("iso-8859-1");
 
@@ -285,23 +285,21 @@ namespace ExifOrganizer.Meta.Parsers
             UTF8 = 3
         }
 
-        public static MetaData Parse(string filename)
+        internal override IEnumerable<string> GetSupportedFileExtensions()
         {
-            Task<MetaData> task = ParseAsync(filename);
-            task.ConfigureAwait(false); // Prevent deadlock of caller
-            return task.Result;
+            return new string[] { ".mp3" };
         }
 
-        public static Task<MetaData> ParseAsync(string filename)
+        internal override bool ContainsMeta(Stream stream)
         {
-            return Task.Run(() => ParseThread(filename));
+            return true; // TODO: implement
         }
 
-        private static MetaData ParseThread(string filename)
+        protected override MetaData ParseFile(Stream stream, MetaData meta)
         {
-            MetaData meta = GetBaseMetaFileData(filename, MetaType.Music);
+            meta.Type = MetaType.Music;
 
-            Dictionary<ID3Tag, object> id3 = ParseID3(filename);
+            Dictionary<ID3Tag, object> id3 = ParseID3(meta.Path);
             if (id3.ContainsKey(ID3Tag.Version))
                 meta.Data[MetaKey.MetaType] = id3[ID3Tag.Version];
             if (id3.ContainsKey(ID3Tag.Title))
