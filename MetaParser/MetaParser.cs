@@ -82,14 +82,12 @@ namespace ExifOrganizer.Meta
                 throw new MetaParseException("File not found: {0}", path);
 
             string extension = Path.GetExtension(path).ToLower();
-            IEnumerable<Parser> parsers = _fileParsers.Where(parser => parser.GetSupportedFileExtensions().Contains(extension));
+            IEnumerable<FileParser> parsers = _fileParsers.Where(parser => parser.GetSupportedFileExtensions().Contains(extension));
             if (!parsers.Any())
                 return await Task.FromResult<MetaData>(null);
-            if (parsers.Count() > 1)
-                throw new NotImplementedException($"Support for multiple tag formats within same file not yet supported");
 
             IEnumerable<MetaData> meta = await Task.WhenAll(parsers.Select(parser => parser.ParseAsync(path)).ToArray());
-            return await Task.FromResult(meta.First());
+            return await Task.FromResult(meta.Aggregate((a, b) => a.Merge(b)));
         }
 
         public static IEnumerable<MetaData> ParseDirectory(string path, MetaParserConfig config)

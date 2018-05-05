@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -25,26 +26,28 @@ namespace ExifOrganizer.Meta
 {
     public static class ExtensionMethods
     {
-        //public static string ToString<T>(this Array collection, string separator = ",")
-        //{
-        //    if (collection == null)
-        //        return "<null>";
+        public static MetaData Merge(this MetaData meta, MetaData other)
+        {
+            if (meta.Path != other.Path)
+                throw new MetaParseException("Cannot merge meta data: path differ");
+            if (meta.Origin != other.Origin)
+                throw new MetaParseException("Cannot merge meta data: origin differ");
+            if (meta.Type != other.Type)
+                throw new MetaParseException("Cannot merge meta data: type differ");
 
-        //    List<string> values = new List<string>();
-        //    foreach (T item in collection)
-        //        values.Add(item.ToString());
-        //    return String.Join(separator, values.ToArray());
-        //}
+            foreach (var kvp in other.Data)
+            {
+                if (meta.Data.ContainsKey(kvp.Key))
+                {
+                    if (kvp.Value != meta.Data[kvp.Key])
+                        Trace.WriteLine($"[MetaData] merge ignore duplicate key: \"{kvp.Key}\"");
+                    continue;
+                }
 
-        //public static string ToString<T>(this T[] collection, string separator = ",")
-        //{
-        //    if (collection == null)
-        //        return "<null>";
+                meta.Data[kvp.Key] = kvp.Value;
+            }
 
-        //    List<string> values = new List<string>();
-        //    foreach (T item in collection)
-        //        values.Add(item.ToString());
-        //    return String.Join(separator, values.ToArray());
-        //}
+            return meta;
+        }
     }
 }
