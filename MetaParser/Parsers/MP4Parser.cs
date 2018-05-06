@@ -69,9 +69,20 @@ namespace ExifOrganizer.Meta.Parsers
             return new string[] { ".mp4", ".m4a", ".mov", ".3gp", ".3g2" };
         }
 
-        internal override bool ContainsMeta(Stream stream)
+        internal override MetaType? GetMetaTypeByFileExtension(string extension)
         {
-            return true; // TODO: implement
+            switch (extension)
+            {
+                case ".mp4":
+                case ".mov":
+                case ".3gp":
+                case ".3g2":
+                    return MetaType.Video;
+                case ".m4a":
+                    return MetaType.Audio;
+                default:
+                    return base.GetMetaTypeByFileExtension(extension);
+            }
         }
 
         protected override MetaData ParseFile(Stream stream, MetaData meta)

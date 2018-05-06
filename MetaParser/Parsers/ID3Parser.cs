@@ -290,9 +290,11 @@ namespace ExifOrganizer.Meta.Parsers
             return new string[] { ".mp3" };
         }
 
-        internal override bool ContainsMeta(Stream stream)
+        internal override MetaType? GetMetaTypeByFileExtension(string extension)
         {
-            return true; // TODO: implement
+            if (GetSupportedFileExtensions().Contains(extension))
+                return MetaType.Audio;
+            return base.GetMetaTypeByFileExtension(extension);
         }
 
         protected override MetaData ParseFile(Stream stream, MetaData meta)

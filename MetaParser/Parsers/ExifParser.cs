@@ -26,6 +26,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ExifOrganizer.Meta.Parsers
 {
@@ -436,9 +437,11 @@ namespace ExifOrganizer.Meta.Parsers
             return new string[] { ".jpg", ".jpeg", ".tif", ".tiff" };
         }
 
-        internal override bool ContainsMeta(Stream stream)
+        internal override MetaType? GetMetaTypeByFileExtension(string extension)
         {
-            return true; // TODO: implement
+            if (GetSupportedFileExtensions().Contains(extension))
+                return MetaType.Image;
+            return base.GetMetaTypeByFileExtension(extension);
         }
 
         protected override MetaData ParseFile(Stream stream, MetaData meta)

@@ -19,6 +19,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ExifOrganizer.Meta.Parsers
 {
@@ -29,18 +30,7 @@ namespace ExifOrganizer.Meta.Parsers
             return new string[] { ".gif", ".bmp", "wav", ".flac", ".aac", ".mpg", ".mpeg" };
         }
 
-        internal override bool ContainsMeta(Stream stream)
-        {
-            return true; // TODO: implement
-        }
-
-        protected override MetaData ParseFile(Stream stream, MetaData meta)
-        {
-            meta.Type = GetMetaTypeByFileExtension(Path.GetExtension(meta.Path));
-            return meta;
-        }
-
-        private MetaType GetMetaTypeByFileExtension(string extension)
+        internal override MetaType? GetMetaTypeByFileExtension(string extension)
         {
             switch (extension)
             {
@@ -55,8 +45,14 @@ namespace ExifOrganizer.Meta.Parsers
                 case ".mpeg":
                     return MetaType.Video;
                 default:
-                    throw new MetaParseException($"Unhandled file extension: {extension}");
+                    return base.GetMetaTypeByFileExtension(extension);
             }
+        }
+
+        protected override MetaData ParseFile(Stream stream, MetaData meta)
+        {
+            meta.Type = GetMetaTypeByFileExtension(Path.GetExtension(meta.Path)).Value;
+            return meta;
         }
     }
 }

@@ -82,7 +82,10 @@ namespace ExifOrganizer.Meta
                 throw new MetaParseException("File not found: {0}", path);
 
             string extension = Path.GetExtension(path).ToLower();
-            IEnumerable<FileParser> parsers = _fileParsers.Where(parser => parser.GetSupportedFileExtensions().Contains(extension));
+            IEnumerable<FileParser> parsers = _fileParsers.Where(parser => {
+                MetaType? type = parser.GetMetaTypeByFileExtension(extension);
+                return type.HasValue && (config.FilterTypes == null || config.FilterTypes.Contains(type.Value));
+            });
             if (!parsers.Any())
                 return await Task.FromResult<MetaData>(null);
 

@@ -32,7 +32,6 @@ namespace ExifOrganizer.Meta.Parsers
 
         internal override Task<MetaData> ParseAsync(string path)
         {
-            //return Task.Run(() => ParseThread(path));
             return Task.FromResult(ParseThread(path));
         }
 

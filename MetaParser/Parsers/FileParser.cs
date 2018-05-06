@@ -10,7 +10,7 @@ namespace ExifOrganizer.Meta.Parsers
     internal abstract class FileParser : Parser
     {
         internal abstract IEnumerable<string> GetSupportedFileExtensions();
-        internal abstract bool ContainsMeta(Stream stream);
+        internal virtual MetaType? GetMetaTypeByFileExtension(string extension) { return null; }
 
         internal override MetaData Parse(string filename)
         {
