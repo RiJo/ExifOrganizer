@@ -20,6 +20,7 @@ using ExifOrganizer.Common;
 using ExifOrganizer.Meta.Parsers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -45,6 +46,11 @@ namespace ExifOrganizer.Meta
                 .Where(t => t.IsSubclassOf(typeof(FileParser)) && !t.IsAbstract)
                 .Select(t => (FileParser)Activator.CreateInstance(t));
             _directoryParser = new DirectoryParser();
+
+#if DEBUG
+            foreach (var parser in _fileParsers)
+                Trace.WriteLine($"[{parser.GetType().Name}] {String.Join(", ", parser.GetSupportedFileExtensions())}");
+#endif
         }
 
         public static IEnumerable<MetaData> Parse(string path, MetaParserConfig config)
