@@ -20,6 +20,7 @@ using ExifOrganizer.Common;
 using ExifOrganizer.Meta;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -91,8 +92,11 @@ namespace ExifOrganizer.Querier
 
                     if (queries.HasFlag(QueryType.EqualFileNameDifferentFileSize) && equalFilename)
                     {
-                        if (item.Data[MetaKey.Size] != other.Data[MetaKey.Size])
-                            match |= QueryType.EqualFileNameDifferentFileSize;
+                        if (RequireMetaKey(item, MetaKey.Size) && RequireMetaKey(other, MetaKey.Size))
+                        {
+                            if (item.Data[MetaKey.Size] != other.Data[MetaKey.Size])
+                                match |= QueryType.EqualFileNameDifferentFileSize;
+                        }
                     }
 
                     if (queries.HasFlag(QueryType.EqualChecksumMD5) || queries.HasFlag(QueryType.EqualFileNameDifferentChecksumMD5))
@@ -170,20 +174,26 @@ namespace ExifOrganizer.Querier
                             match |= QueryType.EqualFileNameDifferentChecksumSHA256;
                     }
 
-                    if ((queries.HasFlag(QueryType.LowResolution) || queries.HasFlag(QueryType.EqualFileNameDifferentResolution)) && item.Data.ContainsKey(MetaKey.Resolution))
+                    if ((queries.HasFlag(QueryType.LowResolution) || queries.HasFlag(QueryType.EqualFileNameDifferentResolution)))
                     {
-                        //const int limit = 960 * 1280;
-                        const int resolutionLimit = 1024 * 768;
-
-                        int resolutionItem = (int)item.Data[MetaKey.Width] * (int)item.Data[MetaKey.Height];
-                        if (resolutionItem <= resolutionLimit)
-                            match |= QueryType.LowResolution;
-
-                        if (queries.HasFlag(QueryType.EqualFileNameDifferentResolution) && other.Data.ContainsKey(MetaKey.Resolution) && equalFilename)
+                        if (RequireMetaKey(item, MetaKey.Width) && RequireMetaKey(item, MetaKey.Height))
                         {
-                            int resolutionOther = (int)other.Data[MetaKey.Width] * (int)other.Data[MetaKey.Height];
-                            if (resolutionItem != resolutionOther)
-                                match |= QueryType.EqualFileNameDifferentResolution;
+                            //const int limit = 960 * 1280;
+                            const int resolutionLimit = 1024 * 768;
+
+                            int resolutionItem = (int)item.Data[MetaKey.Width] * (int)item.Data[MetaKey.Height];
+                            if (resolutionItem <= resolutionLimit)
+                                match |= QueryType.LowResolution;
+
+                            if (queries.HasFlag(QueryType.EqualFileNameDifferentResolution) && equalFilename)
+                            {
+                                if (RequireMetaKey(other, MetaKey.Width) && RequireMetaKey(other, MetaKey.Height))
+                                {
+                                    int resolutionOther = (int)other.Data[MetaKey.Width] * (int)other.Data[MetaKey.Height];
+                                    if (resolutionItem != resolutionOther)
+                                        match |= QueryType.EqualFileNameDifferentResolution;
+                                }
+                            }
                         }
                     }
 
@@ -198,6 +208,17 @@ namespace ExifOrganizer.Querier
             QuerySummary result = new QuerySummary();
             result.duplicates = duplicates;
             return result;
+        }
+
+        private bool RequireMetaKey(MetaData item, MetaKey key)
+        {
+            if (!item.Data.ContainsKey(key))
+            {
+                Trace.WriteLine($"[MediaQuerier] required meta key \"{key}\" not found in file: {item.Path}");
+                return false;
+            }
+
+            return true;
         }
 
         public async Task<IEnumerable<MetaData>> GetMetaData(string sourcePath, bool recursive, params MetaType[] types)
