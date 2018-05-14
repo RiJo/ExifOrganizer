@@ -27,7 +27,7 @@ namespace ExifOrganizer.Meta.Parsers
     {
         internal override IEnumerable<string> GetSupportedFileExtensions()
         {
-            return new string[] { ".gif", ".bmp", "wav", ".flac", ".aac", ".mpg", ".mpeg" };
+            return new string[] { ".gif", "wav", ".flac", ".aac", ".mpg", ".mpeg" };
         }
 
         internal override MetaType? GetMetaTypeByFileExtension(string extension)

@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="MetaParseException.cs" />
     <Compile Include="MetaParser.cs" />
+    <Compile Include="Parsers\BmpParser.cs" />
     <Compile Include="Parsers\DirectoryParser.cs" />
     <Compile Include="Parsers\ExifParser.cs" />
     <Compile Include="ExtensionMethods.cs" />
