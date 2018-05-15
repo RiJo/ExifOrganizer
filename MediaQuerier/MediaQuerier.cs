@@ -202,12 +202,31 @@ namespace ExifOrganizer.Querier
                 }
 
                 if (matches.Count > 0)
-                    allMatches[item.Path] = matches;
+                    allMatches[item.Path] = CleanupMatches(matches);
             }
 
             QuerySummary result = new QuerySummary();
             result.matches = allMatches;
             return result;
+        }
+
+        private IEnumerable<Tuple<string, QueryType>> CleanupMatches(IEnumerable<Tuple<string, QueryType>> matches)
+        {
+            HashSet<QueryType> matchedNoComparison = new HashSet<QueryType>();
+            foreach (var match in matches)
+            {
+                switch (match.Item2)
+                {
+                    case QueryType.LowResolution:
+                        if (matchedNoComparison.Add(match.Item2))
+                            yield return new Tuple<string, QueryType>(String.Empty, match.Item2);
+                        break;
+
+                    default:
+                        yield return match;
+                        break;
+                }
+            }
         }
 
         private bool RequireMetaKey(MetaKey key, params MetaData[] items)
