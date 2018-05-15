@@ -78,8 +78,6 @@ namespace ExifOrganizer.Meta.Parsers
 
         protected override MetaData ParseFile(Stream stream, MetaData meta)
         {
-            meta.Type = MetaType.Image;
-
             Dictionary<PNGTag, object> png = ParsePNG(meta.Path);
             if (png.ContainsKey(PNGTag.ImageWidth))
                 meta.Data[MetaKey.Width] = png[PNGTag.ImageWidth];

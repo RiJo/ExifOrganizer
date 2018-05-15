@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ExifOrganizer.Common;
 
 namespace ExifOrganizer.Meta.Parsers
 {
@@ -27,13 +28,19 @@ namespace ExifOrganizer.Meta.Parsers
 
         protected abstract MetaData ParseFile(Stream stream, MetaData meta);
 
-        private static MetaData GetBaseMetaFileData(string filename)
+        private MetaData GetBaseMetaFileData(string filename)
         {
             if (!File.Exists(filename))
                 throw new MetaParseException("File not found: {0}", filename);
 
+            string extension = Path.GetExtension(filename).ToLower();
+            MetaType? type = GetMetaTypeByFileExtension(extension);
+            if (!type.HasValue)
+                throw new MetaParseException($"Target file extension not handled by parser: {extension}");
+
             MetaData meta = new MetaData();
             meta.Path = filename;
+            meta.Type = type.Value;
             meta.Data = new Dictionary<MetaKey, object>();
             meta.Data[MetaKey.FileName] = Path.GetFileName(filename);
             meta.Data[MetaKey.OriginalName] = meta.Data[MetaKey.FileName];

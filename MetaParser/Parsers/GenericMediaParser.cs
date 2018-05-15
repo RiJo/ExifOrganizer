@@ -51,7 +51,6 @@ namespace ExifOrganizer.Meta.Parsers
 
         protected override MetaData ParseFile(Stream stream, MetaData meta)
         {
-            meta.Type = GetMetaTypeByFileExtension(Path.GetExtension(meta.Path)).Value;
             return meta;
         }
     }

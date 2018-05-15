@@ -446,7 +446,6 @@ namespace ExifOrganizer.Meta.Parsers
 
         protected override MetaData ParseFile(Stream stream, MetaData meta)
         {
-            meta.Type = MetaType.Image;
             meta.Data[MetaKey.MetaType] = "Exif"; // TODO: add version information?
 
             Dictionary<ExifId, object> exif = ParseImage(meta.Path);

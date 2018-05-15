@@ -87,8 +87,6 @@ namespace ExifOrganizer.Meta.Parsers
 
         protected override MetaData ParseFile(Stream stream, MetaData meta)
         {
-            meta.Type = GetMetaType(meta.Path);
-
             Dictionary<MP4Tag, object> mp4 = ParseMP4(meta.Path);
             if (mp4.ContainsKey(MP4Tag.FileFormat))
                 meta.Data[MetaKey.MetaType] = $"MPEG-4 Part 14 ({mp4[MP4Tag.FileFormat]})";
