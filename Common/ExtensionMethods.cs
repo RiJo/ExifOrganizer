@@ -28,6 +28,11 @@ namespace ExifOrganizer.Common
 {
     public static class ExtensionMethods
     {
+        public static string GetClassName(this object o)
+        {
+            return o.GetType().Name;
+        }
+
         public static string SuffixFileName(this FileInfo fileInfo, int index)
         {
             if (fileInfo == null)
