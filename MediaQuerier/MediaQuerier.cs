@@ -42,12 +42,12 @@ namespace ExifOrganizer.Querier
         EqualFileNameDifferentChecksumSHA256 = 0x80,
         LowResolution = 0x100,
         EqualFileNameDifferentResolution = 0x200,
-        All = 0xFF
+        All = 0xFFFF
     }
 
     public class QuerySummary
     {
-        public Dictionary<string, IEnumerable<Tuple<string, QueryType>>> duplicates;
+        public Dictionary<string, IEnumerable<Tuple<string, QueryType>>> matches;
     }
 
     public class MediaQuerier
@@ -74,7 +74,7 @@ namespace ExifOrganizer.Querier
             if (queries == QueryType.None)
                 throw new ArgumentException("No queries given.");
 
-            Dictionary<string, IEnumerable<Tuple<string, QueryType>>> duplicates = new Dictionary<string, IEnumerable<Tuple<string, QueryType>>>();
+            Dictionary<string, IEnumerable<Tuple<string, QueryType>>> allMatches = new Dictionary<string, IEnumerable<Tuple<string, QueryType>>>();
             Dictionary<string, string> md5sums = new Dictionary<string, string>();
             Dictionary<string, string> sha1sums = new Dictionary<string, string>();
             Dictionary<string, string> sha256sums = new Dictionary<string, string>();
@@ -92,7 +92,7 @@ namespace ExifOrganizer.Querier
 
                     if (queries.HasFlag(QueryType.EqualFileNameDifferentFileSize) && equalFilename)
                     {
-                        if (RequireMetaKey(item, MetaKey.Size) && RequireMetaKey(other, MetaKey.Size))
+                        if (RequireMetaKey(MetaKey.Size, item, other))
                         {
                             if (item.Data[MetaKey.Size] != other.Data[MetaKey.Size])
                                 match |= QueryType.EqualFileNameDifferentFileSize;
@@ -174,20 +174,20 @@ namespace ExifOrganizer.Querier
                             match |= QueryType.EqualFileNameDifferentChecksumSHA256;
                     }
 
-                    if ((queries.HasFlag(QueryType.LowResolution) || queries.HasFlag(QueryType.EqualFileNameDifferentResolution)))
+                    if (queries.HasFlag(QueryType.LowResolution) || queries.HasFlag(QueryType.EqualFileNameDifferentResolution))
                     {
-                        if (RequireMetaKey(item, MetaKey.Width) && RequireMetaKey(item, MetaKey.Height))
+                        if (RequireMetaKey(MetaKey.Width, item) && RequireMetaKey(MetaKey.Height, item))
                         {
                             //const int limit = 960 * 1280;
                             const int resolutionLimit = 1024 * 768;
 
                             int resolutionItem = (int)item.Data[MetaKey.Width] * (int)item.Data[MetaKey.Height];
-                            if (resolutionItem <= resolutionLimit)
+                            if (queries.HasFlag(QueryType.LowResolution) && resolutionItem <= resolutionLimit)
                                 match |= QueryType.LowResolution;
 
                             if (queries.HasFlag(QueryType.EqualFileNameDifferentResolution) && equalFilename)
                             {
-                                if (RequireMetaKey(other, MetaKey.Width) && RequireMetaKey(other, MetaKey.Height))
+                                if (RequireMetaKey(MetaKey.Width, other) && RequireMetaKey(MetaKey.Height, other))
                                 {
                                     int resolutionOther = (int)other.Data[MetaKey.Width] * (int)other.Data[MetaKey.Height];
                                     if (resolutionItem != resolutionOther)
@@ -202,23 +202,27 @@ namespace ExifOrganizer.Querier
                 }
 
                 if (matches.Count > 0)
-                    duplicates[item.Path] = matches;
+                    allMatches[item.Path] = matches;
             }
 
             QuerySummary result = new QuerySummary();
-            result.duplicates = duplicates;
+            result.matches = allMatches;
             return result;
         }
 
-        private bool RequireMetaKey(MetaData item, MetaKey key)
+        private bool RequireMetaKey(MetaKey key, params MetaData[] items)
         {
-            if (!item.Data.ContainsKey(key))
+            bool result = true;
+            foreach (MetaData item in items)
             {
-                Trace.WriteLine($"[MediaQuerier] required meta key \"{key}\" not found in file: {item.Path}");
-                return false;
+                if (!item.Data.ContainsKey(key))
+                {
+                    Trace.WriteLine($"[MediaQuerier] required meta key \"{key}\" not found in file: {item.Path}");
+                    result = false;
+                }
             }
 
-            return true;
+            return result;
         }
 
         public async Task<IEnumerable<MetaData>> GetMetaData(string sourcePath, bool recursive, params MetaType[] types)

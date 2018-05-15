@@ -72,11 +72,11 @@ namespace ExifOrganizer.UI
                 MediaQuerier querier = new MediaQuerier();
                 QuerySummary summary = querier.Query(source, recursive, QueryType.All, MetaType.Image);
                 ConsoleColor originalColor = Console.ForegroundColor;
-                foreach (var foo in summary.duplicates)
+                foreach (var match in summary.matches)
                 {
                     Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine(foo.Key);
-                    foreach (Tuple<string, QueryType> duplicate in foo.Value)
+                    Console.WriteLine(match.Key);
+                    foreach (Tuple<string, QueryType> duplicate in match.Value)
                     {
                         Console.ForegroundColor = ConsoleColor.DarkGray;
                         Console.Write(" `-- {0} [", duplicate.Item1);
@@ -87,12 +87,12 @@ namespace ExifOrganizer.UI
                     }
                 }
                 Console.ForegroundColor = originalColor;
-                if (summary.duplicates.Count == 0)
+                if (summary.matches.Count == 0)
                     Console.WriteLine("<none>");
                 else
                     Console.WriteLine("DONE");
 
-                return summary.duplicates.Count;
+                return summary.matches.Count;
             }
 
             MediaOrganizer organizer = new MediaOrganizer();
